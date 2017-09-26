@@ -360,8 +360,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $dateEnd = metadata($item, array('Item Type Metadata', 'Date End'), array('no_filter' => true));
 
         if ($dateStart == $dateEnd) {
-            // Get the name of the item type metadata set e.g. "SWHPL Item Type Metadata" so that we can
-            // index into the array of element sets. Normally this isn't necessary, but it is when filtering elements.
+            // Get the name of the item type metadata set to use as an index into the array of element sets.
+            // Normally this isn't necessary, but it is when filtering elements.
             $itemTypeName = metadata($item, 'item type name');
             $itemTypeElementSetName = $itemTypeName . ' ' . ElementSet::ITEM_TYPE_NAME;
 
@@ -658,10 +658,10 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     protected function validateItemTypeId($item)
     {
-        // Make sure the item_type_id is set to SWHPL Item Type Metadata. This was not necessary
-        // in the original Omeka implementation, but in the SWHPL implementation where we removed the
-        // Item Type selector from the Item Type Metadata tab, the type will be null when adding a new Item.
-        if (empty($item['item_type_id'])) {
+        // Make sure the item_type_id is set for a newly added item. Normally in Omeka the user chooses the type from
+        // a select list, but the Digital Archive admin interface hides that list. Use the one and only available type.
+        if (empty($item['item_type_id']))
+        {
             $itemTypes = get_db()->getTable('ItemType')->findAll();
             $defaultItemTypeId = $itemTypes[0]->id;
             $item['item_type_id'] = $defaultItemTypeId;
