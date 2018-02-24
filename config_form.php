@@ -4,16 +4,6 @@
     All fields below take a comma-separated list of element names. A space after the comma is allowed, but optional.
 </p>
 
-<div class="field">
-    <div class="two columns alpha">
-        <label for="configure_elements_display_order"><?php echo __('Display Order'); ?></label>
-    </div>
-    <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Provide a comma-separated list of element names in the order they should appear on the public Show page"); ?></p>
-        <?php echo $view->formTextarea('configure_elements_display_order', get_option('configure_elements_display_order')); ?>
-    </div>
-</div>
-
 <p>
     Any element not specified below will appear as a multi-line text box with no Add Input button and no Use HTML
     checkbox.

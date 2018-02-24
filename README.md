@@ -9,7 +9,6 @@ The AvantElements plugin adds data entry and validation features to the Omeka ad
 * Data validation for specific elements.
 * Detection of carriage returns, leading/trailing spaces, and en/em dashes where prohibited.
 * Date format validation.
-* Control of element display order and mixing of Dublin Core and non Dublin Core elements.
 * Control of field widths.
 * Auto creation of links to other items having the same element value as the displayed item.
 * Option to hide the HTML checkbox on any element.
