@@ -336,7 +336,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     private function getNextIdentifier()
     {
         $elementTable = get_db()->getTable('Element');
-        $element = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Identifier');
+        $identifierParts = ItemView::getPartsForIdentifierElement();
+        $element = $elementTable->findByElementSetNameAndElementName($identifierParts[0], $identifierParts[1]);
         $elementId = $element->id;
         $db = get_db();
         $sql = "SELECT MAX(CAST(text AS SIGNED)) AS next_element_id FROM `{$db->ElementTexts}` where element_id = $elementId";
@@ -394,7 +395,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $item = $args['record'];
         $elementTable = get_db()->getTable('Element');
 
-        $this->validateItemTypeId($item);
+        //$this->validateItemTypeId($item);
         $this->validateIdentifier($item);
         $this->validateDates($item, $elementTable);
         $this->validateLocation($item, $elementTable);
@@ -408,7 +409,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookConfig()
     {
-        set_option('configure_elements_display_order', $_POST['configure_elements_display_order']);
         set_option('configure_elements_allow_add_input', $_POST['configure_elements_allow_add_input']);
         set_option('configure_elements_allow_html', $_POST['configure_elements_allow_html']);
         set_option('configure_elements_width_70', $_POST['configure_elements_width_70']);
@@ -570,9 +570,10 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function validateAccessDB($item, $elementTable, $accessDBValue)
     {
-        $identifierElement = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Identifier');
-        $identiferValue = $_POST['Elements'][$identifierElement->id][0]['text'];
-        $id = (int)$identiferValue;
+        $identifierParts = ItemView::getPartsForIdentifierElement();
+        $identifierElement = $elementTable->findByElementSetNameAndElementName($identifierParts[0], $identifierParts[1]);
+        $identifierValue = $_POST['Elements'][$identifierElement->id][0]['text'];
+        $id = (int)$identifierValue;
 
         if ($id == 0)
             return;
@@ -650,23 +651,24 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected function validateIdentifier($item)
     {
         // Ensure that the user provided an Identifier value.
-        if (!$this->validateRequiredElement('Dublin Core', 'Identifier', $item, get_db()->getTable('Element'))) {
+        $identifierParts = ItemView::getPartsForIdentifierElement();
+        if (!$this->validateRequiredElement($identifierParts[0], $identifierParts[1], $item, get_db()->getTable('Element'))) {
             $nextElementId = $this->getNextIdentifier();
             $item->addError('Identifier', "Value was blank and has been replaced with the next available Identifier $nextElementId.");
         }
     }
 
-    protected function validateItemTypeId($item)
-    {
-        // Make sure the item_type_id is set for a newly added item. Normally in Omeka the user chooses the type from
-        // a select list, but the Digital Archive admin interface hides that list. Use the one and only available type.
-        if (empty($item['item_type_id']))
-        {
-            $itemTypes = get_db()->getTable('ItemType')->findAll();
-            $defaultItemTypeId = $itemTypes[0]->id;
-            $item['item_type_id'] = $defaultItemTypeId;
-        }
-    }
+//    protected function validateItemTypeId($item)
+//    {
+//        // Make sure the item_type_id is set for a newly added item. Normally in Omeka the user chooses the type from
+//        // a select list, but the Digital Archive admin interface hides that list. Use the one and only available type.
+//        if (empty($item['item_type_id']))
+//        {
+//            $itemTypes = get_db()->getTable('ItemType')->findAll();
+//            $defaultItemTypeId = $itemTypes[0]->id;
+//            $item['item_type_id'] = $defaultItemTypeId;
+//        }
+//    }
 
     protected function validateLocation($item, $elementTable)
     {
