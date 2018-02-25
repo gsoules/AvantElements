@@ -23,9 +23,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected $_filters = array(
         'display_elements',
         'filterBeforeDisplayAddress' => array('Display', 'Item', 'Item Type Metadata', 'Address'),
-        'filterBeforeDisplayCreator' => array('Display', 'Item', 'Dublin Core', 'Creator'),
         'filterBeforeDisplayLocation' => array('Display', 'Item', 'Item Type Metadata', 'Location'),
-        'filterBeforeDisplayPublisher' => array('Display', 'Item', 'Dublin Core', 'Publisher'),
         'filterBeforeDisplayRights' => array('Display', 'Item', 'Dublin Core', 'Rights'),
         'filterBeforeDisplaySource' => array('Display', 'Item', 'Dublin Core', 'Source'),
         'filterBeforeDisplaySubject' => array('Display', 'Item', 'Dublin Core', 'Subject'),
@@ -95,53 +93,14 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         return "<div class='element-text'><p>$secondLink<a href='$url' class='metadata-search-link' title='See other items where $elementName is \"$text\"'>$text </a></p></div>";
     }
 
-    protected function emitCreatorLink($text, $sourceItemId)
-    {
-        $text = html_entity_decode($text);
-
-        $elementId = ElementFinder::getElementIdForElementName('Title');
-        $result = ElementFinder::getFirstItemWithElementValue($elementId, $text);
-
-        if (empty($result))
-            return $text;
-
-        $targetItemId = $result['id'];
-        $targetItem = ItemView::getItemFromId($targetItemId);
-        if (empty($targetItem))
-        {
-            // The user does not have access to the target item e.g. because it's private.
-            return $text;
-        }
-
-        if ($sourceItemId == $targetItemId)
-        {
-            // This item is its own creator.
-            return $text;
-        }
-
-        $tooltip = "See item for \"$text\"";
-        $href = html_escape(url("items/show/$targetItemId"));
-        return "<a href='$href' title='$tooltip'>$text</a>";
-    }
-
     public function filterBeforeDisplayAddress($text, $args)
     {
         return $this->emitAdvancedSearchLink('Address', $text);
     }
 
-    public function filterBeforeDisplayCreator($text, $args)
-    {
-        return $this->emitCreatorLink($text, $args['record']->id);
-    }
-
     public function filterBeforeDisplayLocation($text, $args)
     {
         return $this->emitAdvancedSearchLink('Location', $text);
-    }
-
-    public function filterBeforeDisplayPublisher($text, $args)
-    {
-        return $this->emitCreatorLink($text, $args['record']->id);
     }
 
     public function filterBeforeDisplayRights($text, $args)
@@ -657,18 +616,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
             $item->addError('Identifier', "Value was blank and has been replaced with the next available Identifier $nextElementId.");
         }
     }
-
-//    protected function validateItemTypeId($item)
-//    {
-//        // Make sure the item_type_id is set for a newly added item. Normally in Omeka the user chooses the type from
-//        // a select list, but the Digital Archive admin interface hides that list. Use the one and only available type.
-//        if (empty($item['item_type_id']))
-//        {
-//            $itemTypes = get_db()->getTable('ItemType')->findAll();
-//            $defaultItemTypeId = $itemTypes[0]->id;
-//            $item['item_type_id'] = $defaultItemTypeId;
-//        }
-//    }
 
     protected function validateLocation($item, $elementTable)
     {
