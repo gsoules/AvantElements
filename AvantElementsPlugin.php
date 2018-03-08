@@ -73,7 +73,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
         $value = metadata($this->cloneItem, array($elementSetName, $elementName), array('no_filter' => true));
 
-        if ($elementName == 'Title')
+        if ($elementName == ItemView::getTitleElementName())
             $value = "CLONED: $value";
 
         if (!empty($value))
