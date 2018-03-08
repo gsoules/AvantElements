@@ -88,8 +88,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     protected function emitAdvancedSearchLink($elementName, $text, $secondLink = '')
     {
-        $elementId = ElementFinder::getElementIdForElementName($elementName);
-        $url = ElementFinder::getAdvancedSearchUrl($elementId, $text);
+        $elementId = ItemView::getElementIdForElementName($elementName);
+        $url = ItemView::getAdvancedSearchUrl($elementId, $text);
         return "<div class='element-text'><p>$secondLink<a href='$url' class='metadata-search-link' title='See other items where $elementName is \"$text\"'>$text </a></p></div>";
     }
 
@@ -509,8 +509,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected function updateElementText($elementName, $oldTitleText, $newTitleText)
     {
         /* @var $element ElementText */
-        $elementId = ElementFinder::getElementIdForElementName($elementName);
-        $elements = ElementFinder::fetchElementsByValue($elementId, $oldTitleText);
+        $elementId = ItemView::getElementIdForElementName($elementName);
+        $elements = ItemView::fetchElementsByValue($elementId, $oldTitleText);
         foreach ($elements as $element)
         {
             // Update the element.
