@@ -6,6 +6,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected $cloneItem;
     protected $cloneItemId;
     protected $cloning;
+    protected $externalLinkDefinitions = array();
     protected $titleTextsBeforeSave;
 
     protected $_hooks = array(
@@ -21,38 +22,39 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     );
 
     protected $_filters = array(
-        'display_elements',
-        'filterBeforeDisplayAddress' => array('Display', 'Item', 'Item Type Metadata', 'Address'),
-        'filterBeforeDisplayLocation' => array('Display', 'Item', 'Item Type Metadata', 'Location'),
-        'filterBeforeDisplayRights' => array('Display', 'Item', 'Dublin Core', 'Rights'),
-        'filterBeforeDisplaySource' => array('Display', 'Item', 'Dublin Core', 'Source'),
-        'filterBeforeDisplaySubject' => array('Display', 'Item', 'Dublin Core', 'Subject'),
-        'filterBeforeDisplayType' => array('Display', 'Item', 'Dublin Core', 'Type'),
-        'filterValidateDate' => array('Validate', 'Item', 'Dublin Core', 'Date'),
-        'filterValidateDateEnd' => array('Validate', 'Item', 'Item Type Metadata', 'Date End'),
-        'filterValidateDateStart' => array('Validate', 'Item', 'Item Type Metadata', 'Date Start'),
-        'filterValidateIdentifier' => array('Validate', 'Item', 'Dublin Core', 'Identifier')
+        'display_elements'
+//        'filterValidateDate' => array('Validate', 'Item', 'Dublin Core', 'Date'),
+//        'filterValidateDateEnd' => array('Validate', 'Item', 'Item Type Metadata', 'Date End'),
+//        'filterValidateDateStart' => array('Validate', 'Item', 'Item Type Metadata', 'Date Start'),
+//        'filterValidateIdentifier' => array('Validate', 'Item', 'Dublin Core', 'Identifier')
     );
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->initializeImplicitLinkFilters();
+        $this->initializeExternalLinkFilters();
+    }
+
+    public function __call($name, $arguments)
+    {
+        if (strpos($name, 'filterImplicitLink') === 0)
+        {
+            $text = $this->filterImplicitLink($arguments);
+            return $text;
+        }
+        else if (strpos($name, 'filterExternalLink') === 0)
+        {
+            $text = $this->filterExternalLink($arguments);
+            return $text;
+        }
+    }
 
     private function addError($args, $message)
     {
         $elementName = $args['element']['name'];
         $item = $args['record'];
         $item->addError($elementName, $message);
-    }
-
-    private function convertTextAreaToText(array $components, $args, $width)
-    {
-        // Change this element's textarea box to a plain text box, but first, append "[text]" to the end of
-        // the input name stem. This causes "[text]" to be added to the end of the input tag's name attribute
-        // and "-text" to be added to the end of the id attribute. By doing this, the modified input tag's name
-        // and id match the original textarea tag's name and id. If we don't do this an internal error occurs
-        // when saving the form, presumably because of name/id mismatch. This issue does not appear to documented,
-        // but the solution makes sense and seems to work.
-        $input_name_stem = $args['input_name_stem'] . "[text]";
-        $components['input'] = get_view()->formText($input_name_stem, $args['value'], array('style' => 'width: ' . $width . 'px;'));
-
-        return $components;
     }
 
     protected function cloneElementValue($elementId, $elementSetName, $elementName, $components)
@@ -86,6 +88,20 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         return $components;
     }
 
+    private function convertTextAreaToText(array $components, $args, $width)
+    {
+        // Change this element's textarea box to a plain text box, but first, append "[text]" to the end of
+        // the input name stem. This causes "[text]" to be added to the end of the input tag's name attribute
+        // and "-text" to be added to the end of the id attribute. By doing this, the modified input tag's name
+        // and id match the original textarea tag's name and id. If we don't do this an internal error occurs
+        // when saving the form, presumably because of name/id mismatch. This issue does not appear to documented,
+        // but the solution makes sense and seems to work.
+        $input_name_stem = $args['input_name_stem'] . "[text]";
+        $components['input'] = get_view()->formText($input_name_stem, $args['value'], array('style' => 'width: ' . $width . 'px;'));
+
+        return $components;
+    }
+
     protected function emitAdvancedSearchLink($elementName, $text, $secondLink = '')
     {
         $elementId = ItemView::getElementIdForElementName($elementName);
@@ -93,56 +109,28 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         return "<div class='element-text'><p>$secondLink<a href='$url' class='metadata-search-link' title='See other items where $elementName is \"$text\"'>$text </a></p></div>";
     }
 
-    public function filterBeforeDisplayAddress($text, $args)
+    protected function emitExternalLink($text, $definition)
     {
-        return $this->emitAdvancedSearchLink('Address', $text);
+        $class = $definition['class'];
+        if (empty($class))
+            $class = 'metadata-external-link';
+        $html = "<a href='$text' class='$class'";
+
+        if ($definition['open-in-new-tab'] == 'true')
+            $html .= " target='_blank'";
+
+        $linkText = $definition['link-text'];
+        if (empty($linkText))
+            $linkText = $text;
+
+        $html .= ">$linkText</a>";
+        return $html;
     }
 
-    public function filterBeforeDisplayLocation($text, $args)
+    protected function emitImplicitLink($elementId, $text)
     {
-        return $this->emitAdvancedSearchLink('Location', $text);
-    }
-
-    public function filterBeforeDisplayRights($text, $args)
-    {
-        $href = html_escape($text);
-        return "<a href='$href' target='_blank' class='metadata-rights-link'>$text</a>";
-    }
-
-    public function filterBeforeDisplaySource($text, $args)
-    {
-        return strlen($text) > 100 ? $text : $this->emitAdvancedSearchLink('Source', $text);
-    }
-
-    public function filterBeforeDisplaySubject($text, $args)
-    {
-        $exclusionList = array();
-        $exclusionList[] = 'People';
-        $exclusionList[] = 'Places';
-
-        foreach ($exclusionList as $type)
-        {
-            if ($text == $type)
-                return $text;
-        }
-
-        return $this->emitAdvancedSearchLink('Subject', $text);
-    }
-
-    public function filterBeforeDisplayType($text, $args)
-    {
-        $exclusionList = array();
-        $exclusionList[] = 'Article, Document';
-        $exclusionList[] = 'Article, Text';
-        $exclusionList[] = 'Image, Photograph';
-
-        foreach ($exclusionList as $type)
-        {
-            if ($text == $type)
-                return $text;
-        }
-
-        return $this->emitAdvancedSearchLink('Type', $text);
+        $url = ItemView::getAdvancedSearchUrl($elementId, $text);
+        return "<div class='element-text'><p><a href='$url' class='metadata-search-link' title='See other items that have this value'>$text</a></p></div>";
     }
 
     public function filterDisplayElements($elementsBySet)
@@ -205,13 +193,13 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         // lists created by the SimpleVocab plug in. To set those field widths, use the CSS in this plugin's
         // CSS file: views/admin/css/elements.css.
         $width = 0;
-        if ($this->optionListContains('configure_elements_width_70', $elementName))
+        if ($this->optionListContains('avantelements_width_70', $elementName))
             $width = 70;
-        elseif ($this->optionListContains('configure_elements_width_160', $elementName))
+        elseif ($this->optionListContains('avantelements_width_160', $elementName))
             $width = 160;
-        elseif ($this->optionListContains('configure_elements_width_250', $elementName))
+        elseif ($this->optionListContains('avantelements_width_250', $elementName))
             $width = 250;
-        elseif ($this->optionListContains('configure_elements_width_380', $elementName))
+        elseif ($this->optionListContains('avantelements_width_380', $elementName))
             $width = 380;
 
         // Change the TextArea to a Text box of the specified width. If no width is configured
@@ -222,13 +210,29 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         }
 
         // Remove the HTML checkbox except for a few elements that use it.
-        $allowHtml = $this->optionListContains('configure_elements_allow_html', $elementName);
+        $allowHtml = $this->optionListContains('avantelements_allow_html', $elementName);
         if (!$allowHtml)
         {
             $components['html_checkbox'] = false;
         }
 
         return $components;
+    }
+
+    public function filterExternalLink($arguments)
+    {
+        $text = $arguments[0];
+        $elementId = $arguments[1]['element_text']['element_id'];
+        $elementName = ItemView::getElementNameFromId($elementId);
+        $definition = $this->externalLinkDefinitions[$elementName];
+        return $this->emitExternalLink($text, $definition);
+    }
+
+    public function filterImplicitLink($arguments)
+    {
+        $text = $arguments[0];
+        $elementId = $arguments[1]['element_text']['element_id'];
+        return $this->emitImplicitLink($elementId, $text);
     }
 
     public function filterValidateDate($isValid, $args)
@@ -316,8 +320,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         // Hide the Date Start and Date End elements when they both show the same value.
         $item = get_current_record('item');
-        $dateStart = metadata($item, array('Item Type Metadata', 'Date Start'), array('no_filter' => true));
-        $dateEnd = metadata($item, array('Item Type Metadata', 'Date End'), array('no_filter' => true));
+        $dateStart = ItemView::getItemElementMetadata($item, array('Item Type Metadata', 'Date Start'));
+        $dateEnd = ItemView::getItemElementMetadata($item, array('Item Type Metadata', 'Date End'));
 
         if ($dateStart == $dateEnd) {
             // Get the name of the item type metadata set to use as an index into the array of element sets.
@@ -368,12 +372,14 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookConfig()
     {
-        set_option('configure_elements_allow_add_input', $_POST['configure_elements_allow_add_input']);
-        set_option('configure_elements_allow_html', $_POST['configure_elements_allow_html']);
-        set_option('configure_elements_width_70', $_POST['configure_elements_width_70']);
-        set_option('configure_elements_width_160', $_POST['configure_elements_width_160']);
-        set_option('configure_elements_width_250', $_POST['configure_elements_width_250']);
-        set_option('configure_elements_width_380', $_POST['configure_elements_width_380']);
+        set_option('avantelements_allow_add_input', $_POST['avantelements_allow_add_input']);
+        set_option('avantelements_allow_html', $_POST['avantelements_allow_html']);
+        set_option('avantelements_width_70', $_POST['avantelements_width_70']);
+        set_option('avantelements_width_160', $_POST['avantelements_width_160']);
+        set_option('avantelements_width_250', $_POST['avantelements_width_250']);
+        set_option('avantelements_width_380', $_POST['avantelements_width_380']);
+        set_option('avantelements_implicit_link', $_POST['avantelements_implicit_link']);
+        set_option('avantelements_external_link', $_POST['avantelements_external_link']);
     }
 
     public function hookConfigForm()
@@ -405,6 +411,54 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
             // Add callback to function filterElementInput();
             add_filter(array('ElementInput', 'Item', $element->set_name, $element->name), array($this, 'filterElementInput'));
+        }
+    }
+
+    protected function initializeImplicitLinkFilters()
+    {
+        $elementNames = explode(',', get_option('avantelements_implicit_link'));
+        $elementNames = array_map('trim', $elementNames);
+
+        foreach ($elementNames as $elementName)
+        {
+            if (empty($elementName))
+            {
+                continue;
+            }
+            $elementSetName = ItemView::getElementSetNameForElementName($elementName);
+            if (!empty($elementSetName))
+            {
+                $this->_filters['filterImplicitLink' . $elementName] = array('Display', 'Item', $elementSetName, $elementName);
+            }
+        }
+    }
+
+    protected function initializeExternalLinkFilters()
+    {
+        $linkDefinitions = explode(';', get_option('avantelements_external_link'));
+        $linkDefinitions = array_map('trim', $linkDefinitions);
+
+        foreach ($linkDefinitions as $linkDefinition)
+        {
+            if (empty($linkDefinition))
+            {
+                continue;
+            }
+
+            $parts = explode(',', $linkDefinition);
+            $parts = array_map('trim', $parts);
+            $elementName = $parts[0];
+            $openAction = isset($parts[1]) ? $parts[1] : 'true';
+
+            $this->externalLinkDefinitions[$elementName]['open-in-new-tab'] = strtolower($openAction) == 'true';
+            $this->externalLinkDefinitions[$elementName]['link-text'] = isset($parts[2]) ? $parts[2] : '';
+            $this->externalLinkDefinitions[$elementName]['class'] = isset($parts[3]) ? $parts[3] : '';
+
+            $elementSetName = ItemView::getElementSetNameForElementName($elementName);
+            if (!empty($elementSetName))
+            {
+                $this->_filters['filterExternalLink' . $elementName] = array('Display', 'Item', $elementSetName, $elementName);
+            }
         }
     }
 
@@ -461,7 +515,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     private function removeAddInputButton($elementName, $components)
     {
         // See if the user configured this plugin to allow the Add Input button for this element.
-        $allowAddInputButton = $this->optionListContains('configure_elements_allow_add_input', $elementName);
+        $allowAddInputButton = $this->optionListContains('avantelements_allow_add_input', $elementName);
 
         if (!$allowAddInputButton)
         {
