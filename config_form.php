@@ -10,9 +10,20 @@
 
 <div class="field">
     <div class="two columns alpha">
+        <label for="avantelements_display_order"><?php echo __('Display Order'); ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Provide a comma-separated list of element names in the order they should appear on the public Show page."); ?></p>
+        <?php echo $view->formTextarea('avantelements_display_order', get_option('avantelements_display_order')); ?>
+    </div>
+</div>
+
+
+<div class="field">
+    <div class="two columns alpha">
         <label for="avantelements_implicit_link"><?php echo __('Implicit Link'); ?></label>
     </div>
-    <div class="inputs five columns">
+    <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Provide a comma-separated list of elements that should display a link to other items that are implicitly related by virtue of having the same element value."); ?></p>
         <?php echo $view->formTextarea('avantelements_implicit_link', get_option('avantelements_implicit_link'), array('rows'=>'2')); ?>
     </div>
@@ -22,7 +33,7 @@
     <div class="two columns alpha">
         <label for="avantelements_external_link"><?php echo __('External Link'); ?></label>
     </div>
-    <div class="inputs five columns">
+    <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Provide a semicolon-separated list of external link definitions."); ?></p>
         <?php echo $view->formTextarea('avantelements_external_link', get_option('avantelements_external_link'), array('rows'=>'3')); ?>
     </div>
