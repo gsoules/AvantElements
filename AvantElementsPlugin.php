@@ -7,6 +7,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected $cloneItemId;
     protected $cloning;
     protected $externalLinkDefinitions = array();
+    protected $linkBuilder;
     protected $titleTextsBeforeSave;
 
     protected $_hooks = array(
@@ -22,8 +23,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     );
 
     protected $_filters = array(
-        'display_elements'
-//        'filterValidateDate' => array('Validate', 'Item', 'Dublin Core', 'Date'),
+        'display_elements',
+        'filterValidateDate' => array('Validate', 'Item', 'Dublin Core', 'Date'),
 //        'filterValidateDateEnd' => array('Validate', 'Item', 'Item Type Metadata', 'Date End'),
 //        'filterValidateDateStart' => array('Validate', 'Item', 'Item Type Metadata', 'Date Start'),
 //        'filterValidateIdentifier' => array('Validate', 'Item', 'Dublin Core', 'Identifier')
@@ -32,22 +33,19 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     public function __construct()
     {
         parent::__construct();
-        $this->initializeImplicitLinkFilters();
-        $this->initializeExternalLinkFilters();
+
+        $this->linkBuilder = new LinkBuilder($this->_filters);
     }
 
     public function __call($name, $arguments)
     {
-        if (strpos($name, 'filterImplicitLink') === 0)
+        if (strpos($name, 'filterLink') === 0)
         {
-            $text = $this->filterImplicitLink($arguments);
+            $text = $this->linkBuilder->buildLink($name, $arguments);
             return $text;
         }
-        else if (strpos($name, 'filterExternalLink') === 0)
-        {
-            $text = $this->filterExternalLink($arguments);
-            return $text;
-        }
+
+        return null;
     }
 
     private function addError($args, $message)
@@ -63,7 +61,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         {
             $this->request = Zend_Controller_Front::getInstance()->getRequest();
             $this->cloneItemId = $this->request->getParam('id');
-            $this->cloneItem = ItemView::getItemFromId($this->cloneItemId);
+            $this->cloneItem = ItemMetadata::getItemFromId($this->cloneItemId);
             $this->cloning = !empty($this->cloneItemId) && $this->request->getParam('action') == 'add';
         }
 
@@ -75,7 +73,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
         $value = metadata($this->cloneItem, array($elementSetName, $elementName), array('no_filter' => true));
 
-        if ($elementName == ItemView::getTitleElementName())
+        if ($elementName == ItemMetadata::getTitleElementName())
             $value = "CLONED: $value";
 
         if (!empty($value))
@@ -102,35 +100,18 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         return $components;
     }
 
-    protected function emitAdvancedSearchLink($elementName, $text, $secondLink = '')
+    protected static function fetchElementsByValue($elementId, $value)
     {
-        $elementId = ItemView::getElementIdForElementName($elementName);
-        $url = ItemView::getAdvancedSearchUrl($elementId, $text);
-        return "<div class='element-text'><p>$secondLink<a href='$url' class='metadata-search-link' title='See other items where $elementName is \"$text\"'>$text </a></p></div>";
-    }
-
-    protected function emitExternalLink($text, $definition)
-    {
-        $class = $definition['class'];
-        if (empty($class))
-            $class = 'metadata-external-link';
-        $html = "<a href='$text' class='$class'";
-
-        if ($definition['open-in-new-tab'] == 'true')
-            $html .= " target='_blank'";
-
-        $linkText = $definition['link-text'];
-        if (empty($linkText))
-            $linkText = $text;
-
-        $html .= ">$linkText</a>";
-        return $html;
-    }
-
-    protected function emitImplicitLink($elementId, $text)
-    {
-        $url = ItemView::getAdvancedSearchUrl($elementId, $text);
-        return "<div class='element-text'><p><a href='$url' class='metadata-search-link' title='See other items that have this value'>$text</a></p></div>";
+        if (empty($value))
+            return;
+        $db = get_db();
+        $select = $db->select()
+            ->from($db->ElementText)
+            ->where('element_id = ?', $elementId)
+            ->where('text = ?', $value)
+            ->where('record_type = ?', 'Item');
+        $results = $db->getTable('ElementText')->fetchObjects($select);
+        return $results;
     }
 
     public function filterDisplayElements($elementsBySet)
@@ -219,22 +200,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         return $components;
     }
 
-    public function filterExternalLink($arguments)
-    {
-        $text = $arguments[0];
-        $elementId = $arguments[1]['element_text']['element_id'];
-        $elementName = ItemView::getElementNameFromId($elementId);
-        $definition = $this->externalLinkDefinitions[$elementName];
-        return $this->emitExternalLink($text, $definition);
-    }
-
-    public function filterImplicitLink($arguments)
-    {
-        $text = $arguments[0];
-        $elementId = $arguments[1]['element_text']['element_id'];
-        return $this->emitImplicitLink($elementId, $text);
-    }
-
     public function filterValidateDate($isValid, $args)
     {
         list($year, $month, $day, $formatOk) = $this->parseDate($args['text']);
@@ -299,7 +264,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     private function getNextIdentifier()
     {
         $elementTable = get_db()->getTable('Element');
-        $identifierParts = ItemView::getPartsForIdentifierElement();
+        $identifierParts = ItemMetadata::getPartsForIdentifierElement();
         $element = $elementTable->findByElementSetNameAndElementName($identifierParts[0], $identifierParts[1]);
         $elementId = $element->id;
         $db = get_db();
@@ -320,8 +285,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         // Hide the Date Start and Date End elements when they both show the same value.
         $item = get_current_record('item');
-        $dateStart = ItemView::getItemElementMetadata($item, array('Item Type Metadata', 'Date Start'));
-        $dateEnd = ItemView::getItemElementMetadata($item, array('Item Type Metadata', 'Date End'));
+        $dateStart = ItemMetadata::getItemElementMetadata($item, array('Item Type Metadata', 'Date Start'));
+        $dateEnd = ItemMetadata::getItemElementMetadata($item, array('Item Type Metadata', 'Date End'));
 
         if ($dateStart == $dateEnd) {
             // Get the name of the item type metadata set to use as an index into the array of element sets.
@@ -380,6 +345,11 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         set_option('avantelements_width_380', $_POST['avantelements_width_380']);
         set_option('avantelements_implicit_link', $_POST['avantelements_implicit_link']);
         set_option('avantelements_external_link', $_POST['avantelements_external_link']);
+        set_option('avantelements_display_order', $_POST['avantelements_display_order']);
+
+        if (false)
+            throw new Omeka_Validate_Exception('error message');
+
     }
 
     public function hookConfigForm()
@@ -389,8 +359,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookDefineRoutes($args)
     {
-        $args['router']->addConfig(new Zend_Config_Ini(
-            dirname(__FILE__) . DIRECTORY_SEPARATOR . 'routes.ini', 'routes'));
+        $args['router']->addConfig(new Zend_Config_Ini(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'routes.ini', 'routes'));
     }
 
     public function hookInstall()
@@ -411,54 +380,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
             // Add callback to function filterElementInput();
             add_filter(array('ElementInput', 'Item', $element->set_name, $element->name), array($this, 'filterElementInput'));
-        }
-    }
-
-    protected function initializeImplicitLinkFilters()
-    {
-        $elementNames = explode(',', get_option('avantelements_implicit_link'));
-        $elementNames = array_map('trim', $elementNames);
-
-        foreach ($elementNames as $elementName)
-        {
-            if (empty($elementName))
-            {
-                continue;
-            }
-            $elementSetName = ItemView::getElementSetNameForElementName($elementName);
-            if (!empty($elementSetName))
-            {
-                $this->_filters['filterImplicitLink' . $elementName] = array('Display', 'Item', $elementSetName, $elementName);
-            }
-        }
-    }
-
-    protected function initializeExternalLinkFilters()
-    {
-        $linkDefinitions = explode(';', get_option('avantelements_external_link'));
-        $linkDefinitions = array_map('trim', $linkDefinitions);
-
-        foreach ($linkDefinitions as $linkDefinition)
-        {
-            if (empty($linkDefinition))
-            {
-                continue;
-            }
-
-            $parts = explode(',', $linkDefinition);
-            $parts = array_map('trim', $parts);
-            $elementName = $parts[0];
-            $openAction = isset($parts[1]) ? $parts[1] : 'true';
-
-            $this->externalLinkDefinitions[$elementName]['open-in-new-tab'] = strtolower($openAction) == 'true';
-            $this->externalLinkDefinitions[$elementName]['link-text'] = isset($parts[2]) ? $parts[2] : '';
-            $this->externalLinkDefinitions[$elementName]['class'] = isset($parts[3]) ? $parts[3] : '';
-
-            $elementSetName = ItemView::getElementSetNameForElementName($elementName);
-            if (!empty($elementSetName))
-            {
-                $this->_filters['filterExternalLink' . $elementName] = array('Display', 'Item', $elementSetName, $elementName);
-            }
         }
     }
 
@@ -563,8 +484,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected function updateElementText($elementName, $oldTitleText, $newTitleText)
     {
         /* @var $element ElementText */
-        $elementId = ItemView::getElementIdForElementName($elementName);
-        $elements = ItemView::fetchElementsByValue($elementId, $oldTitleText);
+        $elementId = ItemMetadata::getElementIdForElementName($elementName);
+        $elements = self::fetchElementsByValue($elementId, $oldTitleText);
         foreach ($elements as $element)
         {
             // Update the element.
@@ -583,7 +504,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function validateAccessDB($item, $elementTable, $accessDBValue)
     {
-        $identifierParts = ItemView::getPartsForIdentifierElement();
+        $identifierParts = ItemMetadata::getPartsForIdentifierElement();
         $identifierElement = $elementTable->findByElementSetNameAndElementName($identifierParts[0], $identifierParts[1]);
         $identifierValue = $_POST['Elements'][$identifierElement->id][0]['text'];
         $id = (int)$identifierValue;
@@ -664,7 +585,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected function validateIdentifier($item)
     {
         // Ensure that the user provided an Identifier value.
-        $identifierParts = ItemView::getPartsForIdentifierElement();
+        $identifierParts = ItemMetadata::getPartsForIdentifierElement();
         if (!$this->validateRequiredElement($identifierParts[0], $identifierParts[1], $item, get_db()->getTable('Element'))) {
             $nextElementId = $this->getNextIdentifier();
             $item->addError('Identifier', "Value was blank and has been replaced with the next available Identifier $nextElementId.");
