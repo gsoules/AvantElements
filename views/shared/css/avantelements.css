@@ -1,3 +1,17 @@
+:root {
+    --metadata-search-link-color: #0073AA;
+    --metadata-search-link-hover-color: #99C0FF;
+}
+
+a.metadata-search-link:link,
+a.metadata-search-link:visited {
+    color: var(--metadata-search-link-color);
+}
+
+a.metadata-search-link:hover {
+    color: var(--metadata-search-link-hover-color);
+}
+
 /*
 These styles override the default width of 300px that the SimpleVocab plugin uses for <select> lists.
 The element numbers correspond to the internal Omeka Ids for each element. If you want to use this CSS
