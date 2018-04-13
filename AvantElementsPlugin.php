@@ -19,8 +19,9 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         'config_form',
         'define_routes',
         'initialize',
-        'install'
-    );
+        'install',
+        'public_head'
+);
 
     protected $_filters = array(
         'display_elements',
@@ -281,12 +282,17 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         return $item->getElementTextsByRecord($titleElement);
     }
 
+    protected function head()
+    {
+        queue_css_file('avantelements');
+    }
+
     protected function hideStartEndDates($elementsBySet)
     {
         // Hide the Date Start and Date End elements when they both show the same value.
         $item = get_current_record('item');
-        $dateStart = ItemMetadata::getItemElementMetadata($item, array('Item Type Metadata', 'Date Start'));
-        $dateEnd = ItemMetadata::getItemElementMetadata($item, array('Item Type Metadata', 'Date End'));
+        $dateStart = ItemMetadata::getElementMetadata($item, array('Item Type Metadata', 'Date Start'));
+        $dateEnd = ItemMetadata::getElementMetadata($item, array('Item Type Metadata', 'Date End'));
 
         if ($dateStart == $dateEnd) {
             // Get the name of the item type metadata set to use as an index into the array of element sets.
@@ -309,7 +315,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAdminHead($args)
     {
-        queue_css_file('elements');
+        $this->head();
     }
 
     public function hookAfterSaveItem($args)
@@ -381,6 +387,11 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
             // Add callback to function filterElementInput();
             add_filter(array('ElementInput', 'Item', $element->set_name, $element->name), array($this, 'filterElementInput'));
         }
+    }
+
+    public function hookPublicHead($args)
+    {
+        $this->head();
     }
 
     protected function itemTypeIsArticle($item)
