@@ -12,6 +12,19 @@ a.metadata-search-link:hover {
     color: var(--metadata-search-link-hover-color);
 }
 
+.suggest-button {
+    margin-top: 4px;
+}
+
+.suggest-list {
+    margin-top: 2px !important;
+}
+
+.suggest-message {
+    color: #cc0000;
+    padding: 4px 0 4px 2px;
+}
+
 /*
 These styles override the default width of 300px that the SimpleVocab plugin uses for <select> lists.
 The element numbers correspond to the internal Omeka Ids for each element. If you want to use this CSS

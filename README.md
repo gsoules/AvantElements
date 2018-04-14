@@ -3,6 +3,7 @@
 The AvantElements plugin adds data entry and validation features to the Omeka admin interface. These features help ensure data integrity and make data entry easier for archivists. The plugin provides the following:
 
 * Auto creation of Identifier value when adding a new item.
+* Control of element display order and mixing of Dublin Core and non Dublin Core elements on public pages
 * Identifier validation to ensure that the Identifier is unique.
 * Bolder error messages.
 * Clone item feature.
@@ -10,7 +11,8 @@ The AvantElements plugin adds data entry and validation features to the Omeka ad
 * Detection of carriage returns, leading/trailing spaces, and en/em dashes where prohibited.
 * Date format validation.
 * Control of field widths.
-* Auto creation of links to other items having the same element value as the displayed item.
+* Auto creation of links to one or more other items having the same element value as the displayed item.
+* Auto creation of links to external web resources.
 * Option to hide the HTML checkbox on any element.
 * Option to hide the Add Input button on any element.
 * Option to make an element required.
