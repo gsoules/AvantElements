@@ -291,8 +291,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         // Hide the Date Start and Date End elements when they both show the same value.
         $item = get_current_record('item');
-        $dateStart = ItemMetadata::getElementMetadata($item, array('Item Type Metadata', 'Date Start'));
-        $dateEnd = ItemMetadata::getElementMetadata($item, array('Item Type Metadata', 'Date End'));
+        $dateStart = ItemMetadata::getElementTextFromElementName($item, array('Item Type Metadata', 'Date Start'));
+        $dateEnd = ItemMetadata::getElementTextFromElementName($item, array('Item Type Metadata', 'Date End'));
 
         if ($dateStart == $dateEnd) {
             // Get the name of the item type metadata set to use as an index into the array of element sets.
