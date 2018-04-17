@@ -1,5 +1,9 @@
 <?php $view = get_view(); ?>
 
+<div class="plugin-help">
+    <a href="https://github.com/gsoules/AvantElements#usage" target="_blank">Learn about the configuration options on this page</a>
+</div>
+
 <p>
     All fields below take a comma-separated list of element names. A space after the comma is allowed, but optional.
 </p>
