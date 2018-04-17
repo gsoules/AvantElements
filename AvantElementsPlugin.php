@@ -264,10 +264,11 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     private function getNextIdentifier()
     {
-        $elementTable = get_db()->getTable('Element');
-        $identifierParts = ItemMetadata::getPartsForIdentifierElement();
-        $element = $elementTable->findByElementSetNameAndElementName($identifierParts[0], $identifierParts[1]);
-        $elementId = $element->id;
+//        $elementTable = get_db()->getTable('Element');
+//        $identifierParts = ItemMetadata::getPartsForIdentifierElement();
+//        $element = $elementTable->findByElementSetNameAndElementName($identifierParts[0], $identifierParts[1]);
+//        $elementId = $element->id;
+        $elementId = ItemMetadata::getIdentifierElementId();
         $db = get_db();
         $sql = "SELECT MAX(CAST(text AS SIGNED)) AS next_element_id FROM `{$db->ElementTexts}` where element_id = $elementId";
         $result = $db->query($sql)->fetch();
@@ -515,9 +516,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function validateAccessDB($item, $elementTable, $accessDBValue)
     {
-        $identifierParts = ItemMetadata::getPartsForIdentifierElement();
-        $identifierElement = $elementTable->findByElementSetNameAndElementName($identifierParts[0], $identifierParts[1]);
-        $identifierValue = $_POST['Elements'][$identifierElement->id][0]['text'];
+        $identifierElementId = ItemMetadata::getIdentifierElementId();
+        $identifierValue = $_POST['Elements'][$identifierElementId][0]['text'];
         $id = (int)$identifierValue;
 
         if ($id == 0)
@@ -596,8 +596,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected function validateIdentifier($item)
     {
         // Ensure that the user provided an Identifier value.
-        $identifierParts = ItemMetadata::getPartsForIdentifierElement();
-        if (!$this->validateRequiredElement($identifierParts[0], $identifierParts[1], $item, get_db()->getTable('Element'))) {
+        //$identifierParts = ItemMetadata::getPartsForIdentifierElement();
+        if (!$this->validateRequiredElement('Dublin Core', 'Identifier', $item, get_db()->getTable('Element'))) {
             $nextElementId = $this->getNextIdentifier();
             $item->addError('Identifier', "Value was blank and has been replaced with the next available Identifier $nextElementId.");
         }
