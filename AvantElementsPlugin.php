@@ -381,7 +381,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookPublicHead($args)
     {
-        $this->head();
+        queue_css_file('avantelements');
     }
 
     protected function itemTypeIsArticle($item)
