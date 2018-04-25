@@ -7,7 +7,9 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected $cloneItemId;
     protected $cloning;
     protected $externalLinkDefinitions = array();
+    protected $htmlElements;
     protected $linkBuilder;
+    protected $multiInputElements;
     protected $titleTextsBeforeSave;
 
     protected $_hooks = array(
@@ -36,6 +38,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         parent::__construct();
 
         $this->linkBuilder = new LinkBuilder($this->_filters);
+        $this->multiInputElements = ElementsOptions::getOptionDataForAddInput();
+        $this->htmlElements = ElementsOptions::getOptionDataForHtml();
     }
 
     public function __call($name, $arguments)
@@ -134,6 +138,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         // <input> tag plus additional controls like the Add Input button and Use HTML checkbox.
 
         $elementName = $args['element']['name'];
+        $elementId = $args['element']['id'];
 
         if ($elementName == "Identifier")
         {
@@ -141,7 +146,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         }
         else
         {
-            $elementId = $args['element']['id'];
             $elementSetName = $args['element']['set_name'];
             $components = $this->cloneElementValue($elementId, $elementSetName, $elementName, $components);
         }
@@ -159,7 +163,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
             }
         }
 
-        $components = $this->removeAddInputButton($elementName, $components);
+        $components = $this->removeAddInputButton($elementId, $components);
 
         return $components;
     }
@@ -170,6 +174,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         // Omeka from emitting a Use HTML checkbox when the element is emitted on the input form.
 
         $elementName = $args['element']['name'];
+        $elementId = $args['element']['id'];
 
         // Determine the width for the element's text field. Note that we cannot override the width of <select>
         // lists created by the SimpleVocab plug in. To set those field widths, use the CSS in this plugin's
@@ -192,7 +197,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         }
 
         // Remove the HTML checkbox except for a few elements that use it.
-        $allowHtml = $this->optionListContains('avantelements_allow_html', $elementName);
+        $allowHtml = array_key_exists($elementId, $this->htmlElements);
+
         if (!$allowHtml)
         {
             $components['html_checkbox'] = false;
@@ -283,11 +289,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         return $item->getElementTextsByRecord($titleElement);
     }
 
-    protected function head()
-    {
-        queue_css_file('avantelements');
-    }
-
     protected function hideStartEndDates($elementsBySet)
     {
         // Hide the Date Start and Date End elements when they both show the same value.
@@ -316,7 +317,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAdminHead($args)
     {
-        $this->head();
+        queue_css_file('avantelements-admin');
     }
 
     public function hookAfterSaveItem($args)
@@ -344,19 +345,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookConfig()
     {
-        set_option('avantelements_allow_add_input', $_POST['avantelements_allow_add_input']);
-        set_option('avantelements_allow_html', $_POST['avantelements_allow_html']);
-        set_option('avantelements_width_70', $_POST['avantelements_width_70']);
-        set_option('avantelements_width_160', $_POST['avantelements_width_160']);
-        set_option('avantelements_width_250', $_POST['avantelements_width_250']);
-        set_option('avantelements_width_380', $_POST['avantelements_width_380']);
-        set_option('avantelements_implicit_link', $_POST['avantelements_implicit_link']);
-        set_option('avantelements_external_link', $_POST['avantelements_external_link']);
-        set_option('avantelements_display_order', $_POST['avantelements_display_order']);
-
-        if (false)
-            throw new Omeka_Validate_Exception('error message');
-
+        ElementsOptions::saveConfiguration();
     }
 
     public function hookConfigForm()
@@ -445,10 +434,9 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         return array($year, $month, $day, $formatOk);
     }
 
-    private function removeAddInputButton($elementName, $components)
+    private function removeAddInputButton($elementId, $components)
     {
-        // See if the user configured this plugin to allow the Add Input button for this element.
-        $allowAddInputButton = $this->optionListContains('avantelements_allow_add_input', $elementName);
+        $allowAddInputButton = array_key_exists($elementId, $this->multiInputElements);
 
         if (!$allowAddInputButton)
         {

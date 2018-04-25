@@ -82,15 +82,9 @@ class LinkBuilder
 
     public function initializeImplicitLinkFilters(&$filters)
     {
-        $elementNames = explode(',', get_option('avantelements_implicit_link'));
-        $elementNames = array_map('trim', $elementNames);
-
-        foreach ($elementNames as $elementName)
+        $elementsData = ElementsOptions::getOptionDataForImplicitLink();
+        foreach ($elementsData as $elementName)
         {
-            if (empty($elementName))
-            {
-                continue;
-            }
             $elementSetName = ItemMetadata::getElementSetNameForElementName($elementName);
             if (!empty($elementSetName))
             {
@@ -101,24 +95,14 @@ class LinkBuilder
 
     public function initializeExternalLinkFilters(&$filters)
     {
-        $linkDefinitions = explode(';', get_option('avantelements_external_link'));
-        $linkDefinitions = array_map('trim', $linkDefinitions);
+        $linksData = ElementsOptions::getOptionDataForExternalLink();
 
-        foreach ($linkDefinitions as $linkDefinition)
+        foreach ($linksData as $elementId => $link)
         {
-            if (empty($linkDefinition))
-            {
-                continue;
-            }
-
-            $parts = explode(',', $linkDefinition);
-            $parts = array_map('trim', $parts);
-            $elementName = $parts[0];
-            $openAction = isset($parts[1]) ? $parts[1] : 'true';
-
-            $this->externalLinkDefinitions[$elementName]['open-in-new-tab'] = strtolower($openAction) == 'true';
-            $this->externalLinkDefinitions[$elementName]['link-text'] = isset($parts[2]) ? $parts[2] : '';
-            $this->externalLinkDefinitions[$elementName]['class'] = isset($parts[3]) ? $parts[3] : '';
+            $elementName = $link['name'];
+            $this->externalLinkDefinitions[$elementName]['open-in-new-tab'] = $link['action'];
+            $this->externalLinkDefinitions[$elementName]['link-text'] = $link['text'];
+            $this->externalLinkDefinitions[$elementName]['class'] = $link['class'];
 
             $elementSetName = ItemMetadata::getElementSetNameForElementName($elementName);
             if (!empty($elementSetName))

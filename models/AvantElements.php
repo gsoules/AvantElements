@@ -1,17 +1,13 @@
 <?php
-class ElementDisplayOrder
+class AvantElements
 {
     public function orderElementsForDisplay($elementSetsForDisplay)
     {
-        // Get the display order for the configuration options.
-        $displayOrderNames = get_option('avantelements_display_order');
-        $names = explode(',', $displayOrderNames);
-
-        // Create an array of element names in the proper order.
+        $elementsData = ElementsOptions::getOptionDataForDisplayOrder();
         $displayOrder = array();
-        foreach ($names as $name)
+        foreach ($elementsData as $elementName)
         {
-            $displayOrder[trim($name)] = null;
+            $displayOrder[$elementName] = null;
         }
 
         // Copy the elements from the element sets (Dublin Core and others) into the ordered array.
