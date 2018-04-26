@@ -179,14 +179,13 @@ class ElementsOptions extends ConfigurationOptions
                 $name = $validation['name'];
                 $text .= $name . ': ';
 
-                if ($args['required'])
-                    $text .= 'required' . ', ';
-                if ($args['unique'])
-                    $text .= 'unique' . ', ';
-                if ($args['date'])
-                    $text .= 'date' . ', ';
-                if ($args['year'])
-                    $text .= 'year' . ', ';
+                foreach ($args as $argName => $arg)
+                {
+                    if ($arg == true)
+                    {
+                        $text .= $argName . ', ';
+                    }
+                }
 
                 // Remove the trailing comma.
                 $text = substr($text, 0, strlen($text) - 2);
@@ -268,7 +267,7 @@ class ElementsOptions extends ConfigurationOptions
 
             if (!isset($parts[1]))
             {
-                throw new Omeka_Validate_Exception(__('External Link (\'%s\'): At least one parameter is required', $elementName));
+                throw new Omeka_Validate_Exception(__('External Link (\'%s\'): At least one parameter is required.', $elementName));
             }
 
             $argParts = array_map('trim', explode(',', $parts[1]));
@@ -315,57 +314,35 @@ class ElementsOptions extends ConfigurationOptions
             $elementId = ItemMetadata::getElementIdForElementName($elementName);
             if ($elementId == 0)
             {
-                throw new Omeka_Validate_Exception(__('External Link: \'%s\' is not an element.', $elementName));
+                throw new Omeka_Validate_Exception(__('Validation: \'%s\' is not an element.', $elementName));
             }
 
             if (!isset($parts[1]))
             {
-                throw new Omeka_Validate_Exception(__('Validation (\'%s\'): At least one validation parameter is required', $elementName));
+                throw new Omeka_Validate_Exception(__('Validation (\'%s\'): At least one validation parameter is required.', $elementName));
             }
 
             $argParts = array_map('trim', explode(',', $parts[1]));
 
-            $argRequired = false;
-            $argUnique = false;
-            $argDate = false;
-            $argYear = false;
-            $readOnly = false;
+            $args = array(
+                'required' => false,
+                'unique' => false,
+                'date' => false,
+                'year' => false,
+                'readonly' => false
+            );
 
-            foreach ($argParts as $arg)
+            foreach ($argParts as $argName)
             {
-                switch (strtolower($arg))
+                if (array_key_exists($argName, $args))
                 {
-                    case 'required':
-                        $argRequired = true;
-                        break;
-
-                    case 'unique':
-                        $argUnique = true;
-                        break;
-
-                    case 'date':
-                        $argDate = true;
-                        break;
-
-                    case 'year':
-                        $argYear = true;
-                        break;
-
-                    case 'readonly':
-                        $readOnly = true;
-                        break;
-
-                    default:
-                        throw new Omeka_Validate_Exception(__('Validation (\'%s\'): \'%s\' is not a validation parameter', $elementName, $arg));
+                    $args[$argName] = true;
+                }
+                else
+                {
+                    throw new Omeka_Validate_Exception(__('Validation (\'%s\'): \'%s\' is not a valid parameter.', $elementName, $argName));
                 }
             }
-
-            $args = array(
-                'required' => $argRequired,
-                'unique' => $argUnique,
-                'date' => $argDate,
-                'year' => $argYear
-            );
 
             $data[$elementId] = array('args' => $args);
         }
