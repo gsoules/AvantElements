@@ -2,6 +2,7 @@
 
 class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 {
+    protected $avantElements;
     protected $cloneItem;
     protected $cloneItemId;
     protected $cloning;
@@ -27,23 +28,18 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     );
 
     protected $_filters = array(
-        'display_elements',
-        'filterValidateDate' => array('Validate', 'Item', 'Dublin Core', 'Date'),
-        'filterValidateDateEnd' => array('Validate', 'Item', 'Item Type Metadata', 'Date End'),
-        'filterValidateDateStart' => array('Validate', 'Item', 'Item Type Metadata', 'Date Start'),
-        'filterValidateIdentifier' => array('Validate', 'Item', 'Dublin Core', 'Identifier')
+        'display_elements'
     );
 
     public function __construct()
     {
         parent::__construct();
 
+        $this->avantElements = new AvantElements();
         $this->linkBuilder = new LinkBuilder($this->_filters);
         $this->multiInputElements = ElementsOptions::getOptionDataForAddInput();
         $this->htmlElements = ElementsOptions::getOptionDataForHtml();
         $this->fieldWidths = ElementsOptions::getOptionDataForWidths();
-
-     //   $_filters['filterValidateAny' . $elementName] = array('Display', 'Item', $elementSetName, $elementName);
     }
 
     public function __call($name, $arguments)
@@ -215,21 +211,11 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function filterElementValidate($isValid, $args)
     {
-        return true;
-    }
-
-    public function filterValidateDate($isValid, $args)
-    {
-        list($year, $month, $day, $formatOk) = $this->parseDate($args['text']);
-
-        if ($formatOk && checkdate($month, $day, $year))
-        {
-            return true;
-        }
-
-        $this->addError($args, 'Value must be in the form YYYY-MM-DD or YYYY-MM or YYYY');
-
-        return true;
+        $elementId = $args['element']['id'];
+        $elementName = $args['element']['name'];
+        $text = $args['text'];
+        $item = $args['record'];
+        return $this->avantElements->validateElement($item, $elementId, $elementName, $text);
     }
 
     public function filterValidateDateEnd($isValid, $args)
@@ -342,7 +328,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $item = $args['record'];
         $elementTable = get_db()->getTable('Element');
 
-        //$this->validateItemTypeId($item);
         $this->validateIdentifier($item);
         $this->validateDates($item, $elementTable);
         $this->validateLocation($item, $elementTable);
@@ -584,7 +569,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected function validateIdentifier($item)
     {
         // Ensure that the user provided an Identifier value.
-        //$identifierParts = ItemMetadata::getPartsForIdentifierElement();
         if (!$this->validateRequiredElement('Dublin Core', 'Identifier', $item, get_db()->getTable('Element'))) {
             $nextElementId = $this->getNextIdentifier();
             $item->addError('Identifier', "Value was blank and has been replaced with the next available Identifier $nextElementId.");
