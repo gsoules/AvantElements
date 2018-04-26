@@ -2,14 +2,15 @@
 
 class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 {
-    protected $request;
     protected $cloneItem;
     protected $cloneItemId;
     protected $cloning;
+    protected $fieldWidths;
     protected $externalLinkDefinitions = array();
     protected $htmlElements;
     protected $linkBuilder;
     protected $multiInputElements;
+    protected $request;
     protected $titleTextsBeforeSave;
 
     protected $_hooks = array(
@@ -23,14 +24,14 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         'initialize',
         'install',
         'public_head'
-);
+    );
 
     protected $_filters = array(
         'display_elements',
         'filterValidateDate' => array('Validate', 'Item', 'Dublin Core', 'Date'),
-//        'filterValidateDateEnd' => array('Validate', 'Item', 'Item Type Metadata', 'Date End'),
-//        'filterValidateDateStart' => array('Validate', 'Item', 'Item Type Metadata', 'Date Start'),
-//        'filterValidateIdentifier' => array('Validate', 'Item', 'Dublin Core', 'Identifier')
+        'filterValidateDateEnd' => array('Validate', 'Item', 'Item Type Metadata', 'Date End'),
+        'filterValidateDateStart' => array('Validate', 'Item', 'Item Type Metadata', 'Date Start'),
+        'filterValidateIdentifier' => array('Validate', 'Item', 'Dublin Core', 'Identifier')
     );
 
     public function __construct()
@@ -40,6 +41,9 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $this->linkBuilder = new LinkBuilder($this->_filters);
         $this->multiInputElements = ElementsOptions::getOptionDataForAddInput();
         $this->htmlElements = ElementsOptions::getOptionDataForHtml();
+        $this->fieldWidths = ElementsOptions::getOptionDataForWidths();
+
+     //   $_filters['filterValidateAny' . $elementName] = array('Display', 'Item', $elementSetName, $elementName);
     }
 
     public function __call($name, $arguments)
@@ -173,25 +177,21 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         // This filter lets us modify an element's <input> tag. It also lets us prevent
         // Omeka from emitting a Use HTML checkbox when the element is emitted on the input form.
 
-        $elementName = $args['element']['name'];
         $elementId = $args['element']['id'];
 
         // Determine the width for the element's text field. Note that we cannot override the width of <select>
-        // lists created by the SimpleVocab plug in. To set those field widths, use the CSS in this plugin's
-        // CSS file: views/admin/css/elements.css.
+        // lists created by the SimpleVocab plug in. To set those field widths, use the CSS in
+        // AvantCustom/views/shared/css/avantcustom.css.
+
         $width = 0;
-        if ($this->optionListContains('avantelements_width_70', $elementName))
-            $width = 70;
-        elseif ($this->optionListContains('avantelements_width_160', $elementName))
-            $width = 160;
-        elseif ($this->optionListContains('avantelements_width_250', $elementName))
-            $width = 250;
-        elseif ($this->optionListContains('avantelements_width_380', $elementName))
-            $width = 380;
+        if (array_key_exists($elementId, $this->fieldWidths))
+       {
+           $width = $this->fieldWidths[$elementId]['value'];
+       }
 
         // Change the TextArea to a Text box of the specified width. If no width is configured
         // for this element, it's field will remain a multi-line TextArea.
-        if ($width)
+        if ($width > 0)
         {
             $components = self::convertTextAreaToText($components, $args, $width);
         }
@@ -205,6 +205,17 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         }
 
         return $components;
+    }
+
+
+    public function filterElementSave($text, $args)
+    {
+        return $text;
+    }
+
+    public function filterElementValidate($isValid, $args)
+    {
+        return true;
     }
 
     public function filterValidateDate($isValid, $args)
@@ -365,17 +376,17 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookInitialize()
     {
-        // Add callbacks for every element even though some elements require no validation per se.
-        // The "validation" performed here also includes setting the element's field width and
-        // hiding of the "Add Input" button if the element should be limited to only one instance.
+        // Add callbacks for every element even though some elements require no filtering or validation.
         $elements = get_db()->getTable('Element')->findAll();
+
         foreach ($elements as $element)
         {
-            // Add callback to function filterElementForm();
-            add_filter(array('ElementForm', 'Item', $element->set_name, $element->name), array($this, 'filterElementForm'));
-
-            // Add callback to function filterElementInput();
-            add_filter(array('ElementInput', 'Item', $element->set_name, $element->name), array($this, 'filterElementInput'));
+            $set = $element->set_name;
+            $name = $element->name;
+            add_filter(array('ElementForm', 'Item', $set, $name), array($this, 'filterElementForm'));
+            add_filter(array('ElementInput', 'Item', $set, $name), array($this, 'filterElementInput'));
+            add_filter(array('Save', 'Item', $set, $name), array($this, 'filterElementSave'));
+            add_filter(array('Validate', 'Item', $set, $name), array($this, 'filterElementValidate'));
         }
     }
 
@@ -388,17 +399,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         $itemType = $this->getItemType($item);
         return strpos($itemType, "Article,") === 0;
-    }
-
-    private function optionListContains($optionListId, $value)
-    {
-        $options = explode(',', get_option($optionListId));
-        foreach ($options as $option)
-        {
-            if ($value == trim($option))
-                return true;
-        }
-        return false;
     }
 
     protected function parseDate($date)

@@ -10,11 +10,17 @@ $externalLinkOptionRows = max(3, count(explode(PHP_EOL, $externalLinkOption)));
 $implicitLinkOption = ElementsOptions::getOptionTextForImplicitLink();
 $implicitLinkOptionRows = max(3, count(explode(PHP_EOL, $implicitLinkOption)));
 
+$validationOption = ElementsOptions::getOptionTextForValidation();
+$validationOptionRows = max(3, count(explode(PHP_EOL, $validationOption)));
+
 $addInputOption = ElementsOptions::getOptionTextForAddInput();
 $addInputOptionRows = max(3, count(explode(PHP_EOL, $addInputOption)));
 
 $htmlOption = ElementsOptions::getOptionTextForHtml();
 $htmlOptionRows = max(3, count(explode(PHP_EOL, $htmlOption)));
+
+$widthsOption = ElementsOptions::getOptionTextForWidths();
+$widthsOptionRows = max(3, count(explode(PHP_EOL, $widthsOption)));
 
 ?>
 <style>
@@ -61,10 +67,20 @@ $htmlOptionRows = max(3, count(explode(PHP_EOL, $htmlOption)));
 
 <div class="field">
     <div class="two columns alpha">
+        <label><?php echo __('Validation'); ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Elements that must be validated."); ?></p>
+        <?php echo $view->formTextarea(ElementsOptions::OPTION_VALIDATION, $validationOption, array('rows' => $validationOptionRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
         <label><?php echo __('Allow Add Input'); ?></label>
     </div>
     <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Elements that should show the Add Input button"); ?></p>
+        <p class="explanation"><?php echo __("Elements that show the Add Input button."); ?></p>
         <?php echo $view->formTextarea(ElementsOptions::OPTION_ADD_INPUT, $addInputOption, array('rows' => $addInputOptionRows)); ?>
     </div>
 </div>
@@ -74,51 +90,17 @@ $htmlOptionRows = max(3, count(explode(PHP_EOL, $htmlOption)));
         <label><?php echo __('Allow HTML'); ?></label>
     </div>
     <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Elements that should show the Use HTML checkbox"); ?></p>
+        <p class="explanation"><?php echo __("Elements that show the Use HTML checkbox."); ?></p>
         <?php echo $view->formTextarea(ElementsOptions::OPTION_HTML, $htmlOption, array('rows' => $htmlOptionRows)); ?>
     </div>
 </div>
 
-<p>
-    An element listed in one of the Width fields will appear as single line text box. Elements displayed as dropdown lists by the SimpleVocab plugin are not affected by this configuration.
-</p>
-
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo __('Width 70'); ?></label>
+        <label><?php echo __('Widths'); ?></label>
     </div>
     <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Provide a comma-separated list of elements that should display 70 px wide"); ?></p>
-        <?php echo $view->formText('avantelements_width_70', get_option('avantelements_width_70')); ?>
-    </div>
-</div>
-
-<div class="field">
-    <div class="two columns alpha">
-        <label><?php echo __('Width 160'); ?></label>
-    </div>
-    <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Provide a comma-separated list of elements that should display 160 px wide"); ?></p>
-        <?php echo $view->formText('avantelements_width_160', get_option('avantelements_width_160')); ?>
-    </div>
-</div>
-
-<div class="field">
-    <div class="two columns alpha">
-        <label><?php echo __('Width 250'); ?></label>
-    </div>
-    <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Provide a comma-separated list of elements that should display 250 px wide"); ?></p>
-        <?php echo $view->formText('avantelements_width_250', get_option('avantelements_width_250')); ?>
-    </div>
-</div>
-
-<div class="field">
-    <div class="two columns alpha">
-        <label><?php echo __('Width 380'); ?></label>
-    </div>
-    <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Provide a comma-separated list of elements that should display 380 px wide"); ?></p>
-        <?php echo $view->formText('avantelements_width_380', get_option('avantelements_width_380')); ?>
+        <p class="explanation"><?php echo __("Element widths."); ?></p>
+        <?php echo $view->formTextarea(ElementsOptions::OPTION_WIDTHS, $widthsOption, array('rows' => $widthsOptionRows)); ?>
     </div>
 </div>

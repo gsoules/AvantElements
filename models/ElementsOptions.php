@@ -6,7 +6,8 @@ class ElementsOptions extends ConfigurationOptions
     const OPTION_EXTERNAL_LINK = 'avantelements_external_link';
     const OPTION_HTML = 'avantelements_allow_html';
     const OPTION_IMPLICIT_LINK = 'avantelements_implicit_link';
-    const OPTION_WIDTH = 'avantelements_width';
+    const OPTION_VALIDATION = 'avantelements_validation';
+    const OPTION_WIDTHS = 'avantelements_widths';
 
     public static function getOptionDataForAddInput()
     {
@@ -53,6 +54,56 @@ class ElementsOptions extends ConfigurationOptions
         return self::getOptionData(self::OPTION_IMPLICIT_LINK);
     }
 
+    public static function getOptionDataForValidation()
+    {
+        $rawData = json_decode(get_option(self::OPTION_VALIDATION), true);
+        if (empty($rawData))
+        {
+            $rawData = array();
+        }
+
+        $data = array();
+
+        foreach ($rawData as $elementId => $validationData)
+        {
+            $elementName = ItemMetadata::getElementNameFromId($elementId);
+            if (empty($elementName))
+            {
+                // This element must have been deleted since the AvantElements configuration was last saved.
+                continue;
+            }
+            $validationData['name'] = $elementName;
+            $data[$elementId] = $validationData;
+        }
+
+        return $data;
+    }
+
+    public static function getOptionDataForWidths()
+    {
+        $rawData = json_decode(get_option(self::OPTION_WIDTHS), true);
+        if (empty($rawData))
+        {
+            $rawData = array();
+        }
+
+        $data = array();
+
+        foreach ($rawData as $elementId => $widthData)
+        {
+            $elementName = ItemMetadata::getElementNameFromId($elementId);
+            if (empty($elementName))
+            {
+                // This element must have been deleted since the AvantElements configuration was last saved.
+                continue;
+            }
+            $widthData['name'] = $elementName;
+            $data[$elementId] = $widthData;
+        }
+
+        return $data;
+    }
+
     public static function getOptionTextForDisplayOrder()
     {
         return self::getOptionText(self::OPTION_DISPLAY_ORDER);
@@ -67,29 +118,33 @@ class ElementsOptions extends ConfigurationOptions
     {
         if (self::configurationErrorsDetected())
         {
-            $externalLinksOption = $_POST[self::OPTION_EXTERNAL_LINK];
+            $text = $_POST[self::OPTION_EXTERNAL_LINK];
         }
         else
         {
-            $linksData = self::getOptionDataForExternalLink();
-            $externalLinksOption = '';
+            $data = self::getOptionDataForExternalLink();
+            $text = '';
 
-            foreach ($linksData as $elementId => $link)
+            foreach ($data as $elementId => $link)
             {
-                if (!empty($externalLinksOption))
+                if (!empty($text))
                 {
-                    $externalLinksOption .= PHP_EOL;
+                    $text .= PHP_EOL;
                 }
                 $name = $link['name'];
-                $externalLinksOption .= $name;
+                $text .= $name;
                 if (!empty($link['text']))
-                    $externalLinksOption .= ': ' . $link['text'];
-                $externalLinksOption .= ', ' . $link['action'];
+                    $text .= ', ' . $link['text'];
+                $text .= ': ';
+                $text .= $link['action'] . ', ';
                 if (!empty($link['class']))
-                    $externalLinksOption .= ', ' . $link['class'];
+                    $text .= $link['class'] . ', ';
+
+                // Remove the trailing comma.
+                $text = substr($text, 0, strlen($text) - 2);
             }
         }
-        return $externalLinksOption;
+        return $text;
     }
 
     public static function getOptionTextForHtml()
@@ -102,18 +157,78 @@ class ElementsOptions extends ConfigurationOptions
         return self::getOptionText(self::OPTION_IMPLICIT_LINK);
     }
 
+    public static function getOptionTextForValidation()
+    {
+        if (self::configurationErrorsDetected())
+        {
+            $text = $_POST[self::OPTION_VALIDATION];
+        }
+        else
+        {
+            $data = self::getOptionDataForValidation();
+            $text = '';
+
+            foreach ($data as $elementId => $validation)
+            {
+                if (!empty($text))
+                {
+                    $text .= PHP_EOL;
+                }
+                $args = $validation['args'];
+
+                $name = $validation['name'];
+                $text .= $name . ': ';
+
+                if ($args['required'])
+                    $text .= 'required' . ', ';
+                if ($args['unique'])
+                    $text .= 'unique' . ', ';
+                if ($args['date'])
+                    $text .= 'date' . ', ';
+                if ($args['year'])
+                    $text .= 'year' . ', ';
+
+                // Remove the trailing comma.
+                $text = substr($text, 0, strlen($text) - 2);
+            }
+        }
+        return $text;
+    }
+
+    public static function getOptionTextForWidths()
+    {
+        if (self::configurationErrorsDetected())
+        {
+            $widthsOption = $_POST[self::OPTION_WIDTHS];
+        }
+        else
+        {
+            $widthsData = self::getOptionDataForWidths();
+            $widthsOption = '';
+
+            foreach ($widthsData as $elementId => $width)
+            {
+                if (!empty($widthsOption))
+                {
+                    $widthsOption .= PHP_EOL;
+                }
+                $name = $width['name'];
+                $widthsOption .= $name;
+                $widthsOption .= ', ' . $width['value'];
+            }
+        }
+        return $widthsOption;
+    }
+
     public static function saveConfiguration()
     {
         self::saveOptionDataForDisplayOrder();
         self::saveOptionDataForExternalLink();
         self::saveOptionDataForImplicitLink();
+        self::saveOptionDataForValidation();
         self::saveOptionDataForAddInput();
         self::saveOptionDataForHtml();
-
-        set_option('avantelements_width_70', $_POST['avantelements_width_70']);
-        set_option('avantelements_width_160', $_POST['avantelements_width_160']);
-        set_option('avantelements_width_250', $_POST['avantelements_width_250']);
-        set_option('avantelements_width_380', $_POST['avantelements_width_380']);
+        self::saveOptionDataForWidths();
     }
 
     public static function saveOptionDataForDisplayOrder()
@@ -128,40 +243,48 @@ class ElementsOptions extends ConfigurationOptions
 
     public static function saveOptionDataForExternalLink()
     {
-        $links = array();
-        $linkDefinitions = array_map('trim', explode(PHP_EOL, $_POST[self::OPTION_EXTERNAL_LINK]));
-        foreach ($linkDefinitions as $linkDefinition)
+        $data = array();
+        $definitions = array_map('trim', explode(PHP_EOL, $_POST[self::OPTION_EXTERNAL_LINK]));
+        foreach ($definitions as $definition)
         {
-            if (empty($linkDefinition))
+            if (empty($definition))
                 continue;
 
-            // Link definitions are of the form: <element-name>:<link-text>,<open-in-new-tab>,<class>
-            // The <link-text> and <class> parameters are optional.
+            // Link definitions are of the form: <element-name> [ "," <link-text>] ":" <open-in-new-tab> ["," <class>]
 
-            $parts = array_map('trim', explode(',', $linkDefinition));
+            $parts = array_map('trim', explode(':', $definition));
 
-            $nameParts = array_map('trim', explode(':', $parts[0]));
-            $name = $nameParts[0];
-            $linkText = isset($nameParts[1]) ? $nameParts[1] : '';
+            $nameParts = array_map('trim', explode(',', $parts[0]));
 
-            $openInNewTab = isset($parts[1]) ? strtolower($parts[1]) : 'true';
-            $class = isset($parts[2]) ? $parts[2] : '';
+            $elementName = $nameParts[0];
 
-            if (!($openInNewTab == 'true' || $openInNewTab == 'false'))
-            {
-                throw new Omeka_Validate_Exception(__('External Link (\'%s\'): \'%s\' is not valid for the Open action. Use \'true\' or \'false\'.', $name, $openInNewTab));
-            }
-
-            $elementId = ItemMetadata::getElementIdForElementName($name);
+            $elementId = ItemMetadata::getElementIdForElementName($elementName);
             if ($elementId == 0)
             {
-                throw new Omeka_Validate_Exception(__('External Link: \'%s\' is not an element.', $name));
+                throw new Omeka_Validate_Exception(__('External Link: \'%s\' is not an element.', $elementName));
             }
 
-            $links[$elementId] = array('text' => $linkText, 'action' => $openInNewTab, 'class' => $class);
+            $linkText = isset($nameParts[1]) ? $nameParts[1] : '';
+
+            if (!isset($parts[1]))
+            {
+                throw new Omeka_Validate_Exception(__('External Link (\'%s\'): At least one parameter is required', $elementName));
+            }
+
+            $argParts = array_map('trim', explode(',', $parts[1]));
+
+            $openInNewTab = $argParts[0];
+            if (!($openInNewTab == 'true' || $openInNewTab == 'false'))
+            {
+                throw new Omeka_Validate_Exception(__('External Link (\'%s\'): \'%s\' is not valid for the Open action. Use \'true\' or \'false\'.', $elementName, $openInNewTab));
+            }
+
+            $class = isset($argParts[1]) ? $argParts[1] : '';
+
+            $data[$elementId] = array('text' => $linkText, 'action' => $openInNewTab, 'class' => $class);
         }
 
-        set_option(self::OPTION_EXTERNAL_LINK, json_encode($links));
+        set_option(self::OPTION_EXTERNAL_LINK, json_encode($data));
     }
 
     public static function saveOptionDataForHtml()
@@ -174,4 +297,111 @@ class ElementsOptions extends ConfigurationOptions
         self::saveOptionData(self::OPTION_IMPLICIT_LINK, __('Implicit Link'));
     }
 
+    public static function saveOptionDataForValidation()
+    {
+        $data = array();
+        $definitions = array_map('trim', explode(PHP_EOL, $_POST[self::OPTION_VALIDATION]));
+        foreach ($definitions as $definition)
+        {
+            if (empty($definition))
+                continue;
+
+            // Validation definitions are of the form: <element-name> ":" <arg> {"," <arg>}
+
+            $parts = array_map('trim', explode(':', $definition));
+
+            $elementName = $parts[0];
+
+            $elementId = ItemMetadata::getElementIdForElementName($elementName);
+            if ($elementId == 0)
+            {
+                throw new Omeka_Validate_Exception(__('External Link: \'%s\' is not an element.', $elementName));
+            }
+
+            if (!isset($parts[1]))
+            {
+                throw new Omeka_Validate_Exception(__('Validation (\'%s\'): At least one validation parameter is required', $elementName));
+            }
+
+            $argParts = array_map('trim', explode(',', $parts[1]));
+
+            $argRequired = false;
+            $argUnique = false;
+            $argDate = false;
+            $argYear = false;
+            $readOnly = false;
+
+            foreach ($argParts as $arg)
+            {
+                switch (strtolower($arg))
+                {
+                    case 'required':
+                        $argRequired = true;
+                        break;
+
+                    case 'unique':
+                        $argUnique = true;
+                        break;
+
+                    case 'date':
+                        $argDate = true;
+                        break;
+
+                    case 'year':
+                        $argYear = true;
+                        break;
+
+                    case 'readonly':
+                        $readOnly = true;
+                        break;
+
+                    default:
+                        throw new Omeka_Validate_Exception(__('Validation (\'%s\'): \'%s\' is not a validation parameter', $elementName, $arg));
+                }
+            }
+
+            $args = array(
+                'required' => $argRequired,
+                'unique' => $argUnique,
+                'date' => $argDate,
+                'year' => $argYear
+            );
+
+            $data[$elementId] = array('args' => $args);
+        }
+
+        set_option(self::OPTION_VALIDATION, json_encode($data));
+    }
+
+    public static function saveOptionDataForWidths()
+    {
+        $widths = array();
+        $widthDefinitions = array_map('trim', explode(PHP_EOL, $_POST[self::OPTION_WIDTHS]));
+        foreach ($widthDefinitions as $widthDefinition)
+        {
+            if (empty($widthDefinition))
+                continue;
+
+            // Width definitions are of the form: <element-name>,<width>
+            $parts = array_map('trim', explode(',', $widthDefinition));
+
+            $name = $parts[0];
+            $width = isset($parts[1]) ? intval($parts[1]) : 0;
+
+            $elementId = ItemMetadata::getElementIdForElementName($name);
+            if ($elementId == 0)
+            {
+                throw new Omeka_Validate_Exception(__('Widths: \'%s\' is not an element.', $name));
+            }
+
+            if ($width == 0)
+            {
+                throw new Omeka_Validate_Exception(__('Widths (\'%s\'): Missing or invalid width', $name));
+            }
+
+            $widths[$elementId] = array('value' => $width);
+        }
+
+        set_option(self::OPTION_WIDTHS, json_encode($widths));
+    }
 }
