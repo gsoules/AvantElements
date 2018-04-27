@@ -1,25 +1,25 @@
 <?php
 $view = get_view();
 
-$displayOrderOption = ElementsOptions::getOptionTextForDisplayOrder();
+$displayOrderOption = ElementsConfig::getOptionTextForDisplayOrder();
 $displayOrderOptionRows = max(3, count(explode(PHP_EOL, $displayOrderOption)));
 
-$externalLinkOption = ElementsOptions::getOptionTextForEXternalLink();
+$externalLinkOption = ElementsConfig::getOptionTextForEXternalLink();
 $externalLinkOptionRows = max(3, count(explode(PHP_EOL, $externalLinkOption)));
 
-$implicitLinkOption = ElementsOptions::getOptionTextForImplicitLink();
+$implicitLinkOption = ElementsConfig::getOptionTextForImplicitLink();
 $implicitLinkOptionRows = max(3, count(explode(PHP_EOL, $implicitLinkOption)));
 
-$validationOption = ElementsOptions::getOptionTextForValidation();
+$validationOption = ElementsConfig::getOptionTextForValidation();
 $validationOptionRows = max(3, count(explode(PHP_EOL, $validationOption)));
 
-$addInputOption = ElementsOptions::getOptionTextForAddInput();
+$addInputOption = ElementsConfig::getOptionTextForAddInput();
 $addInputOptionRows = max(3, count(explode(PHP_EOL, $addInputOption)));
 
-$htmlOption = ElementsOptions::getOptionTextForHtml();
+$htmlOption = ElementsConfig::getOptionTextForHtml();
 $htmlOptionRows = max(3, count(explode(PHP_EOL, $htmlOption)));
 
-$widthsOption = ElementsOptions::getOptionTextForWidths();
+$widthsOption = ElementsConfig::getOptionTextForWidths();
 $widthsOptionRows = max(3, count(explode(PHP_EOL, $widthsOption)));
 
 ?>
@@ -39,7 +39,7 @@ $widthsOptionRows = max(3, count(explode(PHP_EOL, $widthsOption)));
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("The order to display elements on public Show pages."); ?></p>
-        <?php echo $view->formTextarea(ElementsOptions::OPTION_DISPLAY_ORDER, $displayOrderOption, array('rows' => $displayOrderOptionRows)); ?>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_DISPLAY_ORDER, $displayOrderOption, array('rows' => $displayOrderOptionRows)); ?>
     </div>
 </div>
 
@@ -49,7 +49,7 @@ $widthsOptionRows = max(3, count(explode(PHP_EOL, $widthsOption)));
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that should link to items with the the same value."); ?></p>
-        <?php echo $view->formTextarea(ElementsOptions::OPTION_IMPLICIT_LINK, $implicitLinkOption, array('rows' => $implicitLinkOptionRows)); ?>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_IMPLICIT_LINK, $implicitLinkOption, array('rows' => $implicitLinkOptionRows)); ?>
     </div>
 </div>
 
@@ -59,7 +59,7 @@ $widthsOptionRows = max(3, count(explode(PHP_EOL, $widthsOption)));
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that link to external web resources."); ?></p>
-        <?php echo $view->formTextarea(ElementsOptions::OPTION_EXTERNAL_LINK, $externalLinkOption, array('rows' => $externalLinkOptionRows)); ?>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_EXTERNAL_LINK, $externalLinkOption, array('rows' => $externalLinkOptionRows)); ?>
     </div>
 </div>
 
@@ -71,7 +71,7 @@ $widthsOptionRows = max(3, count(explode(PHP_EOL, $widthsOption)));
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that must be validated."); ?></p>
-        <?php echo $view->formTextarea(ElementsOptions::OPTION_VALIDATION, $validationOption, array('rows' => $validationOptionRows)); ?>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_VALIDATION, $validationOption, array('rows' => $validationOptionRows)); ?>
     </div>
 </div>
 
@@ -81,7 +81,7 @@ $widthsOptionRows = max(3, count(explode(PHP_EOL, $widthsOption)));
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that show the Add Input button."); ?></p>
-        <?php echo $view->formTextarea(ElementsOptions::OPTION_ADD_INPUT, $addInputOption, array('rows' => $addInputOptionRows)); ?>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_ADD_INPUT, $addInputOption, array('rows' => $addInputOptionRows)); ?>
     </div>
 </div>
 
@@ -91,7 +91,7 @@ $widthsOptionRows = max(3, count(explode(PHP_EOL, $widthsOption)));
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that show the Use HTML checkbox."); ?></p>
-        <?php echo $view->formTextarea(ElementsOptions::OPTION_HTML, $htmlOption, array('rows' => $htmlOptionRows)); ?>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_HTML, $htmlOption, array('rows' => $htmlOptionRows)); ?>
     </div>
 </div>
 
@@ -101,6 +101,6 @@ $widthsOptionRows = max(3, count(explode(PHP_EOL, $widthsOption)));
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Element widths."); ?></p>
-        <?php echo $view->formTextarea(ElementsOptions::OPTION_WIDTHS, $widthsOption, array('rows' => $widthsOptionRows)); ?>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_WIDTHS, $widthsOption, array('rows' => $widthsOptionRows)); ?>
     </div>
 </div>

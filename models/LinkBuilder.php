@@ -82,7 +82,7 @@ class LinkBuilder
 
     public function initializeImplicitLinkFilters(&$filters)
     {
-        $elementsData = ElementsOptions::getOptionDataForImplicitLink();
+        $elementsData = ElementsConfig::getOptionDataForImplicitLink();
         foreach ($elementsData as $elementName)
         {
             $elementSetName = ItemMetadata::getElementSetNameForElementName($elementName);
@@ -95,7 +95,7 @@ class LinkBuilder
 
     public function initializeExternalLinkFilters(&$filters)
     {
-        $linksData = ElementsOptions::getOptionDataForExternalLink();
+        $linksData = ElementsConfig::getOptionDataForExternalLink();
 
         foreach ($linksData as $elementId => $link)
         {

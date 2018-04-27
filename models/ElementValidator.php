@@ -5,7 +5,7 @@ class ElementValidator
 
     public function __construct()
     {
-        $this->validationOptionData = ElementsOptions::getOptionDataForValidation();
+        $this->validationOptionData = ElementsConfig::getOptionDataForValidation();
     }
 
     protected function addError(Item $item, $elementName, $message)

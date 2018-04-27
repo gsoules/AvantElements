@@ -3,7 +3,7 @@ class AvantElements
 {
     public function orderElementsForDisplay($elementSetsForDisplay)
     {
-        $elementsData = ElementsOptions::getOptionDataForDisplayOrder();
+        $elementsData = ElementsConfig::getOptionDataForDisplayOrder();
         $displayOrder = array();
         foreach ($elementsData as $elementName)
         {

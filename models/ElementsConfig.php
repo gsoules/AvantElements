@@ -1,5 +1,5 @@
 <?php
-class ElementsOptions extends ConfigurationOptions
+class ElementsConfig extends ConfigurationOptions
 {
     const OPTION_ADD_INPUT = 'avantelements_allow_add_input';
     const OPTION_DISPLAY_ORDER = 'avantelements_display_order';

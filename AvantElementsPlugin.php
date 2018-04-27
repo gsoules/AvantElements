@@ -39,9 +39,9 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $this->elementValidator = new ElementValidator();
         $this->dateValidator = new DateElementValidator();
         $this->linkBuilder = new LinkBuilder($this->_filters);
-        $this->multiInputElements = ElementsOptions::getOptionDataForAddInput();
-        $this->htmlElements = ElementsOptions::getOptionDataForHtml();
-        $this->fieldWidths = ElementsOptions::getOptionDataForWidths();
+        $this->multiInputElements = ElementsConfig::getOptionDataForAddInput();
+        $this->htmlElements = ElementsConfig::getOptionDataForHtml();
+        $this->fieldWidths = ElementsConfig::getOptionDataForWidths();
     }
 
     public function __call($name, $arguments)
@@ -307,7 +307,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookConfig()
     {
-        ElementsOptions::saveConfiguration();
+        ElementsConfig::saveConfiguration();
     }
 
     public function hookConfigForm()
