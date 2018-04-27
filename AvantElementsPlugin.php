@@ -129,7 +129,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         if (is_admin_theme())
             return $elementsBySet;
 
-        $elementsBySet = $this->dateValidator->hideStartEndDates($elementsBySet);
+        $elementsBySet = $this->dateValidator->hideStartEndYears($elementsBySet);
 
         return $elementsBySet;
     }

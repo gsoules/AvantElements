@@ -1,22 +1,27 @@
 <?php
 class DateElement
 {
-    public function hideStartEndDates($elementsBySet)
+    public function hideStartEndYears($elementsBySet)
     {
-        // Hide the Date Start and Date End elements when they both show the same value.
-        $item = get_current_record('item');
-        $dateStart = ItemMetadata::getElementTextFromElementName($item, array('Item Type Metadata', 'Date Start'));
-        $dateEnd = ItemMetadata::getElementTextFromElementName($item, array('Item Type Metadata', 'Date End'));
+        // Hide the Year Start and Year End elements when they both show the same value.
 
-        if ($dateStart == $dateEnd) {
+        $item = get_current_record('item');
+
+        $yearStartElementName = CommonConfig::getOptionTextForYearStart();
+        $yearEndElementName = CommonConfig::getOptionTextForYearEnd();
+
+        $yearStart = ItemMetadata::getElementTextFromElementName($item, array('Item Type Metadata', $yearStartElementName));
+        $yearEnd = ItemMetadata::getElementTextFromElementName($item, array('Item Type Metadata', $yearEndElementName));
+
+        if ($yearStart == $yearEnd) {
             // Get the name of the item type metadata set to use as an index into the array of element sets.
             // Normally this isn't necessary, but it is when filtering elements.
             $itemTypeName = metadata($item, 'item type name');
             $itemTypeElementSetName = $itemTypeName . ' ' . ElementSet::ITEM_TYPE_NAME;
 
-            // Remove the Date Start and Date End elements from the element set so they won't be displayed.
-            unset($elementsBySet[$itemTypeElementSetName]['Date Start']);
-            unset($elementsBySet[$itemTypeElementSetName]['Date End']);
+            // Remove the Year Start and Year End elements from the element set so they won't be displayed.
+            unset($elementsBySet[$itemTypeElementSetName][$yearStartElementName]);
+            unset($elementsBySet[$itemTypeElementSetName][$yearEndElementName]);
         }
 
         return $elementsBySet;
@@ -57,17 +62,21 @@ class DateElement
 
     public function validateDates(Item $item, Table_Element $elementTable)
     {
-        // Make sure Date Start and Date End have values if Date has a value.
+        // Make sure Year Start and Year End have values if Date has a value.
+
+        $yearStartElementName = CommonConfig::getOptionTextForYearStart();
+        $yearEndElementName = CommonConfig::getOptionTextForYearEnd();
+
         $dateElement = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Date');
-        $dateStartElement = $elementTable->findByElementSetNameAndElementName('Item Type Metadata', 'Date Start');
-        $dateEndElement = $elementTable->findByElementSetNameAndElementName('Item Type Metadata', 'Date End');
+        $yearStartElement = $elementTable->findByElementSetNameAndElementName('Item Type Metadata', $yearStartElementName);
+        $yearEndElement = $elementTable->findByElementSetNameAndElementName('Item Type Metadata', $yearEndElementName);
 
         $dateText = $_POST['Elements'][$dateElement->id][0]['text'];
-        $dateStartText = $_POST['Elements'][$dateStartElement->id][0]['text'];
-        $dateEndText = $_POST['Elements'][$dateEndElement->id][0]['text'];
+        $yearStartText = $_POST['Elements'][$yearStartElement->id][0]['text'];
+        $yearEndText = $_POST['Elements'][$yearEndElement->id][0]['text'];
 
-        // Date, Date Start, and Date End are all empty.
-        if (empty($dateText) && empty($dateStartText) && empty($dateEndText))
+        // Date, Year Start, and Year End are all empty.
+        if (empty($dateText) && empty($yearStartText) && empty($yearEndText))
         {
             return;
         }
@@ -76,19 +85,19 @@ class DateElement
         if (!empty($dateText) && !$formatOk)
             return;
 
-        list($dateStartYear, $month, $day, $formatOk) = $this->parseDate($dateStartText);
-        if (!empty($dateStartText) && !$formatOk)
+        list($dateStartYear, $month, $day, $formatOk) = $this->parseDate($yearStartText);
+        if (!empty($yearStartText) && !$formatOk)
             return;
 
-        list($dateEndYear, $month, $day, $formatOk) = $this->parseDate($dateEndText);
-        if (!empty($dateEndText) && !$formatOk)
+        list($dateEndYear, $month, $day, $formatOk) = $this->parseDate($yearEndText);
+        if (!empty($yearEndText) && !$formatOk)
             return;
 
         if (empty($dateText))
         {
             if ($dateStartYear == $dateEndYear)
             {
-                $item->addError('Dates', "When Date is empty, Date Start and Date End must each be set to a different year");
+                $item->addError('Dates', "When Date is empty, Year Start and Year End must each be set to a different year");
                 return;
             }
         }
@@ -96,7 +105,7 @@ class DateElement
         {
             if ($dateStartYear != $dateYear || $dateEndYear != $dateYear)
             {
-                $item->addError('Dates', "When Date is set, Date Start and Date End must be set to the same year as Date");
+                $item->addError('Dates', "When Date is set, Year Start and Year End must be set to the same year as Date");
                 return;
             }
         }
