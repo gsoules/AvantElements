@@ -208,16 +208,18 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function filterElementSave($text, $args)
     {
+        $elementId = $args['element']['id'];
+        $text = $this->elementValidator->postProcessElementText($elementId, $text);
         return $text;
     }
 
     public function filterElementValidate($isValid, $args)
     {
+        $item = $args['record'];
         $elementId = $args['element']['id'];
         $elementName = $args['element']['name'];
         $text = $args['text'];
-        $item = $args['record'];
-        return $this->elementValidator->validateElement($item, $elementId, $elementName, $text);
+        return $this->elementValidator->validateElementText($item, $elementId, $elementName, $text);
     }
 
     public function filterValidateIdentifier($isValid, $args)
@@ -294,13 +296,13 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $item = $args['record'];
         $elementTable = get_db()->getTable('Element');
 
-        $this->validateIdentifier($item);
+        $this->elementValidator->validateElementBeforeSave($item, $elementTable);
+
+        //$this->validateIdentifier($item);
         $this->dateValidator->validateDates($item, $elementTable);
-        $this->validateLocation($item, $elementTable);
+        //$this->validateLocation($item, $elementTable);
         $this->validateStatus($item, $elementTable);
         $this->validateTitle($item, $elementTable);
-        $this->validateCreator($item, $elementTable);
-        $this->validateRequiredFields($item, $elementTable);
 
         $this->titleTextsBeforeSave = $this->getTitleTexts($item);
     }
@@ -445,13 +447,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         }
     }
 
-    protected function validateCreator($item, $elementTable)
-    {
-        $creatorElement = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Creator');
-        $creatorValue = $_POST['Elements'][$creatorElement->id][0]['text'];
-        $this->validateRestrictedElementValue($item, 'Creator', $creatorValue);
-    }
-
     protected function validateIdentifier($item)
     {
         // Ensure that the user provided an Identifier value.
@@ -468,28 +463,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         if (!empty($_POST['Elements'][$locationElement->id][0]['text'])) {
             $this->validateRequiredElement('Item Type Metadata', 'Country', $item, $elementTable);
         }
-    }
-
-    private function validateRequiredElement($elementSetName, $elementName, $item, $elementTable)
-    {
-        $element = $elementTable->findByElementSetNameAndElementName($elementSetName, $elementName);
-
-        if (empty($_POST['Elements'][$element->id][0]['text'])) {
-            $item->addError($elementName, 'Value required');
-            return false;
-        }
-
-        return true;
-    }
-
-    protected function validateRequiredFields($item, $elementTable)
-    {
-        // Make sure that required fields have values.
-        $this->validateRequiredElement('Dublin Core', 'Title', $item, $elementTable);
-        $this->validateRequiredElement('Dublin Core', 'Type', $item, $elementTable);
-        $this->validateRequiredElement('Dublin Core', 'Subject', $item, $elementTable);
-        $this->validateRequiredElement('Dublin Core', 'Rights', $item, $elementTable);
-        $this->validateRequiredElement('Item Type Metadata', 'Status', $item, $elementTable);
     }
 
     protected function validateStatus($item, $elementTable)
@@ -510,46 +483,10 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         }
     }
 
-    protected function validateRestrictedElementValue($item, $elementName, $elementValue)
-    {
-        // Check that the element value contains none of the following:
-        // - carriage return
-        // - leading or trailing whitespace (includes tabs)
-        // - n-dash or m-dash
-
-        if ($elementValue != str_replace(array("\r", "\n"), '', $elementValue))
-        {
-            $item->addError($elementName, "Value contains a carriage return (possibly at the end)");
-            return false;
-        }
-
-        if (strlen($elementValue) > strlen(trim($elementValue)))
-        {
-            $item->addError($elementName, "Value has leading or trailing spaces");
-            return false;
-        }
-
-        $en_dash = html_entity_decode('&#x2013;', ENT_COMPAT, 'UTF-8');
-        $em_dash = html_entity_decode('&#8212;', ENT_COMPAT, 'UTF-8');
-        if ($elementValue != str_replace(array($en_dash, $em_dash), '', $elementValue))
-        {
-            $item->addError($elementName, "Value contains an en-dash or an em-dash, but only hyphen is allowed");
-            return false;
-        }
-
-        return true;
-    }
-
     protected function validateTitle($item, $elementTable)
     {
-        $titleElement = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Title');
-        $titleValue = $_POST['Elements'][$titleElement->id][0]['text'];
-
-        if (!$this->validateRestrictedElementValue($item, 'Title', $titleValue))
-        {
-            // There was an error, so don't continue validating.
-            return;
-        }
+        $titleElementId = ItemMetadata::getElementIdForElementName('Title');
+        $titleValue = $_POST['Elements'][$titleElementId][0]['text'];
 
         if (substr($titleValue, 0, 1) == "'")
         {
@@ -557,16 +494,15 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
             return;
         }
 
-        $typeElement = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Type');
-        $typeValue = $_POST['Elements'][$typeElement->id][0]['text'];
+        // Make sure that this item is not an article with the same title as another article.
+        $typeElementId = ItemMetadata::getElementIdForElementName('Type');
+        $typeValue = $_POST['Elements'][$typeElementId][0]['text'];
         $isArticle = strpos($typeValue, "Article,") === 0;
 
-        // Make sure that this item is not an article with the same title as another article.
         if ($isArticle)
         {
             // Get all items that have the same title.
-            $element = get_db()->getTable('Element')->findByElementSetNameAndElementName('Dublin Core', 'Title');
-            $duplicateItems = get_records('Item', array( 'advanced' => array( array('element_id' => $element->id, 'type' => 'is exactly', 'terms' => $titleValue ))));
+            $duplicateItems = get_records('Item', array( 'advanced' => array( array('element_id' => $titleElementId, 'type' => 'is exactly', 'terms' => $titleValue ))));
             foreach ($duplicateItems as $duplicateItem)
             {
                 if ($duplicateItem->id == $item->id)
@@ -576,7 +512,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
                 }
                 if ($this->itemTypeIsArticle($duplicateItem))
                 {
-                    $item->addError('Title', "Another article exists with the same title as this article");
+                    ElementValidator::addError('Title', "Another article exists with the same title as this article");
                     return;
                 }
             }

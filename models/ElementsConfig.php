@@ -329,9 +329,11 @@ class ElementsConfig extends CommonConfig
                 'unique' => false,
                 'date' => false,
                 'year' => false,
-                'readonly' => false
+                'restricted' => false,
+                'readonly' => false,
             );
 
+            // Determine which args are specified, and issue an error for any that are unrecognized.
             foreach ($argParts as $argName)
             {
                 if (array_key_exists($argName, $args))
@@ -341,6 +343,15 @@ class ElementsConfig extends CommonConfig
                 else
                 {
                     throw new Omeka_Validate_Exception(__('Validation (\'%s\'): \'%s\' is not a valid parameter.', $elementName, $argName));
+                }
+            }
+
+            // Remove and unspecified args so that they don't get saved.
+            foreach ($args as $key => $arg)
+            {
+                if ($arg == false)
+                {
+                    unset($args[$key]);
                 }
             }
 

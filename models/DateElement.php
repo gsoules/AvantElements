@@ -60,7 +60,7 @@ class DateElement
         return array($year, $month, $day, $formatOk);
     }
 
-    public function validateDates(Item $item, Table_Element $elementTable)
+    public function validateDates(Item $item, $elementTable)
     {
         // Make sure Year Start and Year End have values if Date has a value.
 
