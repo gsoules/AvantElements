@@ -4,7 +4,7 @@ $view = get_view();
 $displayOrderOption = ElementsConfig::getOptionTextForDisplayOrder();
 $displayOrderOptionRows = max(3, count(explode(PHP_EOL, $displayOrderOption)));
 
-$externalLinkOption = ElementsConfig::getOptionTextForEXternalLink();
+$externalLinkOption = ElementsConfig::getOptionTextForExternalLink();
 $externalLinkOptionRows = max(3, count(explode(PHP_EOL, $externalLinkOption)));
 
 $implicitLinkOption = ElementsConfig::getOptionTextForImplicitLink();
