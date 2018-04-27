@@ -1,5 +1,5 @@
 <?php
-class DateElementValidator extends ElementValidator
+class DateElement
 {
     public function hideStartEndDates($elementsBySet)
     {
@@ -55,7 +55,7 @@ class DateElementValidator extends ElementValidator
         return array($year, $month, $day, $formatOk);
     }
 
-    public function validateDates($item, $elementTable)
+    public function validateDates(Item $item, Table_Element $elementTable)
     {
         // Make sure Date Start and Date End have values if Date has a value.
         $dateElement = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Date');
@@ -111,7 +111,7 @@ class DateElementValidator extends ElementValidator
             return true;
         }
 
-        $this->addError($item, $elementName, __('Value must be in the form YYYY-MM-DD or YYYY-MM or YYYY.'));
+        ElementValidator::addError($item, $elementName, __('Value must be in the form YYYY-MM-DD or YYYY-MM or YYYY.'));
 
         return true;
     }
@@ -119,7 +119,7 @@ class DateElementValidator extends ElementValidator
     public function validateElementYear(Item $item, $elementId, $elementName, $text)
     {
         if (strlen($text) != 4 || !ctype_digit($text)) {
-            $this->addError($item, $elementName, __('Value must be a year consisting of exactly four digits with no leading or trailing spaces.'));
+            ElementValidator::addError($item, $elementName, __('Value must be a year consisting of exactly four digits with no leading or trailing spaces.'));
         }
 
         return true;

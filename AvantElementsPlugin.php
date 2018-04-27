@@ -37,7 +37,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         parent::__construct();
 
         $this->elementValidator = new ElementValidator();
-        $this->dateValidator = new DateElementValidator();
+        $this->dateValidator = new DateElement();
         $this->linkBuilder = new LinkBuilder($this->_filters);
         $this->multiInputElements = ElementsConfig::getOptionDataForAddInput();
         $this->htmlElements = ElementsConfig::getOptionDataForHtml();

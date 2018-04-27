@@ -8,7 +8,7 @@ class ElementValidator
         $this->validationOptionData = ElementsConfig::getOptionDataForValidation();
     }
 
-    protected function addError(Item $item, $elementName, $message)
+    public static function addError(Item $item, $elementName, $message)
     {
         $item->addError($elementName, $message);
     }
@@ -37,12 +37,12 @@ class ElementValidator
 //                        break;
 
                     case 'date':
-                        $validator = new DateElementValidator();
+                        $validator = new DateElement();
                         $isValid = $validator->validateElementDate($item, $elementId, $elementName, $text);
                         break;
 
                     case 'year':
-                        $validator = new DateElementValidator();
+                        $validator = new DateElement();
                         $isValid = $validator->validateElementYear($item, $elementId, $elementName, $text);
                         break;
                 }
