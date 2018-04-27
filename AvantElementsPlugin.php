@@ -2,10 +2,11 @@
 
 class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 {
-    protected $avantElements;
     protected $cloneItem;
     protected $cloneItemId;
     protected $cloning;
+    protected $dateValidator;
+    protected $elementValidator;
     protected $fieldWidths;
     protected $externalLinkDefinitions = array();
     protected $htmlElements;
@@ -35,7 +36,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         parent::__construct();
 
-        $this->avantElements = new AvantElements();
+        $this->elementValidator = new ElementValidator();
+        $this->dateValidator = new DateElementValidator();
         $this->linkBuilder = new LinkBuilder($this->_filters);
         $this->multiInputElements = ElementsOptions::getOptionDataForAddInput();
         $this->htmlElements = ElementsOptions::getOptionDataForHtml();
@@ -127,7 +129,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         if (is_admin_theme())
             return $elementsBySet;
 
-        $elementsBySet = $this->hideStartEndDates($elementsBySet);
+        $elementsBySet = $this->dateValidator->hideStartEndDates($elementsBySet);
 
         return $elementsBySet;
     }
@@ -215,22 +217,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $elementName = $args['element']['name'];
         $text = $args['text'];
         $item = $args['record'];
-        return $this->avantElements->validateElement($item, $elementId, $elementName, $text);
-    }
-
-    public function filterValidateDateEnd($isValid, $args)
-    {
-        return $this->filterValidateDateStart($isValid, $args);
-    }
-
-    public function filterValidateDateStart($isValid, $args)
-    {
-        $text = trim($args['text']);
-        if (strlen($text) != 4 || !ctype_digit($text)) {
-            $this->addError($args, 'Value must be a year consisting of exactly four digits');
-        }
-
-        return true;
+        return $this->elementValidator->validateElement($item, $elementId, $elementName, $text);
     }
 
     public function filterValidateIdentifier($isValid, $args)
@@ -286,27 +273,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         return $item->getElementTextsByRecord($titleElement);
     }
 
-    protected function hideStartEndDates($elementsBySet)
-    {
-        // Hide the Date Start and Date End elements when they both show the same value.
-        $item = get_current_record('item');
-        $dateStart = ItemMetadata::getElementTextFromElementName($item, array('Item Type Metadata', 'Date Start'));
-        $dateEnd = ItemMetadata::getElementTextFromElementName($item, array('Item Type Metadata', 'Date End'));
-
-        if ($dateStart == $dateEnd) {
-            // Get the name of the item type metadata set to use as an index into the array of element sets.
-            // Normally this isn't necessary, but it is when filtering elements.
-            $itemTypeName = metadata($item, 'item type name');
-            $itemTypeElementSetName = $itemTypeName . ' ' . ElementSet::ITEM_TYPE_NAME;
-
-            // Remove the Date Start and Date End elements from the element set so they won't be displayed.
-            unset($elementsBySet[$itemTypeElementSetName]['Date Start']);
-            unset($elementsBySet[$itemTypeElementSetName]['Date End']);
-        }
-
-        return $elementsBySet;
-    }
-
     public function hookAdminFooter($args)
     {
         echo get_view()->partial('/suggest-script.php');
@@ -329,7 +295,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $elementTable = get_db()->getTable('Element');
 
         $this->validateIdentifier($item);
-        $this->validateDates($item, $elementTable);
+        $this->dateValidator->validateDates($item, $elementTable);
         $this->validateLocation($item, $elementTable);
         $this->validateStatus($item, $elementTable);
         $this->validateTitle($item, $elementTable);
@@ -384,39 +350,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         $itemType = $this->getItemType($item);
         return strpos($itemType, "Article,") === 0;
-    }
-
-    protected function parseDate($date)
-    {
-        $date = strtok($date, " ");
-
-        $matches = '';
-        $year = "0000";
-        $month = "01";
-        $day = "01";
-
-        $formatOk = true;
-
-        if (preg_match("/^(\d{4})-(\d{2})-(\d{2})$/", $date, $matches))
-        {
-            $year = $matches[1];
-            $month = $matches[2];
-            $day = $matches[3];
-        }
-        elseif (preg_match("/^(\d{4})-(\d{2})$/", $date, $matches))
-        {
-            $year = $matches[1];
-            $month = $matches[2];
-        }
-        elseif (preg_match("/^(\d{4})$/", $date, $matches))
-        {
-            $year = $matches[1];
-        }
-        else
-        {
-            $formatOk = false;
-        }
-        return array($year, $month, $day, $formatOk);
     }
 
     private function removeAddInputButton($elementId, $components)
@@ -517,53 +450,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $creatorElement = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Creator');
         $creatorValue = $_POST['Elements'][$creatorElement->id][0]['text'];
         $this->validateRestrictedElementValue($item, 'Creator', $creatorValue);
-    }
-
-    protected function validateDates($item, $elementTable)
-    {
-        // Make sure Date Start and Date End have values if Date has a value.
-        $dateElement = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Date');
-        $dateStartElement = $elementTable->findByElementSetNameAndElementName('Item Type Metadata', 'Date Start');
-        $dateEndElement = $elementTable->findByElementSetNameAndElementName('Item Type Metadata', 'Date End');
-
-        $dateText = $_POST['Elements'][$dateElement->id][0]['text'];
-        $dateStartText = $_POST['Elements'][$dateStartElement->id][0]['text'];
-        $dateEndText = $_POST['Elements'][$dateEndElement->id][0]['text'];
-
-        // Date, Date Start, and Date End are all empty.
-        if (empty($dateText) && empty($dateStartText) && empty($dateEndText))
-        {
-            return;
-        }
-
-        list($dateYear, $month, $day, $formatOk) = $this->parseDate($dateText);
-        if (!empty($dateText) && !$formatOk)
-            return;
-
-        list($dateStartYear, $month, $day, $formatOk) = $this->parseDate($dateStartText);
-        if (!empty($dateStartText) && !$formatOk)
-            return;
-
-        list($dateEndYear, $month, $day, $formatOk) = $this->parseDate($dateEndText);
-        if (!empty($dateEndText) && !$formatOk)
-            return;
-
-        if (empty($dateText))
-        {
-            if ($dateStartYear == $dateEndYear)
-            {
-                $item->addError('Dates', "When Date is empty, Date Start and Date End must each be set to a different year");
-                return;
-            }
-        }
-        else
-        {
-            if ($dateStartYear != $dateYear || $dateEndYear != $dateYear)
-            {
-                $item->addError('Dates', "When Date is set, Date Start and Date End must be set to the same year as Date");
-                return;
-            }
-        }
     }
 
     protected function validateIdentifier($item)

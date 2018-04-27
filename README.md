@@ -9,7 +9,7 @@ The AvantElements plugin adds data entry and validation features to the Omeka ad
 * Clone item feature.
 * Data validation for specific elements.
 * Detection of carriage returns, leading/trailing spaces, and en/em dashes where prohibited.
-* Date format validation.
+* Validation for Date, Date Start, Date End. Hide start/end when same.
 * Control of field widths.
 * Auto creation of links to one or more other items having the same element value as the displayed item.
 * Auto creation of links to external web resources.
