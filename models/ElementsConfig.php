@@ -2,12 +2,13 @@
 class ElementsConfig extends CommonConfig
 {
     const OPTION_ADD_INPUT = 'avantelements_allow_add_input';
+    const OPTION_CALLBACK = 'avantelements_callback';
     const OPTION_DISPLAY_ORDER = 'avantelements_display_order';
     const OPTION_EXTERNAL_LINK = 'avantelements_external_link';
     const OPTION_HTML = 'avantelements_allow_html';
     const OPTION_IMPLICIT_LINK = 'avantelements_implicit_link';
+    const OPTION_TEXT_FIELD = 'avantelements_text_field';
     const OPTION_VALIDATION = 'avantelements_validation';
-    const OPTION_WIDTHS = 'avantelements_widths';
 
     public static function getOptionDataForAddInput()
     {
@@ -17,6 +18,39 @@ class ElementsConfig extends CommonConfig
     public static function getOptionDataForDisplayOrder()
     {
         return self::getOptionData(self::OPTION_DISPLAY_ORDER);
+    }
+
+    public static function getOptionDataForCallback()
+    {
+        $rawData = json_decode(get_option(self::OPTION_CALLBACK), true);
+        if (empty($rawData))
+        {
+            $rawData = array();
+        }
+
+        $data = array();
+
+        foreach ($rawData as $elementId => $callbackDefinition)
+        {
+            if ($elementId == 0)
+            {
+                $elementName = '<item>';
+            }
+            else
+            {
+                $elementName = ItemMetadata::getElementNameFromId($elementId);
+                if (empty($elementName))
+                {
+                    // This element must have been deleted since the AvantElements configuration was last saved.
+                    continue;
+                }
+            }
+
+            $data[$elementId]['name'] = $elementName;
+            $data[$elementId]['callbacks'] = $callbackDefinition;
+        }
+
+        return $data;
     }
 
     public static function getOptionDataForExternalLink()
@@ -54,6 +88,31 @@ class ElementsConfig extends CommonConfig
         return self::getOptionData(self::OPTION_IMPLICIT_LINK);
     }
 
+    public static function getOptionDataForTextField()
+    {
+        $rawData = json_decode(get_option(self::OPTION_TEXT_FIELD), true);
+        if (empty($rawData))
+        {
+            $rawData = array();
+        }
+
+        $data = array();
+
+        foreach ($rawData as $elementId => $textFieldData)
+        {
+            $elementName = ItemMetadata::getElementNameFromId($elementId);
+            if (empty($elementName))
+            {
+                // This element must have been deleted since the AvantElements configuration was last saved.
+                continue;
+            }
+            $textFieldData['name'] = $elementName;
+            $data[$elementId] = $textFieldData;
+        }
+
+        return $data;
+    }
+
     public static function getOptionDataForValidation()
     {
         $rawData = json_decode(get_option(self::OPTION_VALIDATION), true);
@@ -79,39 +138,45 @@ class ElementsConfig extends CommonConfig
         return $data;
     }
 
-    public static function getOptionDataForWidths()
+    public static function getOptionTextForAddInput()
     {
-        $rawData = json_decode(get_option(self::OPTION_WIDTHS), true);
-        if (empty($rawData))
+        return self::getOptionText(self::OPTION_ADD_INPUT);
+    }
+
+    public static function getOptionTextForCallback()
+    {
+        if (self::configurationErrorsDetected())
         {
-            $rawData = array();
+            $text = $_POST[self::OPTION_CALLBACK];
         }
-
-        $data = array();
-
-        foreach ($rawData as $elementId => $widthData)
+        else
         {
-            $elementName = ItemMetadata::getElementNameFromId($elementId);
-            if (empty($elementName))
+            $data = self::getOptionDataForCallback();
+            $text = '';
+
+            foreach ($data as $elementId => $callbackDefinition)
             {
-                // This element must have been deleted since the AvantElements configuration was last saved.
-                continue;
-            }
-            $widthData['name'] = $elementName;
-            $data[$elementId] = $widthData;
-        }
+                $elementName = $callbackDefinition['name'];
 
-        return $data;
+                foreach ($callbackDefinition['callbacks'] as $callback)
+                {
+                    $callbackType = $callback['type'];
+                    $className = $callback['class'];
+                    $functionName = $callback['function'];
+                    if (!empty($text))
+                    {
+                        $text .= PHP_EOL;
+                    }
+                    $text .= "$elementName, $callbackType: $className, $functionName";
+                }
+            }
+        }
+        return $text;
     }
 
     public static function getOptionTextForDisplayOrder()
     {
         return self::getOptionText(self::OPTION_DISPLAY_ORDER);
-    }
-
-    public static function getOptionTextForAddInput()
-    {
-        return self::getOptionText(self::OPTION_ADD_INPUT);
     }
 
     public static function getOptionTextForExternalLink()
@@ -157,6 +222,35 @@ class ElementsConfig extends CommonConfig
         return self::getOptionText(self::OPTION_IMPLICIT_LINK);
     }
 
+    public static function getOptionTextForTextField()
+    {
+        if (self::configurationErrorsDetected())
+        {
+            $text = $_POST[self::OPTION_TEXT_FIELD];
+        }
+        else
+        {
+            $data = self::getOptionDataForTextField();
+            $text = '';
+
+            foreach ($data as $elementId => $textField)
+            {
+                if (!empty($text))
+                {
+                    $text .= PHP_EOL;
+                }
+                $name = $textField['name'];
+                $text .= $name;
+                $width = $textField['width'];
+                if ($width > 0)
+                {
+                    $text .= ': ' . $width;
+                }
+            }
+        }
+        return $text;
+    }
+
     public static function getOptionTextForValidation()
     {
         if (self::configurationErrorsDetected())
@@ -194,31 +288,6 @@ class ElementsConfig extends CommonConfig
         return $text;
     }
 
-    public static function getOptionTextForWidths()
-    {
-        if (self::configurationErrorsDetected())
-        {
-            $widthsOption = $_POST[self::OPTION_WIDTHS];
-        }
-        else
-        {
-            $widthsData = self::getOptionDataForWidths();
-            $widthsOption = '';
-
-            foreach ($widthsData as $elementId => $width)
-            {
-                if (!empty($widthsOption))
-                {
-                    $widthsOption .= PHP_EOL;
-                }
-                $name = $width['name'];
-                $widthsOption .= $name;
-                $widthsOption .= ', ' . $width['value'];
-            }
-        }
-        return $widthsOption;
-    }
-
     public static function saveConfiguration()
     {
         self::saveOptionDataForDisplayOrder();
@@ -227,7 +296,8 @@ class ElementsConfig extends CommonConfig
         self::saveOptionDataForValidation();
         self::saveOptionDataForAddInput();
         self::saveOptionDataForHtml();
-        self::saveOptionDataForWidths();
+        self::saveOptionDataForTextField();
+        self::saveOptionDataForCallback();
     }
 
     public static function saveOptionDataForDisplayOrder()
@@ -238,6 +308,76 @@ class ElementsConfig extends CommonConfig
     public static function saveOptionDataForAddInput()
     {
         self::saveOptionData(self::OPTION_ADD_INPUT, __('Allow Add Input'));
+    }
+
+    public static function saveOptionDataForCallback()
+    {
+        $data = array();
+        $definitions = array_map('trim', explode(PHP_EOL, $_POST[self::OPTION_CALLBACK]));
+        foreach ($definitions as $definition)
+        {
+            if (empty($definition))
+                continue;
+
+            // Callback definitions are of the form: <element-name> "," <callback-type> ":" <function-name>
+            $parts = array_map('trim', explode(':', $definition));
+
+            $nameParts = array_map('trim', explode(',', $parts[0]));
+
+            $elementName = $nameParts[0];
+
+            $isItemCallback = $elementName == '<item>';
+
+            if ($isItemCallback)
+            {
+                $elementId = 0;
+            }
+            else
+            {
+                $elementId = ItemMetadata::getElementIdForElementName($elementName);
+                if ($elementId == 0)
+                {
+                    throw new Omeka_Validate_Exception(__('Callback: \'%s\' is not an element.', $elementName));
+                }
+            }
+
+            $callbackType = isset($nameParts[1]) ? $nameParts[1] : '';
+            $types = $isItemCallback ? array ('validate') : array('filter', 'validate', 'default');
+
+            if (empty($callbackType) || !in_array($callbackType, $types))
+            {
+                throw new Omeka_Validate_Exception(__('Callback (%s): Missing or invalid callback type.', $elementName));
+            }
+
+            if (!isset($parts[1]))
+            {
+                throw new Omeka_Validate_Exception(__('Callback Filter (%s): No callback function specified.', $elementName));
+            }
+
+            $functionParts = array_map('trim', explode(',', $parts[1]));
+            $className = $functionParts[0];
+
+            if (empty($className))
+            {
+                throw new Omeka_Validate_Exception(__('Callback Filter (%s): No callback class specified.', $elementName));
+            }
+
+            $functionName = isset($functionParts[1]) ? $functionParts[1] : '';
+            if (empty($functionName))
+            {
+                throw new Omeka_Validate_Exception(__('Callback Filter (%s): No callback function specified.', $elementName));
+            }
+
+            $function = "$className::$functionName";
+            if (!is_callable($function))
+            {
+                throw new Omeka_Validate_Exception(__('Callback Filter (%s, %s): Function \'%s\' not found or is not public.', $elementName, $callbackType, $functionName));
+            }
+
+            $data[$elementId][] = array('type' => $callbackType, 'class' => $className, 'function' => $functionName);
+        }
+
+        set_option(self::OPTION_CALLBACK, json_encode($data));
     }
 
     public static function saveOptionDataForExternalLink()
@@ -267,7 +407,7 @@ class ElementsConfig extends CommonConfig
 
             if (!isset($parts[1]))
             {
-                throw new Omeka_Validate_Exception(__('External Link (\'%s\'): At least one parameter is required.', $elementName));
+                throw new Omeka_Validate_Exception(__('External Link (%s): At least one parameter is required.', $elementName));
             }
 
             $argParts = array_map('trim', explode(',', $parts[1]));
@@ -275,7 +415,7 @@ class ElementsConfig extends CommonConfig
             $openInNewTab = $argParts[0];
             if (!($openInNewTab == 'true' || $openInNewTab == 'false'))
             {
-                throw new Omeka_Validate_Exception(__('External Link (\'%s\'): \'%s\' is not valid for the Open action. Use \'true\' or \'false\'.', $elementName, $openInNewTab));
+                throw new Omeka_Validate_Exception(__('External Link (%s): \'%s\' is not valid for the Open action. Use \'true\' or \'false\'.', $elementName, $openInNewTab));
             }
 
             $class = isset($argParts[1]) ? $argParts[1] : '';
@@ -294,6 +434,33 @@ class ElementsConfig extends CommonConfig
     public static function saveOptionDataForImplicitLink()
     {
         self::saveOptionData(self::OPTION_IMPLICIT_LINK, __('Implicit Link'));
+    }
+
+    public static function saveOptionDataForTextField()
+    {
+        $data = array();
+        $definitions = array_map('trim', explode(PHP_EOL, $_POST[self::OPTION_TEXT_FIELD]));
+        foreach ($definitions as $definition)
+        {
+            if (empty($definition))
+                continue;
+
+            // Text Field definitions are of the form: <element-name> ":" <width>
+            $parts = array_map('trim', explode(':', $definition));
+
+            $name = $parts[0];
+            $width = isset($parts[1]) ? intval($parts[1]) : 0;
+
+            $elementId = ItemMetadata::getElementIdForElementName($name);
+            if ($elementId == 0)
+            {
+                throw new Omeka_Validate_Exception(__('Text Field: \'%s\' is not an element.', $name));
+            }
+
+            $data[$elementId] = array('width' => $width);
+        }
+
+        set_option(self::OPTION_TEXT_FIELD, json_encode($data));
     }
 
     public static function saveOptionDataForValidation()
@@ -319,7 +486,7 @@ class ElementsConfig extends CommonConfig
 
             if (!isset($parts[1]))
             {
-                throw new Omeka_Validate_Exception(__('Validation (\'%s\'): At least one validation parameter is required.', $elementName));
+                throw new Omeka_Validate_Exception(__('Validation (%s): At least one validation parameter is required.', $elementName));
             }
 
             $argParts = array_map('trim', explode(',', $parts[1]));
@@ -342,7 +509,7 @@ class ElementsConfig extends CommonConfig
                 }
                 else
                 {
-                    throw new Omeka_Validate_Exception(__('Validation (\'%s\'): \'%s\' is not a valid parameter.', $elementName, $argName));
+                    throw new Omeka_Validate_Exception(__('Validation (%s): \'%s\' is not a valid parameter.', $elementName, $argName));
                 }
             }
 
@@ -359,37 +526,5 @@ class ElementsConfig extends CommonConfig
         }
 
         set_option(self::OPTION_VALIDATION, json_encode($data));
-    }
-
-    public static function saveOptionDataForWidths()
-    {
-        $widths = array();
-        $widthDefinitions = array_map('trim', explode(PHP_EOL, $_POST[self::OPTION_WIDTHS]));
-        foreach ($widthDefinitions as $widthDefinition)
-        {
-            if (empty($widthDefinition))
-                continue;
-
-            // Width definitions are of the form: <element-name>,<width>
-            $parts = array_map('trim', explode(',', $widthDefinition));
-
-            $name = $parts[0];
-            $width = isset($parts[1]) ? intval($parts[1]) : 0;
-
-            $elementId = ItemMetadata::getElementIdForElementName($name);
-            if ($elementId == 0)
-            {
-                throw new Omeka_Validate_Exception(__('Widths: \'%s\' is not an element.', $name));
-            }
-
-            if ($width == 0)
-            {
-                throw new Omeka_Validate_Exception(__('Widths (\'%s\'): Missing or invalid width', $name));
-            }
-
-            $widths[$elementId] = array('value' => $width);
-        }
-
-        set_option(self::OPTION_WIDTHS, json_encode($widths));
     }
 }

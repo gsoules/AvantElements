@@ -19,8 +19,11 @@ $addInputOptionRows = max(3, count(explode(PHP_EOL, $addInputOption)));
 $htmlOption = ElementsConfig::getOptionTextForHtml();
 $htmlOptionRows = max(3, count(explode(PHP_EOL, $htmlOption)));
 
-$widthsOption = ElementsConfig::getOptionTextForWidths();
-$widthsOptionRows = max(3, count(explode(PHP_EOL, $widthsOption)));
+$textField = ElementsConfig::getOptionTextForTextField();
+$textFieldRows = max(3, count(explode(PHP_EOL, $textField)));
+
+$customFilterOption = ElementsConfig::getOptionTextForCallback();
+$customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
 
 ?>
 <style>
@@ -77,6 +80,16 @@ $widthsOptionRows = max(3, count(explode(PHP_EOL, $widthsOption)));
 
 <div class="field">
     <div class="two columns alpha">
+        <label><?php echo __('Callback Function'); ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Callback functions to be called for individual elements."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_CALLBACK, $customFilterOption, array('rows' => $customFilterOptionRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
         <label><?php echo __('Allow Add Input'); ?></label>
     </div>
     <div class="inputs five columns omega">
@@ -97,10 +110,10 @@ $widthsOptionRows = max(3, count(explode(PHP_EOL, $widthsOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo __('Widths'); ?></label>
+        <label><?php echo __('Text Field'); ?></label>
     </div>
     <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Element widths."); ?></p>
-        <?php echo $view->formTextarea(ElementsConfig::OPTION_WIDTHS, $widthsOption, array('rows' => $widthsOptionRows)); ?>
+        <p class="explanation"><?php echo __("Elements that should display as a text field."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_TEXT_FIELD, $textField, array('rows' => $textFieldRows)); ?>
     </div>
 </div>

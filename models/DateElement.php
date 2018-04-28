@@ -120,7 +120,7 @@ class DateElement
             return true;
         }
 
-        ElementValidator::addError($item, $elementName, __('Value must be in the form YYYY-MM-DD or YYYY-MM or YYYY.'));
+        ItemValidator::addError($item, $elementName, __('Value must be in the form YYYY-MM-DD or YYYY-MM or YYYY.'));
 
         return true;
     }
@@ -128,7 +128,7 @@ class DateElement
     public function validateElementYear(Item $item, $elementId, $elementName, $text)
     {
         if (strlen($text) != 4 || !ctype_digit($text)) {
-            ElementValidator::addError($item, $elementName, __('Value must be a year consisting of exactly four digits with no leading or trailing spaces.'));
+            ItemValidator::addError($item, $elementName, __('Value must be a year consisting of exactly four digits with no leading or trailing spaces.'));
         }
 
         return true;
