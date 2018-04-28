@@ -493,7 +493,6 @@ class ElementsConfig extends CommonConfig
 
             $args = array(
                 'required' => false,
-                'unique' => false,
                 'date' => false,
                 'year' => false,
                 'restricted' => false,

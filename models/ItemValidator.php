@@ -26,44 +26,10 @@ class ItemValidator
 
         if (!is_callable($callbackFunctionName))
         {
-            $item->addError($target, __('Callback %s function \'%s\' is not callable.', $callback['type'], $callbackFunctionName));
+            AvantElements::addError($item, $target, __('Callback %s function \'%s\' is not callable.', $callback['type'], $callbackFunctionName));
             $callbackFunctionName = '';
         }
 
-        return $callbackFunctionName;
-    }
-
-    protected function getValidationDefinitionsFor($validationType)
-    {
-        $definitionsForType = array();
-
-        $definitions = ElementsConfig::getOptionDataForValidation();
-        foreach ($definitions as $elementId => $definition)
-        {
-            $elementName = $definition['name'];
-
-            foreach ($definition['args'] as $argName => $arg)
-            {
-                if ($argName == $validationType)
-                {
-                    $definitionsForType[$elementId] = $arg;
-                }
-            }
-        }
-        return $definitionsForType;
-    }
-
-    protected function hasValidationDefinitionFor($elementId, $validationType)
-    {
-        return isset($this->validationOptionData[$elementId]['args'][$validationType]);
-    }
-
-    public function getItemCallbackFunctionName(Item $item)
-    {
-        if (!isset($this->callbacks[0]))
-            return '';
-
-        $callbackFunctionName = $this->constructCallbackFunctionName($item, '<item>', $this->callbacks[0]['callbacks'][0], 'validate');
         return $callbackFunctionName;
     }
 
@@ -81,9 +47,75 @@ class ItemValidator
 
         if ($this->hasValidationDefinitionFor($elementId, 'restricted'))
         {
-            $text = $this->sanitizeText($text);
+            $text = $this->filterRestrictedText($text);
         }
         return $text;
+    }
+
+    protected function filterRestrictedText($text)
+    {
+        // Remove carriage returns and tabs.
+        $text = str_replace(array("\r", "\n", "\t"), '', $text);
+
+        // Trim away leading or trailing whitespace, carriage returns, and tabs.
+        $text = trim($text);
+
+        // Replace en or em dashes with hyphens.
+        $en_dash = html_entity_decode('&#x2013;', ENT_COMPAT, 'UTF-8');
+        $em_dash = html_entity_decode('&#8212;', ENT_COMPAT, 'UTF-8');
+        $text = str_replace(array($en_dash, $em_dash), '-', $text);
+
+        return $text;
+    }
+
+    public function getItemCallbackFunctionName(Item $item)
+    {
+        if (!isset($this->callbacks[0]))
+            return '';
+
+        $callbackFunctionName = $this->constructCallbackFunctionName($item, '<item>', $this->callbacks[0]['callbacks'][0], 'validate');
+        return $callbackFunctionName;
+    }
+
+    protected function getValidationDefinitionsFor($validationType)
+    {
+        $definitionsForType = array();
+
+        $definitions = ElementsConfig::getOptionDataForValidation();
+        foreach ($definitions as $elementId => $definition)
+        {
+            foreach ($definition['args'] as $argName => $arg)
+            {
+                if ($argName == $validationType)
+                {
+                    $definitionsForType[$elementId] = $definition;
+                }
+            }
+        }
+        return $definitionsForType;
+    }
+
+    protected function hasValidationDefinitionFor($elementId, $validationType)
+    {
+        return isset($this->validationOptionData[$elementId]['args'][$validationType]);
+    }
+
+    public function performCallbackValidation(Item $item)
+    {
+        $data = ElementsConfig::getOptionDataForCallback();
+
+        foreach ($data as $elementId => $callbackDefinition)
+        {
+            $elementName = $callbackDefinition['name'];
+            foreach ($callbackDefinition['callbacks'] as $callback)
+            {
+                $callbackFunctionName = $this->constructCallbackFunctionName($item, $elementName, $callback, 'validate');
+                if (!empty($callbackFunctionName))
+                {
+                    call_user_func($callbackFunctionName, $item, $elementId, $elementName);
+                }
+            }
+        }
     }
 
     public function validateElementText(Item $item, $elementId, $elementName, $text)
@@ -109,52 +141,18 @@ class ItemValidator
             $this->validateRequiredElement($item, $elementId, $definition['name']);
         }
 
-        $itemCallbackFunctionName = $this->getItemCallbackFunctionName($item);
-        if (!empty($itemCallbackFunctionName))
-        {
-            call_user_func($itemCallbackFunctionName, $item);
-        }
-    }
-
-    public function performCallbackValidation(Item $item)
-    {
-        $data = ElementsConfig::getOptionDataForCallback();
-
-        foreach ($data as $elementId => $callbackDefinition)
-        {
-            $elementName = $callbackDefinition['name'];
-            foreach ($callbackDefinition['callbacks'] as $callback)
-            {
-                $callbackFunctionName = $this->constructCallbackFunctionName($item, $elementName, $callback, 'validate');
-                if (!empty($callbackFunctionName))
-                {
-                    call_user_func($callbackFunctionName, $item, $elementId, $elementName);
-                }
-            }
-        }
-    }
-
-    protected function sanitizeText($text)
-    {
-        // Remove carriage returns and tabs.
-        $text = str_replace(array("\r", "\n", "\t"), '', $text);
-
-        // Trim away leading or trailing whitespace, carriage returns, and tabs.
-        $text = trim($text);
-
-        // Replace en or em dashes with hyphens.
-        $en_dash = html_entity_decode('&#x2013;', ENT_COMPAT, 'UTF-8');
-        $em_dash = html_entity_decode('&#8212;', ENT_COMPAT, 'UTF-8');
-        $text = str_replace(array($en_dash, $em_dash), '-', $text);
-
-        return $text;
+//        $itemCallbackFunctionName = $this->getItemCallbackFunctionName($item);
+//        if (!empty($itemCallbackFunctionName))
+//        {
+//            call_user_func($itemCallbackFunctionName, $item);
+//        }
     }
 
     protected function validateRequiredElement($item, $elementId, $elementName)
     {
         if (!$this->elementHasPostedValue($elementId))
         {
-            self::addError($item, $elementName, __('A value is required.'));
+            AvantElements::addError($item, $elementName, __('A value is required.'));
         }
     }
 }

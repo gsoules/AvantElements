@@ -1,6 +1,11 @@
 <?php
 class AvantElements
 {
+    public static function addError(Item $item, $elementName, $message)
+    {
+        $item->addError($elementName, $message);
+    }
+
     public function orderElementsForDisplay($elementSetsForDisplay)
     {
         $elementsData = ElementsConfig::getOptionDataForDisplayOrder();

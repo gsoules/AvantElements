@@ -289,13 +289,13 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $item = $args['record'];
         $elementTable = get_db()->getTable('Element');
 
-        //   $this->itemValidator->validateItem($item);
+        $this->itemValidator->validateItem($item);
 
         //$this->validateIdentifier($item);
         //$this->dateValidator->validateDates($item, $elementTable);
         //$this->validateLocation($item, $elementTable);
-        $this->validateStatus($item, $elementTable);
-        $this->validateTitle($item, $elementTable);
+//        $this->validateStatus($item, $elementTable);
+//        $this->validateTitle($item, $elementTable);
 
         //$this->itemValidator->performCallbackValidation($item);
 
@@ -423,12 +423,12 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
         if ($isAccessItem) {
             if (!$hasAccessDBValue) {
-                $item->addError('Access DB', "This Access DB item must have an Access DB value of Converted or Unconverted.");
+                AvantElements::addError($item, 'Access DB', "This Access DB item must have an Access DB value of Converted or Unconverted.");
                 return;
             }
         } else {
             if ($hasAccessDBValue) {
-                $item->addError('Access DB', "This item did not come from Access. Choose 'Select Below' for the Access DB field.");
+                AvantElements::addError($item, 'Access DB', "This item did not come from Access. Choose 'Select Below' for the Access DB field.");
                 return;
             }
         }
@@ -439,7 +439,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         // Ensure that the user provided an Identifier value.
         if (!$this->validateRequiredElement('Dublin Core', 'Identifier', $item, get_db()->getTable('Element'))) {
             $nextElementId = $this->getNextIdentifier();
-            $item->addError('Identifier', "Value was blank and has been replaced with the next available Identifier $nextElementId.");
+            AvantElements::addError($item, 'Identifier', "Value was blank and has been replaced with the next available Identifier $nextElementId.");
         }
     }
 
@@ -462,7 +462,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
         // Make sure that the Status is not set to Accepted if the Access DB field is "Unconverted".
         if ($statusValue == 'Accepted' && $accessDBValue == 'Unconverted') {
-            $item->addError('Status', "Status cannot be set to Accepted when Access DB is unconverted");
+            AvantElements::addError($item, 'Status', "Status cannot be set to Accepted when Access DB is unconverted");
         }
         else {
             // Make sure that the Access DB field is not set for an item that did not come from Access.
@@ -477,7 +477,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
         if (substr($titleValue, 0, 1) == "'")
         {
-            $item->addError('Title', "A title cannot begin with a single quote. Use a double-quote instead.");
+            AvantElements::addError($item, 'Title', "A title cannot begin with a single quote. Use a double-quote instead.");
             return;
         }
 
