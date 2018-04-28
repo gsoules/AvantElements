@@ -84,7 +84,7 @@ class ItemValidator
         $definitions = ElementsConfig::getOptionDataForValidation();
         foreach ($definitions as $elementId => $definition)
         {
-            foreach ($definition['args'] as $argName => $arg)
+            foreach ($definition['args'] as $argName)
             {
                 if ($argName == $validationType)
                 {
@@ -97,22 +97,29 @@ class ItemValidator
 
     protected function hasValidationDefinitionFor($elementId, $validationType)
     {
-        return isset($this->validationOptionData[$elementId]['args'][$validationType]);
+        if (!isset($this->validationOptionData[$elementId]))
+        {
+            // This element has no validation definitions.
+            return false;
+        }
+        $validationTypes = $this->validationOptionData[$elementId]['args'];
+        return in_array($validationType, $validationTypes);
     }
 
-    public function performCallbackValidation(Item $item)
+    public function performCallbackValidation($item, $elementId, $elementName, $text)
     {
-        $data = ElementsConfig::getOptionDataForCallback();
-
-        foreach ($data as $elementId => $callbackDefinition)
+        foreach ($this->callbacks as $callbackElementId => $callbackDefinition)
         {
-            $elementName = $callbackDefinition['name'];
+            if ($elementId != $callbackElementId)
+            {
+                continue;
+            }
             foreach ($callbackDefinition['callbacks'] as $callback)
             {
                 $callbackFunctionName = $this->constructCallbackFunctionName($item, $elementName, $callback, 'validate');
                 if (!empty($callbackFunctionName))
                 {
-                    call_user_func($callbackFunctionName, $item, $elementId, $elementName);
+                    call_user_func($callbackFunctionName, $item, $elementId, $elementName, $text);
                 }
             }
         }
@@ -120,7 +127,7 @@ class ItemValidator
 
     public function validateElementText(Item $item, $elementId, $elementName, $text)
     {
-        $dateValidator = new DateElement();
+        $dateValidator = new DateValidator();
 
         if ($this->hasValidationDefinitionFor($elementId, 'date'))
         {
@@ -133,26 +140,20 @@ class ItemValidator
         }
     }
 
-    public function validateItem(Item $item)
-    {
-        $definitions = $this->getValidationDefinitionsFor('required');
-        foreach ($definitions as $elementId => $definition)
-        {
-            $this->validateRequiredElement($item, $elementId, $definition['name']);
-        }
-
-//        $itemCallbackFunctionName = $this->getItemCallbackFunctionName($item);
-//        if (!empty($itemCallbackFunctionName))
-//        {
-//            call_user_func($itemCallbackFunctionName, $item);
-//        }
-    }
-
     protected function validateRequiredElement($item, $elementId, $elementName)
     {
         if (!$this->elementHasPostedValue($elementId))
         {
             AvantElements::addError($item, $elementName, __('A value is required.'));
+        }
+    }
+
+    public function validateRequiredElements(Item $item)
+    {
+        $definitions = $this->getValidationDefinitionsFor('required');
+        foreach ($definitions as $elementId => $definition)
+        {
+            $this->validateRequiredElement($item, $elementId, $definition['name']);
         }
     }
 }

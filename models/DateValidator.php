@@ -1,5 +1,5 @@
 <?php
-class DateElement
+class DateValidator
 {
     public function hideStartEndYears($elementsBySet)
     {
@@ -60,20 +60,20 @@ class DateElement
         return array($year, $month, $day, $formatOk);
     }
 
-    public function validateDates(Item $item, $elementTable)
+    public function validateDates(Item $item)
     {
         // Make sure Year Start and Year End have values if Date has a value.
 
         $yearStartElementName = CommonConfig::getOptionTextForYearStart();
         $yearEndElementName = CommonConfig::getOptionTextForYearEnd();
 
-        $dateElement = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Date');
-        $yearStartElement = $elementTable->findByElementSetNameAndElementName('Item Type Metadata', $yearStartElementName);
-        $yearEndElement = $elementTable->findByElementSetNameAndElementName('Item Type Metadata', $yearEndElementName);
+        $dateElementId = ItemMetadata::getElementIdForElementName('Date');
+        $yearStartElementId = ItemMetadata::getElementIdForElementName($yearStartElementName);
+        $yearEndElementId = ItemMetadata::getElementIdForElementName($yearEndElementName);
 
-        $dateText = $_POST['Elements'][$dateElement->id][0]['text'];
-        $yearStartText = $_POST['Elements'][$yearStartElement->id][0]['text'];
-        $yearEndText = $_POST['Elements'][$yearEndElement->id][0]['text'];
+        $dateText = $_POST['Elements'][$dateElementId][0]['text'];
+        $yearStartText = $_POST['Elements'][$yearStartElementId][0]['text'];
+        $yearEndText = $_POST['Elements'][$yearEndElementId][0]['text'];
 
         // Date, Year Start, and Year End are all empty.
         if (empty($dateText) && empty($yearStartText) && empty($yearEndText))
@@ -97,7 +97,7 @@ class DateElement
         {
             if ($dateStartYear == $dateEndYear)
             {
-                $item->addError('Dates', "When Date is empty, Year Start and Year End must each be set to a different year");
+                AvantElements::addError($item, 'Dates', "When Date is empty, Year Start and Year End must each be set to a different year");
                 return;
             }
         }
@@ -105,7 +105,7 @@ class DateElement
         {
             if ($dateStartYear != $dateYear || $dateEndYear != $dateYear)
             {
-                $item->addError('Dates', "When Date is set, Year Start and Year End must be set to the same year as Date");
+                AvantElements::addError($item, 'Dates', "When Date is set, Year Start and Year End must be set to the same year as Date");
                 return;
             }
         }
@@ -120,7 +120,7 @@ class DateElement
             return true;
         }
 
-        ItemValidator::addError($item, $elementName, __('Value must be in the form YYYY-MM-DD or YYYY-MM or YYYY.'));
+        AvantElements::addError($item, $elementName, __('Value must be in the form YYYY-MM-DD or YYYY-MM or YYYY.'));
 
         return true;
     }
@@ -128,7 +128,7 @@ class DateElement
     public function validateElementYear(Item $item, $elementId, $elementName, $text)
     {
         if (strlen($text) != 4 || !ctype_digit($text)) {
-            ItemValidator::addError($item, $elementName, __('Value must be a year consisting of exactly four digits with no leading or trailing spaces.'));
+            AvantElements::addError($item, $elementName, __('Value must be a year consisting of exactly four digits with no leading or trailing spaces.'));
         }
 
         return true;

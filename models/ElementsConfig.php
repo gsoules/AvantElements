@@ -270,15 +270,12 @@ class ElementsConfig extends CommonConfig
                 }
                 $args = $validation['args'];
 
-                $name = $validation['name'];
-                $text .= $name . ': ';
+                $elementName = $validation['name'];
+                $text .= $elementName . ': ';
 
-                foreach ($args as $argName => $arg)
+                foreach ($args as $argName)
                 {
-                    if ($arg == true)
-                    {
-                        $text .= $argName . ', ';
-                    }
+                    $text .= $argName . ', ';
                 }
 
                 // Remove the trailing comma.
@@ -491,33 +488,19 @@ class ElementsConfig extends CommonConfig
 
             $argParts = array_map('trim', explode(',', $parts[1]));
 
-            $args = array(
-                'required' => false,
-                'date' => false,
-                'year' => false,
-                'restricted' => false,
-                'readonly' => false,
-            );
+            $argNames = array('required', 'date', 'year', 'restricted', 'readonly');
 
             // Determine which args are specified, and issue an error for any that are unrecognized.
+            $args = array();
             foreach ($argParts as $argName)
             {
-                if (array_key_exists($argName, $args))
+                if (in_array($argName, $argNames))
                 {
-                    $args[$argName] = true;
+                    $args[] = $argName;
                 }
                 else
                 {
                     throw new Omeka_Validate_Exception(__('Validation (%s): \'%s\' is not a valid parameter.', $elementName, $argName));
-                }
-            }
-
-            // Remove and unspecified args so that they don't get saved.
-            foreach ($args as $key => $arg)
-            {
-                if ($arg == false)
-                {
-                    unset($args[$key]);
                 }
             }
 
