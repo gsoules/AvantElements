@@ -6,13 +6,13 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected $cloneItemId;
     protected $cloning;
     protected $dateValidator;
-    protected $elementValidator;
-    protected $fieldWidths;
     protected $externalLinkDefinitions = array();
     protected $htmlElements;
+    protected $itemValidator;
     protected $linkBuilder;
     protected $multiInputElements;
     protected $request;
+    protected $textFields;
     protected $titleTextsBeforeSave;
 
     protected $_hooks = array(
@@ -36,12 +36,12 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         parent::__construct();
 
-        $this->elementValidator = new ElementValidator();
+        $this->itemValidator = new ItemValidator();
         $this->dateValidator = new DateElement();
         $this->linkBuilder = new LinkBuilder($this->_filters);
         $this->multiInputElements = ElementsConfig::getOptionDataForAddInput();
         $this->htmlElements = ElementsConfig::getOptionDataForHtml();
-        $this->fieldWidths = ElementsConfig::getOptionDataForWidths();
+        $this->textFields = ElementsConfig::getOptionDataForTextField();
     }
 
     public function __call($name, $arguments)
@@ -102,7 +102,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         // when saving the form, presumably because of name/id mismatch. This issue does not appear to documented,
         // but the solution makes sense and seems to work.
         $input_name_stem = $args['input_name_stem'] . "[text]";
-        $components['input'] = get_view()->formText($input_name_stem, $args['value'], array('style' => 'width: ' . $width . 'px;'));
+        $width = $width == 0 ? 380 : $width;
+        $components['input'] = get_view()->formText($input_name_stem, $args['value'], array('style' => "width:{$width}px"));
 
         return $components;
     }
@@ -134,10 +135,24 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         return $elementsBySet;
     }
 
+    protected function replaceEmptyIdentifierWithDefaultValue($components)
+    {
+        $inputs = $components['inputs'];
+        $isBlank = strpos($inputs, 'value=""') !== false;
+        if ($isBlank) {
+            // The Identifier has no value. Assume that a new record is being added and provide a default value.
+            // It seems like there should be a cleaner way to do this than to edit the <input> tag HTML, but
+            // until we find out how, this does the job.
+            $identifier = $this->getNextIdentifier();
+            $components['inputs'] = str_replace('value=""', 'value="' . $identifier . '"', $inputs);
+        }
+        return $components;
+    }
+
     public function filterElementForm($components, $args)
     {
-        // This filter lets us modify the input-block <div> that contains an element's
-        // <input> tag plus additional controls like the Add Input button and Use HTML checkbox.
+        // Omeka calls this Element From Filter to give this plugin an opportunity to modify the form's input-block
+        // <div> for an element's <input> tag plus additional controls like the Add Input button.
 
         $elementName = $args['element']['name'];
         $elementId = $args['element']['id'];
@@ -172,80 +187,58 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function filterElementInput($components, $args)
     {
-        // This filter lets us modify an element's <input> tag. It also lets us prevent
-        // Omeka from emitting a Use HTML checkbox when the element is emitted on the input form.
+        // Omeka calls this Element Input Filter to give this plugin an opportunity to modify an element's <input> tag.
 
         $elementId = $args['element']['id'];
 
-        // Determine the width for the element's text field. Note that we cannot override the width of <select>
-        // lists created by the SimpleVocab plug in. To set those field widths, use the CSS in
-        // AvantCustom/views/shared/css/avantcustom.css.
-
-        $width = 0;
-        if (array_key_exists($elementId, $this->fieldWidths))
-       {
-           $width = $this->fieldWidths[$elementId]['value'];
-       }
-
-        // Change the TextArea to a Text box of the specified width. If no width is configured
-        // for this element, it's field will remain a multi-line TextArea.
-        if ($width > 0)
+        if (array_key_exists($elementId, $this->textFields))
         {
+            // This element should get rendered as a text box instead of as a multi-line TextArea which is the Omeka
+            // default. A width of zero means max width. Note that this code cannot override the width of <select>
+            // lists created by the SimpleVocab plugin because it gets called after this plugin (they are called
+            // in alphabetical order). To set those widths, use CSS in AvantCustom/views/shared/css/avantcustom.css.
+            $width = $this->textFields[$elementId]['width'];
             $components = self::convertTextAreaToText($components, $args, $width);
         }
 
-        // Remove the HTML checkbox except for a few elements that use it.
         $allowHtml = array_key_exists($elementId, $this->htmlElements);
-
         if (!$allowHtml)
         {
+            // Remove the HTML checkbox for this element.
             $components['html_checkbox'] = false;
         }
 
+        // Return the modified HTML.
         return $components;
     }
 
 
     public function filterElementSave($text, $args)
     {
+        // Omeka calls this Element Save Filter to give this plugin the opportunity to modify
+        // the text that will be saved for an element.
+        // Omeka calls this filter before calling filterElementValidate.
+
         $elementId = $args['element']['id'];
-        $text = $this->elementValidator->postProcessElementText($elementId, $text);
-        return $text;
+        $filteredText = $this->itemValidator->filterElementText($elementId, $text);
+
+        return $filteredText;
     }
 
     public function filterElementValidate($isValid, $args)
     {
+        // Omeka calls this Element Validation Filter to give this plugin the opportunity to accept
+        // or reject an element's text. The validation logic called from here rejects a value by
+        // adding an error to the element's item. If not errors are added, the value is okay.
+        // The method always returns true to prevent Omeka from adding it's own default error.
+        // Omeka calls this filter after calling filterElementSave.
+
         $item = $args['record'];
         $elementId = $args['element']['id'];
         $elementName = $args['element']['name'];
         $text = $args['text'];
-        return $this->elementValidator->validateElementText($item, $elementId, $elementName, $text);
-    }
+        $this->itemValidator->validateElementText($item, $elementId, $elementName, $text);
 
-    public function filterValidateIdentifier($isValid, $args)
-    {
-        // Get the Identifier element and its text from the form being posted.
-        $element = $args['element'];
-        $text = trim($args['text']);
-
-        // Make sure the value is an integer.
-        if (!ctype_digit($text)) {
-            $this->addError($args, 'Value must be a number consisting only of the digits 0 - 9');
-            return true;
-        }
-
-        // Search the database to see if another Item has this identifier.
-        $items = get_records('Item', array( 'advanced' => array( array('element_id' => $element->id, 'type' => 'is exactly', 'terms' => $text ))));
-
-        if ($items){
-            // Found an Item with this identifier. Check if it's the Item being saved or another Item.
-            $savedItem = $args['record'];
-            $foundItem = $items[0];
-            if ($savedItem->id != $foundItem->id) {
-                $nextElementId = $this->getNextIdentifier();
-                $this->addError($args, "$text is used by another item. Next available Identifier is $nextElementId.");
-            }
-        }
         return true;
     }
 
@@ -296,13 +289,15 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $item = $args['record'];
         $elementTable = get_db()->getTable('Element');
 
-        $this->elementValidator->validateElementBeforeSave($item, $elementTable);
+        //   $this->itemValidator->validateItem($item);
 
         //$this->validateIdentifier($item);
-        $this->dateValidator->validateDates($item, $elementTable);
+        //$this->dateValidator->validateDates($item, $elementTable);
         //$this->validateLocation($item, $elementTable);
         $this->validateStatus($item, $elementTable);
         $this->validateTitle($item, $elementTable);
+
+        //$this->itemValidator->performCallbackValidation($item);
 
         $this->titleTextsBeforeSave = $this->getTitleTexts($item);
     }
@@ -336,8 +331,14 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         {
             $set = $element->set_name;
             $name = $element->name;
+
+            // Add filters that get called after the user clicks the Edit button, but before the edit form is
+            // displayed. These filters can alter the form e.g. to hide or show buttons or set text box widths.
             add_filter(array('ElementForm', 'Item', $set, $name), array($this, 'filterElementForm'));
             add_filter(array('ElementInput', 'Item', $set, $name), array($this, 'filterElementInput'));
+
+            // Add filters that get called after the user clicks the Save button, but before the item's elements are
+            // written to the database. These filters can display errors and thereby prevent the save from occurring.
             add_filter(array('Save', 'Item', $set, $name), array($this, 'filterElementSave'));
             add_filter(array('Validate', 'Item', $set, $name), array($this, 'filterElementValidate'));
         }
@@ -361,20 +362,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         if (!$allowAddInputButton)
         {
             $components['add_input'] = false;
-        }
-        return $components;
-    }
-
-    protected function replaceEmptyIdentifierWithDefaultValue($components)
-    {
-        $inputs = $components['inputs'];
-        $isBlank = strpos($inputs, 'value=""') !== false;
-        if ($isBlank) {
-            // The Identifier has no value. Assume that a new record is being added and provide a default value.
-            // It seems like there should be a cleaner way to do this than to edit the <input> tag HTML, but
-            // until we find out how, this does the job.
-            $identifier = $this->getNextIdentifier();
-            $components['inputs'] = str_replace('value=""', 'value="' . $identifier . '"', $inputs);
         }
         return $components;
     }
@@ -512,7 +499,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
                 }
                 if ($this->itemTypeIsArticle($duplicateItem))
                 {
-                    ElementValidator::addError('Title', "Another article exists with the same title as this article");
+                    ItemValidator::addError('Title', "Another article exists with the same title as this article");
                     return;
                 }
             }
