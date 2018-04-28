@@ -164,23 +164,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         queue_css_file('avantelements');
     }
 
-    protected function itemTypeIsArticle($item)
-    {
-        $itemType = $this->getItemType($item);
-        return strpos($itemType, "Article,") === 0;
-    }
-
-    private function removeAddInputButton($elementId, $components)
-    {
-        $allowAddInputButton = array_key_exists($elementId, $this->multiInputElements);
-
-        if (!$allowAddInputButton)
-        {
-            $components['add_input'] = false;
-        }
-        return $components;
-    }
-
     protected function updateElementsRelatedToTitle($item)
     {
         // Update any Creator or Publisher elements that have the value of this item's Title element.
