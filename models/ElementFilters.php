@@ -3,7 +3,6 @@ class ElementFilters
 {
     protected $addInputElements;
     protected $cloneItem;
-    protected $cloneItemId;
     protected $cloning;
     protected $htmlElements;
     protected $textFields;
@@ -17,24 +16,31 @@ class ElementFilters
 
     protected function cloneElementValue($elementId, $elementSetName, $elementName, $components)
     {
-        if (!isset($this->request))
+        if (!isset($this->cloning))
         {
-            $this->request = Zend_Controller_Front::getInstance()->getRequest();
-            $this->cloneItemId = $this->request->getParam('id');
-            $this->cloneItem = ItemMetadata::getItemFromId($this->cloneItemId);
-            $this->cloning = !empty($this->cloneItemId) && $this->request->getParam('action') == 'add';
+            // Get the request to this page to see if it's to Add a new item AND that an item Id is in the request.
+            // Normally an Add request provides no Id, but when cloning, the Id is for the item to be cloned.
+            $request = Zend_Controller_Front::getInstance()->getRequest();
+            $cloneItemId = $request->getParam('id');
+            $this->cloning = $request->getParam('action') == 'add' && !empty($cloneItemId);
+
+            if ($this->cloning)
+            {
+                // Get the item to be cloned.
+                $this->cloneItem = ItemMetadata::getItemFromId($cloneItemId);
+            }
         }
 
         if (!$this->cloning)
             return $components;
 
-        if ($elementName == 'Access DB')
-            return $components;
-
-        $value = metadata($this->cloneItem, array($elementSetName, $elementName), array('no_filter' => true));
+        $value = ItemMetadata::getElementTextFromElementName($this->cloneItem, array($elementSetName, $elementName));
 
         if ($elementName == ItemMetadata::getTitleElementName())
-            $value = "CLONED: $value";
+        {
+            // Insert CLONED into the title to remind the admin that this new item is a clone.
+            $value = __('CLONE OF: %s', $value);
+        }
 
         if (!empty($value))
         {
@@ -128,7 +134,7 @@ class ElementFilters
         $elementName = $args['element']['name'];
         $elementId = $args['element']['id'];
 
-        if ($elementName != "Identifier")
+        if ($elementName != ItemMetadata::getIdentifierElementName())
         {
             $elementSetName = $args['element']['set_name'];
             $components = $this->cloneElementValue($elementId, $elementSetName, $elementName, $components);
