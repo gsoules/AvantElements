@@ -8,8 +8,9 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected $titleSync;
 
     protected $_hooks = array(
-        'admin_head',
         'admin_footer',
+        'admin_head',
+        'admin_items_show_sidebar',
         'after_save_item',
         'before_save_item',
         'config',
@@ -73,12 +74,23 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAdminFooter($args)
     {
-        echo get_view()->partial('/suggest-script.php');
+        echo get_view()->partial('/avantelements-script.php');
     }
 
     public function hookAdminHead($args)
     {
         queue_css_file('avantelements-admin');
+    }
+
+    public function hookAdminItemsShowSidebar($args)
+    {
+        // Add a 'Clone' button to the sidebar. It will show up near the bottom which isn't where it's
+        // supposed to go, but the jQuery for AvantElements will move it up under the other buttons.
+        $itemId = $args['item']->id;
+        $url = $itemId ? 'items/add/' . $itemId : '.';
+        $url = WEB_ROOT . '/admin/' . $url;
+        $label = __('Clone this Item');
+        echo "<a id='clone-button' href='$url' class='big blue button'>$label</a>";
     }
 
     public function hookAfterSaveItem($args)

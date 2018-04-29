@@ -72,5 +72,7 @@
     jQuery(document).ready(function ()
     {
         initializeSuggestValue();
+
+        jQuery('#clone-button').appendTo('#edit');
     });
 </script>
