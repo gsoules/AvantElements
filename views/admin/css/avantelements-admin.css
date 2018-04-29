@@ -21,3 +21,40 @@
     color: #cc0000;
     padding: 4px 0 4px 2px;
 }
+
+.element-set-description {
+    display: none;
+}
+
+/* Hide large text that repeats what's already highlighted in the tab at the top of the form */
+#item-metadata h2 {
+    display: none;
+}
+
+/* Hide the metadata description on each element on admin/items/edit.php */
+#item-metadata fieldset.set div div.inputs.five.columns.omega p.explanation {
+    display: none;
+}
+
+/* Reduce the spacing of elements on admin/items/show.php */
+.element .element-text:after {
+    margin: 8px 0;
+}
+.element-text p {
+    margin: 0 0 4px 0;
+}
+
+/* Reduce the spacing of elements on admin/items/edit.php */
+.field label {
+    margin: 0 0 2px 0;
+    min-width: 100px;
+}
+.field select {
+    margin-bottom: 2px;
+}
+.inputs {
+    margin: 0 0 12px 0;
+}
+.inputs .input-block {
+    margin: 0 0 0 0;
+}
