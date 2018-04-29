@@ -46,19 +46,63 @@ class ElementFilters
         return $components;
     }
 
-    private function convertTextAreaToText(array $components, $args, $width, $value)
+    protected function createField(ElementValidator $elementValidator, $components, $args, $item, $elementId)
     {
-        // Change this element's textarea box to a plain text box, but first, append "[text]" to the end of
-        // the input name stem. This causes "[text]" to be added to the end of the input tag's name attribute
-        // and "-text" to be added to the end of the id attribute. By doing this, the modified input tag's name
-        // and id match the original textarea tag's name and id. If we don't do this an internal error occurs
-        // when saving the form, presumably because of name/id mismatch. This issue does not appear to documented,
-        // but the solution makes sense and seems to work.
-        $input_name_stem = $args['input_name_stem'] . "[text]";
+        // This method determines if the element's Text Area needs to be modified or converted to a Text Box.
+        // A Text Area is modified when it needs to display a default value for a new item. A TextArea is
+        // converted to a Text Box when the element is specified as a Text Field on the configuration page.
+        // This logic takes a brute force approach to performing these tasks. It's easier and safer to simply
+        // replace the existing <input> HTML for the field than to parse and modify the existing HTML. The
+        // HTML for a field is contained in the $components array's 'input' element.
+
+        $hasDefaultValue = false;
+        $value = $args['value'];
+
+        if (empty($item->id) && empty($value))
+        {
+            // This is a new item and this element is blank. See if there is a default value.
+            $value = $elementValidator->getCallbackDefaultElementText($item, $elementId);
+            $hasDefaultValue = !empty($value);
+        }
+
+        // See if this element is configured to be a text field.
+        $convertToTextBox = array_key_exists($elementId, $this->textFields);
+
+        if ($hasDefaultValue || $convertToTextBox)
+        {
+            if ($convertToTextBox)
+            {
+                // This element should get rendered as a text box instead of as a multi-line TextArea which is the Omeka
+                // default. A width of zero means max width. Note that this code cannot override the width of <select>
+                // lists created by the SimpleVocab plugin because it gets called after this plugin (they are called
+                // in alphabetical order). To set those widths, use CSS in AvantCustom/views/shared/css/avantcustom.css.
+                $width = $this->textFields[$elementId]['width'];
+                $components = self::createTextBox($components, $args, $width, $value);
+            }
+            else
+            {
+                if ($hasDefaultValue)
+                {
+                    // The field should remain a Text Area, but with a default value.
+                    $components = self::createTextArea($components, $args, $value);
+                }
+            }
+        }
+        return $components;
+    }
+
+    private function createTextArea(array $components, $args, $value)
+    {
+        $inputNameStem = $args['input_name_stem'] . "[text]";
+        $components['input'] = get_view()->formTextarea($inputNameStem, $value, array('rows'=>3));
+        return $components;
+    }
+
+    private function createTextBox(array $components, $args, $width, $value)
+    {
+        $inputNameStem = $args['input_name_stem'] . "[text]";
         $width = $width == 0 ? 380 : $width;
-
-        $components['input'] = get_view()->formText($input_name_stem, $value, array('style' => "width:{$width}px"));
-
+        $components['input'] = get_view()->formText($inputNameStem, $value, array('style' => "width:{$width}px"));
         return $components;
     }
 
@@ -84,11 +128,7 @@ class ElementFilters
         $elementName = $args['element']['name'];
         $elementId = $args['element']['id'];
 
-        if ($elementName == "Identifier")
-        {
-            //$components = $this->replaceEmptyIdentifierWithDefaultValue($components);
-        }
-        else
+        if ($elementName != "Identifier")
         {
             $elementSetName = $args['element']['set_name'];
             $components = $this->cloneElementValue($elementId, $elementSetName, $elementName, $components);
@@ -112,21 +152,6 @@ class ElementFilters
         return $components;
     }
 
-
-    protected function replaceEmptyIdentifierWithDefaultValue($components)
-    {
-        $inputs = $components['inputs'];
-        $isBlank = strpos($inputs, 'value=""') !== false;
-        if ($isBlank) {
-            // The Identifier has no value. Assume that a new record is being added and provide a default value.
-            // It seems like there should be a cleaner way to do this than to edit the <input> tag HTML, but
-            // until we find out how, this does the job.
-            $identifier = $this->getNextIdentifier();
-            $components['inputs'] = str_replace('value=""', 'value="' . $identifier . '"', $inputs);
-        }
-        return $components;
-    }
-
     public function filterElementInput(ElementValidator $elementValidator, $components, $args)
     {
         // Omeka calls the Element Input Filter to give this plugin an opportunity to modify an element's <input> tag.
@@ -134,22 +159,8 @@ class ElementFilters
         $item = $args['record'];
         $elementId = $args['element']['id'];
 
-        $value = $args['value'];
-        if (empty($value))
-        {
-            // This element is blank. See if there is a default value.
-            $value = $elementValidator->getCallbackDefaultElementText($item, $elementId);
-        }
-
-        if (array_key_exists($elementId, $this->textFields))
-        {
-            // This element should get rendered as a text box instead of as a multi-line TextArea which is the Omeka
-            // default. A width of zero means max width. Note that this code cannot override the width of <select>
-            // lists created by the SimpleVocab plugin because it gets called after this plugin (they are called
-            // in alphabetical order). To set those widths, use CSS in AvantCustom/views/shared/css/avantcustom.css.
-            $width = $this->textFields[$elementId]['width'];
-            $components = self::convertTextAreaToText($components, $args, $width, $value);
-        }
+        // Create the appropriate field HTML (a text box or text area) for the element.
+        $components = $this->createField($elementValidator, $components, $args, $item, $elementId);
 
         $allowHtml = array_key_exists($elementId, $this->htmlElements);
         if (!$allowHtml)
