@@ -2,8 +2,7 @@
 class ElementFilters
 {
     protected $addInputElements;
-    protected $cloneItem;
-    protected $cloning;
+    protected $elementCloning;
     protected $htmlElements;
     protected $textFields;
 
@@ -12,44 +11,7 @@ class ElementFilters
         $this->addInputElements = ElementsConfig::getOptionDataForAddInput();
         $this->textFields = ElementsConfig::getOptionDataForTextField();
         $this->htmlElements = ElementsConfig::getOptionDataForHtml();
-    }
-
-    protected function cloneElementValue($elementId, $elementSetName, $elementName, $components)
-    {
-        if (!isset($this->cloning))
-        {
-            // Get the request to this page to see if it's to Add a new item AND that an item Id is in the request.
-            // Normally an Add request provides no Id, but when cloning, the Id is for the item to be cloned.
-            $request = Zend_Controller_Front::getInstance()->getRequest();
-            $cloneItemId = $request->getParam('id');
-            $this->cloning = $request->getParam('action') == 'add' && !empty($cloneItemId);
-
-            if ($this->cloning)
-            {
-                // Get the item to be cloned.
-                $this->cloneItem = ItemMetadata::getItemFromId($cloneItemId);
-            }
-        }
-
-        if (!$this->cloning)
-            return $components;
-
-        $value = ItemMetadata::getElementTextFromElementName($this->cloneItem, array($elementSetName, $elementName));
-
-        if ($elementName == ItemMetadata::getTitleElementName())
-        {
-            // Insert CLONED into the title to remind the admin that this new item is a clone.
-            $value = __('CLONE OF: %s', $value);
-        }
-
-        if (!empty($value))
-        {
-            // Replace the elements input HTML with a simple text element that contains the cloned value.
-            // This is much simpler than parsing TextAreas and Select lists to insert the value.
-            $components['inputs'] = "<div class='input-block'><div class='input'><input type='text' name='Elements[$elementId][0][text]' id='Elements-$elementId-0-text' value='$value' style='width:400px;'></div></div>";
-        }
-
-        return $components;
+        $this->elementCloning = new ElementCloning();
     }
 
     protected function createField(ElementValidator $elementValidator, $components, $args, $item, $elementId)
@@ -134,10 +96,10 @@ class ElementFilters
         $elementName = $args['element']['name'];
         $elementId = $args['element']['id'];
 
-        if ($elementName != ItemMetadata::getIdentifierElementName())
+        if ($this->elementCloning->cloning())
         {
             $elementSetName = $args['element']['set_name'];
-            $components = $this->cloneElementValue($elementId, $elementSetName, $elementName, $components);
+            $components = $this->elementCloning->cloneElementValue($elementId, $elementSetName, $elementName, $components);
         }
 
         if ($elementName == 'Creator' || $elementName == 'Publisher')
