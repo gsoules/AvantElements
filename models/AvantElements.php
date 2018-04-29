@@ -6,6 +6,12 @@ class AvantElements
         $item->addError($elementName, $message);
     }
 
+    public static function hasErrors($item)
+    {
+        $errors = $item->getErrors()->get();
+        return count($errors) > 0;
+    }
+
     public function orderElementsForDisplay($elementSetsForDisplay)
     {
         $elementsData = ElementsConfig::getOptionDataForDisplayOrder();

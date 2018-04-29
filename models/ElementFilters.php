@@ -46,7 +46,7 @@ class ElementFilters
         return $components;
     }
 
-    private function convertTextAreaToText(array $components, $args, $width)
+    private function convertTextAreaToText(array $components, $args, $width, $value)
     {
         // Change this element's textarea box to a plain text box, but first, append "[text]" to the end of
         // the input name stem. This causes "[text]" to be added to the end of the input tag's name attribute
@@ -56,7 +56,8 @@ class ElementFilters
         // but the solution makes sense and seems to work.
         $input_name_stem = $args['input_name_stem'] . "[text]";
         $width = $width == 0 ? 380 : $width;
-        $components['input'] = get_view()->formText($input_name_stem, $args['value'], array('style' => "width:{$width}px"));
+
+        $components['input'] = get_view()->formText($input_name_stem, $value, array('style' => "width:{$width}px"));
 
         return $components;
     }
@@ -85,7 +86,7 @@ class ElementFilters
 
         if ($elementName == "Identifier")
         {
-            $components = $this->replaceEmptyIdentifierWithDefaultValue($components);
+            //$components = $this->replaceEmptyIdentifierWithDefaultValue($components);
         }
         else
         {
@@ -111,87 +112,6 @@ class ElementFilters
         return $components;
     }
 
-    public function filterElementInput($components, $args)
-    {
-        // Omeka calls the Element Input Filter to give this plugin an opportunity to modify an element's <input> tag.
-
-        $elementId = $args['element']['id'];
-
-        if (array_key_exists($elementId, $this->textFields))
-        {
-            // This element should get rendered as a text box instead of as a multi-line TextArea which is the Omeka
-            // default. A width of zero means max width. Note that this code cannot override the width of <select>
-            // lists created by the SimpleVocab plugin because it gets called after this plugin (they are called
-            // in alphabetical order). To set those widths, use CSS in AvantCustom/views/shared/css/avantcustom.css.
-            $width = $this->textFields[$elementId]['width'];
-            $components = self::convertTextAreaToText($components, $args, $width);
-        }
-
-        $allowHtml = array_key_exists($elementId, $this->htmlElements);
-        if (!$allowHtml)
-        {
-            // Remove the HTML checkbox for this element.
-            $components['html_checkbox'] = false;
-        }
-
-        // Return the modified HTML.
-        return $components;
-    }
-
-    public function filterElementSave(ItemValidator $itemValidator, $text, $args)
-    {
-        // Omeka calls the Element Save Filter to give this plugin the opportunity to modify
-        // the text that will be saved for an element.
-        // Omeka calls this filter before calling filterElementValidate.
-
-        $elementId = $args['element']['id'];
-        $filteredText = $itemValidator->filterElementText($elementId, $text);
-        return $filteredText;
-    }
-
-    public function filterElementValidate(ItemValidator $itemValidator, $isValid, $args)
-    {
-        // Omeka calls the Element Validation Filter to give this plugin the opportunity to accept
-        // or reject an element's text. The validation logic called from here rejects a value by
-        // adding an error to the element's item. If not errors are added, the value is okay.
-        // The method always returns true to prevent Omeka from adding it's own default error.
-        // Omeka calls this filter after calling filterElementSave.
-
-        $item = $args['record'];
-        $elementId = $args['element']['id'];
-        $elementName = $args['element']['name'];
-        $text = $args['text'];
-        $itemValidator->validateElementText($item, $elementId, $elementName, $text);
-
-        $itemValidator->performCallbackValidation($item, $elementId, $elementName, $text);
-
-        return true;
-    }
-
-    private function getNextIdentifier()
-    {
-//        $elementTable = get_db()->getTable('Element');
-//        $identifierParts = ItemMetadata::getPartsForIdentifierElement();
-//        $element = $elementTable->findByElementSetNameAndElementName($identifierParts[0], $identifierParts[1]);
-//        $elementId = $element->id;
-        $elementId = ItemMetadata::getIdentifierElementId();
-        $db = get_db();
-        $sql = "SELECT MAX(CAST(text AS SIGNED)) AS next_element_id FROM `{$db->ElementTexts}` where element_id = $elementId";
-        $result = $db->query($sql)->fetch();
-        $nextElementId = $result['next_element_id'] + 1;
-        return $nextElementId;
-    }
-
-    private function removeAddInputButton($elementId, $components)
-    {
-        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements);
-
-        if (!$allowAddInputButton)
-        {
-            $components['add_input'] = false;
-        }
-        return $components;
-    }
 
     protected function replaceEmptyIdentifierWithDefaultValue($components)
     {
@@ -207,4 +127,79 @@ class ElementFilters
         return $components;
     }
 
+    public function filterElementInput(ElementValidator $elementValidator, $components, $args)
+    {
+        // Omeka calls the Element Input Filter to give this plugin an opportunity to modify an element's <input> tag.
+
+        $item = $args['record'];
+        $elementId = $args['element']['id'];
+
+        $value = $args['value'];
+        if (empty($value))
+        {
+            // This element is blank. See if there is a default value.
+            $value = $elementValidator->getCallbackDefaultElementText($item, $elementId);
+        }
+
+        if (array_key_exists($elementId, $this->textFields))
+        {
+            // This element should get rendered as a text box instead of as a multi-line TextArea which is the Omeka
+            // default. A width of zero means max width. Note that this code cannot override the width of <select>
+            // lists created by the SimpleVocab plugin because it gets called after this plugin (they are called
+            // in alphabetical order). To set those widths, use CSS in AvantCustom/views/shared/css/avantcustom.css.
+            $width = $this->textFields[$elementId]['width'];
+            $components = self::convertTextAreaToText($components, $args, $width, $value);
+        }
+
+        $allowHtml = array_key_exists($elementId, $this->htmlElements);
+        if (!$allowHtml)
+        {
+            // Remove the HTML checkbox for this element.
+            $components['html_checkbox'] = false;
+        }
+
+        // Return the modified HTML.
+        return $components;
+    }
+
+    public function filterElementSave(ElementValidator $elementValidator, $text, $args)
+    {
+        // Omeka calls the Element Save Filter to give this plugin the opportunity to modify
+        // the text that will be saved for an element.
+        // Omeka calls this filter before calling filterElementValidate.
+
+        $elementId = $args['element']['id'];
+        $filteredText = $elementValidator->filterElementText($elementId, $text);
+        return $filteredText;
+    }
+
+    public function filterElementValidate(ElementValidator $elementValidator, $args)
+    {
+        // Omeka calls the Element Validation Filter to give this plugin the opportunity to accept
+        // or reject an element's text. The validation logic called from here rejects a value by
+        // adding an error to the element's item. If not errors are added, the value is okay.
+        // The method always returns true to prevent Omeka from adding it's own default error.
+        // Omeka calls this filter after calling filterElementSave.
+
+        $item = $args['record'];
+        $elementId = $args['element']['id'];
+        $elementName = $args['element']['name'];
+        $text = $args['text'];
+        $elementValidator->validateElementText($item, $elementId, $elementName, $text);
+
+        $elementValidator->performCallbackValidation($item, $elementId, $elementName, $text);
+
+        return true;
+    }
+
+    private function removeAddInputButton($elementId, $components)
+    {
+        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements);
+
+        if (!$allowAddInputButton)
+        {
+            $components['add_input'] = false;
+        }
+        return $components;
+    }
 }

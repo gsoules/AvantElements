@@ -3,7 +3,7 @@
 class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 {
     protected $elementFilters;
-    protected $itemValidator;
+    protected $elementValidator;
     protected $linkBuilder;
     protected $titleSync;
 
@@ -28,7 +28,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         parent::__construct();
 
         $this->elementFilters = new ElementFilters();
-        $this->itemValidator = new ItemValidator();
+        $this->elementValidator = new ElementValidator();
         $this->linkBuilder = new LinkBuilder($this->_filters);
         $this->titleSync = new TitleSync();
     }
@@ -58,17 +58,17 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function filterElementInput($components, $args)
     {
-        return $this->elementFilters->filterElementInput($components, $args);
+        return $this->elementFilters->filterElementInput($this->elementValidator, $components, $args);
     }
 
     public function filterElementSave($text, $args)
     {
-        return $this->elementFilters->filterElementSave($this->itemValidator, $text, $args);
+        return $this->elementFilters->filterElementSave($this->elementValidator, $text, $args);
     }
 
     public function filterElementValidate($isValid, $args)
     {
-        return $this->elementFilters->filterElementValidate($this->itemValidator, $isValid, $args);
+        return $this->elementFilters->filterElementValidate($this->elementValidator, $args);
     }
 
     public function hookAdminFooter($args)
@@ -90,7 +90,13 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     public function hookBeforeSaveItem($args)
     {
         $item = $args['record'];
-        $this->itemValidator->beforeSaveItem($item);
+        $this->elementValidator->beforeSaveItem($item);
+
+        if (AvantElements::hasErrors($item))
+        {
+            return;
+        }
+
         $this->titleSync->setCurrentTitle($item);
     }
 

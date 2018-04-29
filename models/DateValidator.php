@@ -67,13 +67,9 @@ class DateValidator
         $yearStartElementName = CommonConfig::getOptionTextForYearStart();
         $yearEndElementName = CommonConfig::getOptionTextForYearEnd();
 
-        $dateElementId = ItemMetadata::getElementIdForElementName('Date');
-        $yearStartElementId = ItemMetadata::getElementIdForElementName($yearStartElementName);
-        $yearEndElementId = ItemMetadata::getElementIdForElementName($yearEndElementName);
-
-        $dateText = $_POST['Elements'][$dateElementId][0]['text'];
-        $yearStartText = $_POST['Elements'][$yearStartElementId][0]['text'];
-        $yearEndText = $_POST['Elements'][$yearEndElementId][0]['text'];
+        $dateText = AvantCommon::getPostTextForElementName('Date');
+        $yearStartText = AvantCommon::getPostTextForElementName($yearStartElementName);
+        $yearEndText =  AvantCommon::getPostTextForElementName($yearEndElementName);
 
         // Date, Year Start, and Year End are all empty.
         if (empty($dateText) && empty($yearStartText) && empty($yearEndText))

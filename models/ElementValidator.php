@@ -1,5 +1,5 @@
 <?php
-class ItemValidator
+class ElementValidator
 {
     protected $callbacks;
     protected $validationOptionData;
@@ -10,17 +10,14 @@ class ItemValidator
         $this->callbacks = ElementsConfig::getOptionDataForCallback();
     }
 
-    public static function addError(Item $item, $elementName, $message)
-    {
-        $item->addError($elementName, $message);
-    }
-
     public function beforeSaveItem($item)
     {
         $this->validateRequiredElements($item);
 
         $dateValidator = new DateValidator();
         $dateValidator->validateDates($item);
+
+        $this->performCallbackBeforeSave($item);
     }
 
     protected function constructCallbackFunctionName(Item $item, $target, $callback, $callbackType)
@@ -39,11 +36,6 @@ class ItemValidator
         }
 
         return $callbackFunctionName;
-    }
-
-    public function elementHasPostedValue($elementId)
-    {
-        return !empty($_POST['Elements'][$elementId][0]['text']);
     }
 
     public function filterElementText($elementId, $text)
@@ -74,6 +66,39 @@ class ItemValidator
         $text = str_replace(array($en_dash, $em_dash), '-', $text);
 
         return $text;
+    }
+
+    public function getCallbackDefaultElementText($item, $elementId)
+    {
+        $text = '';
+        $callbackFunctionName = $this->getCallbackFunctionName($item, $elementId, 'default');
+        if (!empty($callbackFunctionName))
+        {
+            $text = call_user_func($callbackFunctionName, $item);
+        }
+        return $text;
+    }
+
+    protected function getCallbackFunctionName($item, $elementId, $callbackType)
+    {
+        $callbackFunctionName = '';
+
+        foreach ($this->callbacks as $callbackElementId => $callbackDefinition)
+        {
+            if ($elementId != $callbackElementId)
+            {
+                continue;
+            }
+            foreach ($callbackDefinition['callbacks'] as $callback)
+            {
+                if ($callback['type'] != $callbackType)
+                {
+                    continue;
+                }
+                $callbackFunctionName = $this->constructCallbackFunctionName($item, '<item>', $callback, $callbackType);
+            }
+        }
+        return $callbackFunctionName;
     }
 
     public function getItemCallbackFunctionName(Item $item)
@@ -114,22 +139,21 @@ class ItemValidator
         return in_array($validationType, $validationTypes);
     }
 
+    public function performCallbackBeforeSave($item)
+    {
+        $callbackFunctionName = $this->getCallbackFunctionName($item, 0, 'validate');
+        if (!empty($callbackFunctionName))
+        {
+            call_user_func($callbackFunctionName, $item);
+        }
+    }
+
     public function performCallbackValidation($item, $elementId, $elementName, $text)
     {
-        foreach ($this->callbacks as $callbackElementId => $callbackDefinition)
+        $callbackFunctionName = $this->getCallbackFunctionName($item, $elementId, 'validate');
+        if (!empty($callbackFunctionName))
         {
-            if ($elementId != $callbackElementId)
-            {
-                continue;
-            }
-            foreach ($callbackDefinition['callbacks'] as $callback)
-            {
-                $callbackFunctionName = $this->constructCallbackFunctionName($item, $elementName, $callback, 'validate');
-                if (!empty($callbackFunctionName))
-                {
-                    call_user_func($callbackFunctionName, $item, $elementId, $elementName, $text);
-                }
-            }
+            call_user_func($callbackFunctionName, $item, $elementId, $elementName, $text);
         }
     }
 
@@ -150,7 +174,7 @@ class ItemValidator
 
     protected function validateRequiredElement($item, $elementId, $elementName)
     {
-        if (!$this->elementHasPostedValue($elementId))
+        if (!AvantCommon::elementHasPostedValue($elementId))
         {
             AvantElements::addError($item, $elementName, __('A value is required.'));
         }
