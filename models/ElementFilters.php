@@ -61,7 +61,7 @@ class ElementFilters
         return $components;
     }
 
-    public function filterDisplayElements(DateValidator $dateValidator, $elementsBySet)
+    public function filterDisplayElements($elementsBySet)
     {
         // This filter lets a plugin dynamically hide elements from the public user interface
         // in addition to those elements that are hidden by the HideElements plugin.
@@ -69,6 +69,7 @@ class ElementFilters
         if (is_admin_theme())
             return $elementsBySet;
 
+        $dateValidator = new DateValidator();
         $elementsBySet = $dateValidator->hideStartEndYears($elementsBySet);
 
         return $elementsBySet;

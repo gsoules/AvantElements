@@ -88,6 +88,7 @@ class LinkBuilder
             $elementSetName = ItemMetadata::getElementSetNameForElementName($elementName);
             if (!empty($elementSetName))
             {
+                // Set up a call to be made when this element is displayed on a Show page.
                 $filters['filterLinkImplicit' . $elementName] = array('Display', 'Item', $elementSetName, $elementName);
             }
         }
@@ -107,6 +108,7 @@ class LinkBuilder
             $elementSetName = ItemMetadata::getElementSetNameForElementName($elementName);
             if (!empty($elementSetName))
             {
+                // Set up a call to be made when this element is displayed on a Show page.
                 $filters['filterLinkExternal' . $elementName] = array('Display', 'Item', $elementSetName, $elementName);
             }
         }

@@ -15,6 +15,14 @@ class ItemValidator
         $item->addError($elementName, $message);
     }
 
+    public function beforeSaveItem($item)
+    {
+        $this->validateRequiredElements($item);
+
+        $dateValidator = new DateValidator();
+        $dateValidator->validateDates($item);
+    }
+
     protected function constructCallbackFunctionName(Item $item, $target, $callback, $callbackType)
     {
         if ($callback['type'] != $callbackType)

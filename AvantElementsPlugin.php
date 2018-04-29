@@ -2,11 +2,10 @@
 
 class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 {
-    protected $dateValidator;
     protected $elementFilters;
     protected $itemValidator;
     protected $linkBuilder;
-    protected $titleTextsBeforeSave;
+    protected $titleSync;
 
     protected $_hooks = array(
         'admin_head',
@@ -17,7 +16,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         'config_form',
         'define_routes',
         'initialize',
-        'install',
         'public_head'
     );
 
@@ -31,38 +29,26 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
         $this->elementFilters = new ElementFilters();
         $this->itemValidator = new ItemValidator();
-        $this->dateValidator = new DateValidator();
         $this->linkBuilder = new LinkBuilder($this->_filters);
+        $this->titleSync = new TitleSync();
     }
 
     public function __call($name, $arguments)
     {
+        // Handle filter requests from the LinkBuilder for filterLinkImplicit and filterLinkExternal.
+        $result = null;
+
         if (strpos($name, 'filterLink') === 0)
         {
-            $text = $this->linkBuilder->buildLink($name, $arguments);
-            return $text;
+            $result = $this->linkBuilder->buildLink($name, $arguments);
         }
 
-        return null;
-    }
-
-    protected static function fetchElementsByValue($elementId, $value)
-    {
-        if (empty($value))
-            return;
-        $db = get_db();
-        $select = $db->select()
-            ->from($db->ElementText)
-            ->where('element_id = ?', $elementId)
-            ->where('text = ?', $value)
-            ->where('record_type = ?', 'Item');
-        $results = $db->getTable('ElementText')->fetchObjects($select);
-        return $results;
+        return $result;
     }
 
     public function filterDisplayElements($elementsBySet)
     {
-        return $this->elementFilters->filterDisplayElements($this->dateValidator, $elementsBySet);
+        return $this->elementFilters->filterDisplayElements($elementsBySet);
     }
 
     public function filterElementForm($components, $args)
@@ -85,13 +71,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         return $this->elementFilters->filterElementValidate($this->itemValidator, $isValid, $args);
     }
 
-    protected function getTitleTexts($item)
-    {
-        $elementTable = get_db()->getTable('Element');
-        $titleElement = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Title');
-        return $item->getElementTextsByRecord($titleElement);
-    }
-
     public function hookAdminFooter($args)
     {
         echo get_view()->partial('/suggest-script.php');
@@ -105,16 +84,14 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     public function hookAfterSaveItem($args)
     {
         $item = $args['record'];
-        $this->updateElementsRelatedToTitle($item);
+        $this->titleSync->syncTitles($item);
     }
 
     public function hookBeforeSaveItem($args)
     {
         $item = $args['record'];
-
-        $this->itemValidator->validateRequiredElements($item);
-        $this->dateValidator->validateDates($item);
-        $this->titleTextsBeforeSave = $this->getTitleTexts($item);
+        $this->itemValidator->beforeSaveItem($item);
+        $this->titleSync->setCurrentTitle($item);
     }
 
     public function hookConfig()
@@ -130,11 +107,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     public function hookDefineRoutes($args)
     {
         $args['router']->addConfig(new Zend_Config_Ini(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'routes.ini', 'routes'));
-    }
-
-    public function hookInstall()
-    {
-        return;
     }
 
     public function hookInitialize()
@@ -162,48 +134,5 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     public function hookPublicHead($args)
     {
         queue_css_file('avantelements');
-    }
-
-    protected function updateElementsRelatedToTitle($item)
-    {
-        // Update any Creator or Publisher elements that have the value of this item's Title element.
-
-        $titleTextsAfterSave = $this->getTitleTexts($item);
-
-        if (count($titleTextsAfterSave) != 1)
-        {
-            // Do not perform the update for an item that has more than one title.
-            return;
-        }
-
-        $oldTitleText = $this->titleTextsBeforeSave[0]['text'];
-        $newTitleText = $titleTextsAfterSave[0]['text'];
-
-        if ($oldTitleText == $newTitleText)
-            return;
-
-        $this->updateElementText('Creator', $oldTitleText, $newTitleText);
-        $this->updateElementText('Publisher', $oldTitleText, $newTitleText);
-    }
-
-    protected function updateElementText($elementName, $oldTitleText, $newTitleText)
-    {
-        /* @var $element ElementText */
-        $elementId = ItemMetadata::getElementIdForElementName($elementName);
-        $elements = self::fetchElementsByValue($elementId, $oldTitleText);
-        foreach ($elements as $element)
-        {
-            // Update the element.
-            $element->text = $newTitleText;
-            $element->save();
-
-            // Update the text in the Search Texts table.
-            $db = get_db();
-            $select =  get_db()->select()->from($db->SearchTexts)->where('record_id = ?', $element->record_id);
-            $searchText = $db->getTable('SearchText')->fetchObject($select);
-            $text = $searchText['text'];
-            $searchText['text'] = str_replace($oldTitleText, $newTitleText, $text);
-            $searchText->save();
-        }
     }
 }

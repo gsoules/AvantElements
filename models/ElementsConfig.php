@@ -8,6 +8,7 @@ class ElementsConfig extends CommonConfig
     const OPTION_HTML = 'avantelements_allow_html';
     const OPTION_IMPLICIT_LINK = 'avantelements_implicit_link';
     const OPTION_TEXT_FIELD = 'avantelements_text_field';
+    const OPTION_TITLE_SYNC = 'avantelements_title_sync';
     const OPTION_VALIDATION = 'avantelements_validation';
 
     public static function getOptionDataForAddInput()
@@ -111,6 +112,11 @@ class ElementsConfig extends CommonConfig
         }
 
         return $data;
+    }
+
+    public static function getOptionDataForTitleSync()
+    {
+        return self::getOptionData(self::OPTION_TITLE_SYNC);
     }
 
     public static function getOptionDataForValidation()
@@ -251,6 +257,11 @@ class ElementsConfig extends CommonConfig
         return $text;
     }
 
+    public static function getOptionTextForTitleSync()
+    {
+        return self::getOptionText(self::OPTION_TITLE_SYNC);
+    }
+
     public static function getOptionTextForValidation()
     {
         if (self::configurationErrorsDetected())
@@ -290,6 +301,7 @@ class ElementsConfig extends CommonConfig
         self::saveOptionDataForDisplayOrder();
         self::saveOptionDataForExternalLink();
         self::saveOptionDataForImplicitLink();
+        self::saveOptionDataForTitleSync();
         self::saveOptionDataForValidation();
         self::saveOptionDataForAddInput();
         self::saveOptionDataForHtml();
@@ -458,6 +470,11 @@ class ElementsConfig extends CommonConfig
         }
 
         set_option(self::OPTION_TEXT_FIELD, json_encode($data));
+    }
+
+    public static function saveOptionDataForTitleSync()
+    {
+        self::saveOptionData(self::OPTION_TITLE_SYNC, __('Title Sync'));
     }
 
     public static function saveOptionDataForValidation()

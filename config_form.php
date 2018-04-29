@@ -10,6 +10,9 @@ $externalLinkOptionRows = max(3, count(explode(PHP_EOL, $externalLinkOption)));
 $implicitLinkOption = ElementsConfig::getOptionTextForImplicitLink();
 $implicitLinkOptionRows = max(3, count(explode(PHP_EOL, $implicitLinkOption)));
 
+$titleSyncOption = ElementsConfig::getOptionTextForTitleSync();
+$titleSyncOptionRows = max(3, count(explode(PHP_EOL, $titleSyncOption)));
+
 $validationOption = ElementsConfig::getOptionTextForValidation();
 $validationOptionRows = max(3, count(explode(PHP_EOL, $validationOption)));
 
@@ -63,6 +66,16 @@ $customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that link to external web resources."); ?></p>
         <?php echo $view->formTextarea(ElementsConfig::OPTION_EXTERNAL_LINK, $externalLinkOption, array('rows' => $externalLinkOptionRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo __('Title Sync'); ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Elements that should stay in sync with corrresponding titles."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_TITLE_SYNC, $titleSyncOption, array('rows' => $titleSyncOptionRows)); ?>
     </div>
 </div>
 

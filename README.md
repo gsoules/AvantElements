@@ -24,6 +24,7 @@ The AvantElements plugin adds data entry and validation features to the Omeka ad
 * Option to make an element required.
 * Suggestion feature for Creator and Publisher fields.
 * Automatic update of Creator and Publisher fields when a corresponding Title field is modified.
+If the item has more than one title, the sync occurs with the first title.
 
 
  > At this time, the AvantElements implementation is specific to the Southwest Harbor Public Library's [Digital Archive](http://swhplibrary.net/archive) and therefore **this plugin is not yet usable as-is for another Omeka installation**. However, the source code is provided here for the benefit of software developers who want to learn about the logic or adapt it for use on another project. 
