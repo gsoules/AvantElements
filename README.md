@@ -22,6 +22,7 @@ The AvantElements plugin adds data entry and validation features to the Omeka ad
 * Option to hide the HTML checkbox on any element.
 * Option to hide the Add Input button on any element.
 * Option to make an element required.
+* Option to provide a default value for fields of a newly created item.
 * Suggestion feature for Creator and Publisher fields.
 * Automatic update of Creator and Publisher fields when a corresponding Title field is modified.
 If the item has more than one title, the sync occurs with the first title.

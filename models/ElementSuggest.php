@@ -27,9 +27,7 @@ class ElementSuggest
         // The term 'implicit relationship' means a relationship that is not established using the Relationship
         // mechanism that this plugin provides, but that is implied. As an example, if item X is the biography for
         // a person, and item Y is a photograph and its Creator element is the title of item X, then items X and Y
-        // have an implicit creator/creation relationship. You can have implicit relationships appear on the Show
-        // page along with explicitly set relationships by using the custom_relationships filter which is supported
-        // by the RelatedItemsTree class.
+        // have an implicit creator/creation relationship.
 
         $keywords = isset($_POST['keywords']) ? $_POST['keywords'] : '';
         $elementId = isset($_POST['elementId']) ? $_POST['elementId'] : '';
