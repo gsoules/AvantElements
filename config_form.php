@@ -41,7 +41,7 @@ $customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo __('Display Order'); ?></label>
+        <label><?php echo CONFIG_LABEL_DISPLAY_ORDER; ?></label>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("The order to display elements on public Show pages."); ?></p>
@@ -51,7 +51,7 @@ $customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo __('Implicit Link'); ?></label>
+        <label><?php echo CONFIG_LABEL_IMPLICIT_LINK; ?></label>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that should link to items with the the same value."); ?></p>
@@ -61,7 +61,7 @@ $customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo __('External Link'); ?></label>
+        <label><?php echo CONFIG_LABEL_EXTERNAL_LINK; ?></label>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that link to external web resources."); ?></p>
@@ -71,7 +71,7 @@ $customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo __('Title Sync'); ?></label>
+        <label><?php echo CONFIG_LABEL_TITLE_SYNC; ?></label>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that should stay in sync with corrresponding titles."); ?></p>
@@ -83,7 +83,7 @@ $customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo __('Validation'); ?></label>
+        <label><?php echo CONFIG_LABEL_VALIDATION; ?></label>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that must be validated."); ?></p>
@@ -93,7 +93,7 @@ $customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo __('Callback Function'); ?></label>
+        <label><?php echo CONFIG_LABEL_CALLBACK; ?></label>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Callback functions to be called for individual elements."); ?></p>
@@ -103,7 +103,7 @@ $customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo __('Allow Add Input'); ?></label>
+        <label><?php echo CONFIG_LABEL_ADD_INPUT; ?></label>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that show the Add Input button."); ?></p>
@@ -113,7 +113,7 @@ $customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo __('Allow HTML'); ?></label>
+        <label><?php echo CONFIG_LABEL_HTML; ?></label>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that show the Use HTML checkbox."); ?></p>
@@ -123,7 +123,7 @@ $customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo __('Text Field'); ?></label>
+        <label><?php echo CONFIG_LABEL_TEXT_FIELD; ?></label>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that should display as a text field."); ?></p>

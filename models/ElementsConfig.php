@@ -1,5 +1,16 @@
 <?php
-class ElementsConfig extends CommonConfig
+
+define('CONFIG_LABEL_ADD_INPUT', __('Allow Add Input'));
+define('CONFIG_LABEL_CALLBACK', __('Callback'));
+define('CONFIG_LABEL_DISPLAY_ORDER', __('Display Order'));
+define('CONFIG_LABEL_EXTERNAL_LINK', __('External Link'));
+define('CONFIG_LABEL_HTML', __('Allow HTML'));
+define('CONFIG_LABEL_IMPLICIT_LINK', __('Implicit Link'));
+define('CONFIG_LABEL_TEXT_FIELD', __('Text Field'));
+define('CONFIG_LABEL_TITLE_SYNC', __('Title Sync'));
+define('CONFIG_LABEL_VALIDATION', __('Validation'));
+
+class ElementsConfig extends ConfigOptions
 {
     const OPTION_ADD_INPUT = 'avantelements_allow_add_input';
     const OPTION_CALLBACK = 'avantelements_callback';
@@ -23,12 +34,7 @@ class ElementsConfig extends CommonConfig
 
     public static function getOptionDataForCallback()
     {
-        $rawData = json_decode(get_option(self::OPTION_CALLBACK), true);
-        if (empty($rawData))
-        {
-            $rawData = array();
-        }
-
+        $rawData = self::getRawData(self::OPTION_CALLBACK);
         $data = array();
 
         foreach ($rawData as $elementId => $callbackDefinition)
@@ -56,12 +62,7 @@ class ElementsConfig extends CommonConfig
 
     public static function getOptionDataForExternalLink()
     {
-        $rawData = json_decode(get_option(self::OPTION_EXTERNAL_LINK), true);
-        if (empty($rawData))
-        {
-            $rawData = array();
-        }
-
+        $rawData = self::getRawData(self::OPTION_EXTERNAL_LINK);
         $data = array();
 
         foreach ($rawData as $elementId => $linkData)
@@ -91,12 +92,7 @@ class ElementsConfig extends CommonConfig
 
     public static function getOptionDataForTextField()
     {
-        $rawData = json_decode(get_option(self::OPTION_TEXT_FIELD), true);
-        if (empty($rawData))
-        {
-            $rawData = array();
-        }
-
+        $rawData = self::getRawData(self::OPTION_TEXT_FIELD);
         $data = array();
 
         foreach ($rawData as $elementId => $textFieldData)
@@ -121,12 +117,7 @@ class ElementsConfig extends CommonConfig
 
     public static function getOptionDataForValidation()
     {
-        $rawData = json_decode(get_option(self::OPTION_VALIDATION), true);
-        if (empty($rawData))
-        {
-            $rawData = array();
-        }
-
+        $rawData = self::getRawData(self::OPTION_VALIDATION);
         $data = array();
 
         foreach ($rawData as $elementId => $validationData)
@@ -311,12 +302,12 @@ class ElementsConfig extends CommonConfig
 
     public static function saveOptionDataForDisplayOrder()
     {
-        self::saveOptionData(self::OPTION_DISPLAY_ORDER, __('Display Order'));
+        self::saveOptionData(self::OPTION_DISPLAY_ORDER, CONFIG_LABEL_DISPLAY_ORDER);
     }
 
     public static function saveOptionDataForAddInput()
     {
-        self::saveOptionData(self::OPTION_ADD_INPUT, __('Allow Add Input'));
+        self::saveOptionData(self::OPTION_ADD_INPUT, CONFIG_LABEL_ADD_INPUT);
     }
 
     public static function saveOptionDataForCallback()
@@ -344,44 +335,25 @@ class ElementsConfig extends CommonConfig
             else
             {
                 $elementId = ItemMetadata::getElementIdForElementName($elementName);
-                if ($elementId == 0)
-                {
-                    throw new Omeka_Validate_Exception(__('Callback: \'%s\' is not an element.', $elementName));
-                }
+                self::errorIf($elementId == 0, CONFIG_LABEL_CALLBACK, __("'%s' is not an element.", $elementName));
             }
 
             $callbackType = isset($nameParts[1]) ? $nameParts[1] : '';
             $types = $isItemCallback ? array ('validate') : array('filter', 'validate', 'default');
 
-            if (empty($callbackType) || !in_array($callbackType, $types))
-            {
-                throw new Omeka_Validate_Exception(__('Callback (%s): Missing or invalid callback type.', $elementName));
-            }
-
-            if (!isset($parts[1]))
-            {
-                throw new Omeka_Validate_Exception(__('Callback Filter (%s): No callback function specified.', $elementName));
-            }
+            self::errorRowIf(empty($callbackType) || !in_array($callbackType, $types), CONFIG_LABEL_CALLBACK, $elementName, __('Missing or invalid callback type.'));
+            self::errorRowIf(!isset($parts[1]), CONFIG_LABEL_CALLBACK, $elementName, __('No callback function specified.'));
 
             $functionParts = array_map('trim', explode(',', $parts[1]));
             $className = $functionParts[0];
 
-            if (empty($className))
-            {
-                throw new Omeka_Validate_Exception(__('Callback Filter (%s): No callback class specified.', $elementName));
-            }
+            self::errorRowIf(empty($className), CONFIG_LABEL_CALLBACK, $elementName, __('No callback class specified.'));
 
             $functionName = isset($functionParts[1]) ? $functionParts[1] : '';
-            if (empty($functionName))
-            {
-                throw new Omeka_Validate_Exception(__('Callback Filter (%s): No callback function specified.', $elementName));
-            }
+            self::errorRowIf(empty($functionName), CONFIG_LABEL_CALLBACK, $elementName, __('No callback function specified.'));
 
             $function = "$className::$functionName";
-            if (!is_callable($function))
-            {
-                throw new Omeka_Validate_Exception(__('Callback Filter (%s, %s): Function \'%s\' not found or is not public.', $elementName, $callbackType, $functionName));
-            }
+            self::errorRowIf(!is_callable($function), CONFIG_LABEL_CALLBACK, $elementName, __("%s function '%s' does not exist or is not public.", $callbackType, $function));
 
             $data[$elementId][] = array('type' => $callbackType, 'class' => $className, 'function' => $functionName);
         }
@@ -407,25 +379,16 @@ class ElementsConfig extends CommonConfig
             $elementName = $nameParts[0];
 
             $elementId = ItemMetadata::getElementIdForElementName($elementName);
-            if ($elementId == 0)
-            {
-                throw new Omeka_Validate_Exception(__('External Link: \'%s\' is not an element.', $elementName));
-            }
+            self::errorIf($elementId == 0, CONFIG_LABEL_EXTERNAL_LINK, __("'%s' is not an element.", $elementName));
 
             $linkText = isset($nameParts[1]) ? $nameParts[1] : '';
 
-            if (!isset($parts[1]))
-            {
-                throw new Omeka_Validate_Exception(__('External Link (%s): At least one parameter is required.', $elementName));
-            }
+            self::errorRowIf(!isset($parts[1]), CONFIG_LABEL_EXTERNAL_LINK, $elementName, __('At least one parameter is required.'));
 
             $argParts = array_map('trim', explode(',', $parts[1]));
 
             $openInNewTab = $argParts[0];
-            if (!($openInNewTab == 'true' || $openInNewTab == 'false'))
-            {
-                throw new Omeka_Validate_Exception(__('External Link (%s): \'%s\' is not valid for the Open action. Use \'true\' or \'false\'.', $elementName, $openInNewTab));
-            }
+            self::errorRowIf(!($openInNewTab == 'true' || $openInNewTab == 'false'), CONFIG_LABEL_EXTERNAL_LINK, $elementName, __("'%s' is not valid for the Open action. Options: true, false.", $openInNewTab));
 
             $class = isset($argParts[1]) ? $argParts[1] : '';
 
@@ -437,12 +400,12 @@ class ElementsConfig extends CommonConfig
 
     public static function saveOptionDataForHtml()
     {
-        self::saveOptionData(self::OPTION_HTML, __('Allow HTML'));
+        self::saveOptionData(self::OPTION_HTML, CONFIG_LABEL_HTML);
     }
 
     public static function saveOptionDataForImplicitLink()
     {
-        self::saveOptionData(self::OPTION_IMPLICIT_LINK, __('Implicit Link'));
+        self::saveOptionData(self::OPTION_IMPLICIT_LINK, CONFIG_LABEL_IMPLICIT_LINK);
     }
 
     public static function saveOptionDataForTextField()
@@ -461,10 +424,7 @@ class ElementsConfig extends CommonConfig
             $width = isset($parts[1]) ? intval($parts[1]) : 0;
 
             $elementId = ItemMetadata::getElementIdForElementName($name);
-            if ($elementId == 0)
-            {
-                throw new Omeka_Validate_Exception(__('Text Field: \'%s\' is not an element.', $name));
-            }
+            self::errorIf($elementId == 0, CONFIG_LABEL_TEXT_FIELD, __("'%s' is not an element.", $name));
 
             $data[$elementId] = array('width' => $width);
         }
@@ -474,7 +434,7 @@ class ElementsConfig extends CommonConfig
 
     public static function saveOptionDataForTitleSync()
     {
-        self::saveOptionData(self::OPTION_TITLE_SYNC, __('Title Sync'));
+        self::saveOptionData(self::OPTION_TITLE_SYNC, CONFIG_LABEL_TITLE_SYNC);
     }
 
     public static function saveOptionDataForValidation()
@@ -493,15 +453,9 @@ class ElementsConfig extends CommonConfig
             $elementName = $parts[0];
 
             $elementId = ItemMetadata::getElementIdForElementName($elementName);
-            if ($elementId == 0)
-            {
-                throw new Omeka_Validate_Exception(__('Validation: \'%s\' is not an element.', $elementName));
-            }
+            self::errorIf($elementId == 0, CONFIG_LABEL_VALIDATION, __("'%s' is not an element.", $elementName));
 
-            if (!isset($parts[1]))
-            {
-                throw new Omeka_Validate_Exception(__('Validation (%s): At least one validation parameter is required.', $elementName));
-            }
+            self::errorRowIf(!isset($parts[1]), CONFIG_LABEL_VALIDATION, $elementName, __('At least one validation parameter is required.'));
 
             $argParts = array_map('trim', explode(',', $parts[1]));
 
@@ -517,7 +471,8 @@ class ElementsConfig extends CommonConfig
                 }
                 else
                 {
-                    throw new Omeka_Validate_Exception(__('Validation (%s): \'%s\' is not a valid parameter.', $elementName, $argName));
+                    $allowed = implode(', ', $argNames);
+                    self::errorRowIf(true, CONFIG_LABEL_VALIDATION, $elementName, __("'%s' is not a valid parameter. Options: %s.", $argName, $allowed));
                 }
             }
 
