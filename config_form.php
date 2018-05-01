@@ -4,17 +4,20 @@ $view = get_view();
 $displayOrderOption = ElementsConfig::getOptionTextForDisplayOrder();
 $displayOrderOptionRows = max(3, count(explode(PHP_EOL, $displayOrderOption)));
 
-$externalLinkOption = ElementsConfig::getOptionTextForExternalLink();
-$externalLinkOptionRows = max(3, count(explode(PHP_EOL, $externalLinkOption)));
-
 $implicitLinkOption = ElementsConfig::getOptionTextForImplicitLink();
 $implicitLinkOptionRows = max(3, count(explode(PHP_EOL, $implicitLinkOption)));
+
+$externalLinkOption = ElementsConfig::getOptionTextForExternalLink();
+$externalLinkOptionRows = max(3, count(explode(PHP_EOL, $externalLinkOption)));
 
 $titleSyncOption = ElementsConfig::getOptionTextForTitleSync();
 $titleSyncOptionRows = max(3, count(explode(PHP_EOL, $titleSyncOption)));
 
 $validationOption = ElementsConfig::getOptionTextForValidation();
 $validationOptionRows = max(3, count(explode(PHP_EOL, $validationOption)));
+
+$callbackOption = ElementsConfig::getOptionTextForCallback();
+$callbackOptionRows = max(3, count(explode(PHP_EOL, $callbackOption)));
 
 $addInputOption = ElementsConfig::getOptionTextForAddInput();
 $addInputOptionRows = max(3, count(explode(PHP_EOL, $addInputOption)));
@@ -24,9 +27,6 @@ $htmlOptionRows = max(3, count(explode(PHP_EOL, $htmlOption)));
 
 $textField = ElementsConfig::getOptionTextForTextField();
 $textFieldRows = max(3, count(explode(PHP_EOL, $textField)));
-
-$customFilterOption = ElementsConfig::getOptionTextForCallback();
-$customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
 
 ?>
 <style>
@@ -97,7 +97,7 @@ $customFilterOptionRows = max(3, count(explode(PHP_EOL, $customFilterOption)));
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Callback functions to be called for individual elements."); ?></p>
-        <?php echo $view->formTextarea(ElementsConfig::OPTION_CALLBACK, $customFilterOption, array('rows' => $customFilterOptionRows)); ?>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_CALLBACK, $callbackOption, array('rows' => $callbackOptionRows)); ?>
     </div>
 </div>
 
