@@ -1,6 +1,15 @@
 <?php
 class ElementValidator
 {
+    const CALLBACK_ACTION_DEFAULT = 'default';
+    const CALLBACK_ACTION_SAVE = 'save';
+    const CALLBACK_ACTION_VALIDATE = 'validate';
+
+    const VALIDATION_TYPE_DATE = 'date';
+    const VALIDATION_TYPE_REQUIRED = 'required';
+    const VALIDATION_TYPE_RESTRICTED = 'restricted';
+    const VALIDATION_TYPE_YEAR = 'year';
+
     protected $callbacks;
     protected $validationOptionData;
 
@@ -8,6 +17,11 @@ class ElementValidator
     {
         $this->validationOptionData = ElementsConfig::getOptionDataForValidation();
         $this->callbacks = ElementsConfig::getOptionDataForCallback();
+    }
+
+    public function afterSaveItem($item)
+    {
+        $this->performCallbackAfterSave($item);
     }
 
     public function beforeSaveItem($item)
@@ -20,9 +34,9 @@ class ElementValidator
         $this->performCallbackBeforeSave($item);
     }
 
-    protected function constructCallbackFunctionName(Item $item, $target, $callback, $callbackType)
+    protected function constructCallbackFunctionName(Item $item, $elementId, $callback, $callbackAction)
     {
-        if ($callback['type'] != $callbackType)
+        if ($callback['action'] != $callbackAction)
         {
             return '';
         }
@@ -31,21 +45,27 @@ class ElementValidator
 
         if (!is_callable($callbackFunctionName))
         {
-            AvantElements::addError($item, $target, __('Callback %s function \'%s\' is not callable.', $callback['type'], $callbackFunctionName));
+            $target = $elementId == 0 ? '<item>' : ItemMetadata::getElementNameFromId($elementId);
+            AvantElements::addError($item, $target, __('Callback %s function \'%s\' is not callable.', $callback['action'], $callbackFunctionName));
             $callbackFunctionName = '';
         }
 
         return $callbackFunctionName;
     }
 
-    public function filterElementText($elementId, $text)
+    public function filterElementText($item, $elementId, $text)
     {
-        if ($this->hasValidationDefinitionFor($elementId, 'year'))
+        if (empty($text))
+        {
+            return self::performCallbackForDefault($item, $elementId);
+        }
+
+        if ($this->hasValidationDefinitionFor($elementId, self::VALIDATION_TYPE_YEAR))
         {
             $text = trim($text);
         }
 
-        if ($this->hasValidationDefinitionFor($elementId, 'restricted'))
+        if ($this->hasValidationDefinitionFor($elementId, self::VALIDATION_TYPE_RESTRICTED))
         {
             $text = $this->filterRestrictedText($text);
         }
@@ -71,7 +91,7 @@ class ElementValidator
     public function getCallbackDefaultElementText($item, $elementId)
     {
         $text = '';
-        $callbackFunctionName = $this->getCallbackFunctionName($item, $elementId, 'default');
+        $callbackFunctionName = $this->getCallbackFunctionName($item, $elementId, ElementValidator::CALLBACK_ACTION_DEFAULT);
         if (!empty($callbackFunctionName))
         {
             $text = call_user_func($callbackFunctionName, $item);
@@ -79,10 +99,8 @@ class ElementValidator
         return $text;
     }
 
-    protected function getCallbackFunctionName($item, $elementId, $callbackType)
+    protected function getCallbackFunctionName($item, $elementId, $callbackAction)
     {
-        $callbackFunctionName = '';
-
         foreach ($this->callbacks as $callbackElementId => $callbackDefinition)
         {
             if ($elementId != $callbackElementId)
@@ -91,23 +109,14 @@ class ElementValidator
             }
             foreach ($callbackDefinition['callbacks'] as $callback)
             {
-                if ($callback['type'] != $callbackType)
+                if ($callback['action'] != $callbackAction)
                 {
                     continue;
                 }
-                $callbackFunctionName = $this->constructCallbackFunctionName($item, '<item>', $callback, $callbackType);
+                return $this->constructCallbackFunctionName($item, $elementId, $callback, $callbackAction);
             }
         }
-        return $callbackFunctionName;
-    }
-
-    public function getItemCallbackFunctionName(Item $item)
-    {
-        if (!isset($this->callbacks[0]))
-            return '';
-
-        $callbackFunctionName = $this->constructCallbackFunctionName($item, '<item>', $this->callbacks[0]['callbacks'][0], 'validate');
-        return $callbackFunctionName;
+        return '';
     }
 
     protected function getValidationDefinitionsFor($validationType)
@@ -139,18 +148,38 @@ class ElementValidator
         return in_array($validationType, $validationTypes);
     }
 
-    public function performCallbackBeforeSave($item)
+    public function performCallbackAfterSave($item)
     {
-        $callbackFunctionName = $this->getCallbackFunctionName($item, 0, 'validate');
+        $callbackFunctionName = $this->getCallbackFunctionName($item, 0, self::CALLBACK_ACTION_SAVE);
         if (!empty($callbackFunctionName))
         {
             call_user_func($callbackFunctionName, $item);
         }
     }
 
+    public function performCallbackBeforeSave($item)
+    {
+        $callbackFunctionName = $this->getCallbackFunctionName($item, 0, self::CALLBACK_ACTION_VALIDATE);
+        if (!empty($callbackFunctionName))
+        {
+            call_user_func($callbackFunctionName, $item);
+        }
+    }
+
+    public function performCallbackForDefault($item, $elementId)
+    {
+        $callbackFunctionName = $this->getCallbackFunctionName($item, $elementId, self::CALLBACK_ACTION_DEFAULT);
+        $text = '';
+        if (!empty($callbackFunctionName))
+        {
+            $text =call_user_func($callbackFunctionName, $item);
+        }
+        return $text;
+    }
+
     public function performCallbackValidation($item, $elementId, $elementName, $text)
     {
-        $callbackFunctionName = $this->getCallbackFunctionName($item, $elementId, 'validate');
+        $callbackFunctionName = $this->getCallbackFunctionName($item, $elementId, self::CALLBACK_ACTION_VALIDATE);
         if (!empty($callbackFunctionName))
         {
             call_user_func($callbackFunctionName, $item, $elementId, $elementName, $text);
@@ -161,12 +190,12 @@ class ElementValidator
     {
         $dateValidator = new DateValidator();
 
-        if ($this->hasValidationDefinitionFor($elementId, 'date'))
+        if ($this->hasValidationDefinitionFor($elementId, self::VALIDATION_TYPE_DATE))
         {
             $dateValidator->validateElementDate($item, $elementId, $elementName, $text);
         }
 
-        if ($this->hasValidationDefinitionFor($elementId, 'year'))
+        if ($this->hasValidationDefinitionFor($elementId, self::VALIDATION_TYPE_YEAR))
         {
             $dateValidator->validateElementYear($item, $elementId, $elementName, $text);
         }
@@ -182,7 +211,7 @@ class ElementValidator
 
     public function validateRequiredElements(Item $item)
     {
-        $definitions = $this->getValidationDefinitionsFor('required');
+        $definitions = $this->getValidationDefinitionsFor(self::VALIDATION_TYPE_REQUIRED);
         foreach ($definitions as $elementId => $definition)
         {
             $this->validateRequiredElement($item, $elementId, $definition['name']);
