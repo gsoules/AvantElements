@@ -9,7 +9,7 @@ class ElementFields
         $this->textFields = ElementsConfig::getOptionDataForTextField();
     }
 
-    public function createField(ElementValidator $elementValidator, $components, $args, $item, $elementId)
+    public function createField(ElementValidator $elementValidator, $components, $args, $item, $elementId, $value, $stem)
     {
         // This method determines if the element's Text Area needs to be modified or converted to a Text Box.
         // A Text Area is modified when it needs to display a default value for a new item. A TextArea is
@@ -19,11 +19,10 @@ class ElementFields
         // HTML for a field is contained in the $components array's 'input' element.
 
         $hasDefaultValue = false;
-        $value = $args['value'];
 
-        if (empty($item->id) && empty($value))
+        if (empty($item->id))
         {
-            // This is a new item and this element is blank. See if there is a default value.
+            // This is a new item. See if there is a default value for this element.
             $value = $elementValidator->getCallbackDefaultElementText($item, $elementId);
             $hasDefaultValue = !empty($value);
         }
@@ -31,6 +30,7 @@ class ElementFields
         // See if this element is configured to be a text field.
         $convertToTextBox = array_key_exists($elementId, $this->textFields);
 
+        $inputs = $components['inputs'];
         if ($hasDefaultValue || $convertToTextBox)
         {
             if ($convertToTextBox)
@@ -40,33 +40,61 @@ class ElementFields
                 // lists created by the SimpleVocab plugin because it gets called after this plugin (they are called
                 // in alphabetical order). To set those widths, use CSS in AvantCustom/views/shared/css/avantcustom.css.
                 $width = $this->textFields[$elementId]['width'];
-                $components = self::createTextBox($components, $args, $width, $value);
+                $inputs = self::createTextBox($args, $width, $value, $stem);
             }
             else
             {
                 if ($hasDefaultValue)
                 {
                     // The field should remain a Text Area, but with a default value.
-                    $components = self::createTextArea($components, $args, $value);
+                    $vocabulary = $this->getSimpleVocabTerms($elementId);
+                    if (empty($vocabulary))
+                    {
+                        $inputs = self::createTextArea($args, $value, $stem);
+                    }
+                    else
+                    {
+                        $inputs = self::createSelect($args, $value, $vocabulary, $stem);
+                    }
                 }
             }
         }
-        return $components;
+
+        return "<div class='input-block'><div class='input'>$inputs</div></div>";
     }
 
-    protected function createTextArea(array $components, $args, $value)
+    protected function createSelect($args, $value, $vocabulary, $stem)
     {
-        $inputNameStem = $args['input_name_stem'] . "[text]";
-        $components['input'] = get_view()->formTextarea($inputNameStem, $value, array('rows'=>3));
-        return $components;
+        $style =  array('style' => 'width: 300px;');
+        $selectTerms = array('' => __('Select Below')) + array_combine($vocabulary, $vocabulary);
+        $inputs = get_view()->formSelect($stem, $value, $style, $selectTerms);
+        return $inputs;
     }
 
-    protected function createTextBox(array $components, $args, $width, $value)
+    protected function createTextArea($args, $value, $stem)
     {
-        $inputNameStem = $args['input_name_stem'] . "[text]";
+        $inputs = get_view()->formTextarea($stem, $value, array('rows'=>3));
+        return $inputs;
+    }
+
+    protected function createTextBox($args, $width, $value, $stem)
+    {
         $width = $width == 0 ? 380 : $width;
-        $components['input'] = get_view()->formText($inputNameStem, $value, array('style' => "width:{$width}px"));
-        return $components;
+        $inputs = get_view()->formText($stem, $value, array('style' => "width:{$width}px"));
+        return $inputs;
     }
 
+    public static function getSimpleVocabTerms($elementId)
+    {
+        $vocabulary = array();
+        if (plugin_is_active('SimpleVocab'))
+        {
+            $simpleVocabTerm = get_db()->getTable('SimpleVocabTerm')->findByElementId($elementId);
+            if (!empty($simpleVocabTerm))
+            {
+                $vocabulary = explode("\n", $simpleVocabTerm->terms);
+            }
+        }
+        return $vocabulary;
+    }
 }

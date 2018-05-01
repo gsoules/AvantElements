@@ -3,6 +3,7 @@ class ElementFilters
 {
     protected $addInputElements;
     protected $elementCloning;
+    protected $inputElementValues;
     protected $fields;
     protected $htmlElements;
 
@@ -10,6 +11,7 @@ class ElementFilters
     {
         $this->addInputElements = ElementsConfig::getOptionDataForAddInput();
         $this->elementCloning = new ElementCloning();
+        $this->inputElementValues = array();
         $this->fields = new ElementFields();
         $this->htmlElements = ElementsConfig::getOptionDataForHtml();
     }
@@ -28,13 +30,20 @@ class ElementFilters
         return $elementsBySet;
     }
 
-    public function filterElementForm($components, $args)
+    public function filterElementForm(ElementValidator $elementValidator, $components, $args)
     {
         // Omeka calls the Element Form Filter to give plugins an opportunity to modify the Edit form's input-block
         // <div> for an element's <input> tag plus additional controls like the Add Input button.
 
+        $item = $args['record'];
         $elementName = $args['element']['name'];
         $elementId = $args['element']['id'];
+
+        // Create the appropriate field HTML (a text box or text area) for the element.
+        $value = $this->inputElementValues[$elementId]['value'];
+        $stem = $this->inputElementValues[$elementId]['stem'];
+        $components['inputs'] = $this->fields->createField($elementValidator, $components, $args, $item, $elementId, $value, $stem);
+
 
         if ($this->elementCloning->cloning())
         {
@@ -64,11 +73,15 @@ class ElementFilters
     {
         // Omeka calls the Element Input Filter to give this plugin an opportunity to modify an element's <input> tag.
 
-        $item = $args['record'];
+        //$item = $args['record'];
         $elementId = $args['element']['id'];
 
+        // Remember this element's value so that it will be available when filterElementForm is called for this element.
+        $this->inputElementValues[$elementId]['value'] = $args['value'];
+        $this->inputElementValues[$elementId]['stem'] = $args['input_name_stem'] . "[text]";
+
         // Create the appropriate field HTML (a text box or text area) for the element.
-        $components = $this->fields->createField($elementValidator, $components, $args, $item, $elementId);
+        //$components = $this->fields->createField($elementValidator, $components, $args, $item, $elementId);
 
         $allowHtml = array_key_exists($elementId, $this->htmlElements);
         if (!$allowHtml)
@@ -87,8 +100,9 @@ class ElementFilters
         // the text that will be saved for an element.
         // Omeka calls this filter before calling filterElementValidate.
 
+        $item = $args['record'];
         $elementId = $args['element']['id'];
-        $filteredText = $elementValidator->filterElementText($elementId, $text);
+        $filteredText = $elementValidator->filterElementText($item, $elementId, $text);
         return $filteredText;
     }
 
