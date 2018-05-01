@@ -54,7 +54,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function filterElementForm($components, $args)
     {
-        return $this->elementFilters->filterElementForm($components, $args);
+        return $this->elementFilters->filterElementForm($this->elementValidator, $components, $args);
     }
 
     public function filterElementInput($components, $args)
@@ -84,18 +84,14 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAdminItemsShowSidebar($args)
     {
-        // Add a 'Clone' button to the sidebar. It will show up near the bottom which isn't where it's
-        // supposed to go, but the jQuery for AvantElements will move it up under the other buttons.
-        $itemId = $args['item']->id;
-        $url = $itemId ? 'items/add/' . $itemId : '.';
-        $url = WEB_ROOT . '/admin/' . $url;
-        $label = __('Clone this Item');
-        echo "<a id='clone-button' href='$url' class='big blue button'>$label</a>";
+        $item = $args['item'];
+        ElementCloning::emitCloneButton($item);
     }
 
     public function hookAfterSaveItem($args)
     {
         $item = $args['record'];
+        $this->elementValidator->afterSaveItem($item);
         $this->titleSync->syncTitles($item);
     }
 

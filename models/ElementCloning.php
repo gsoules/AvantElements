@@ -58,4 +58,14 @@ class ElementCloning
         return $components;
     }
 
+    public static function emitCloneButton($item)
+    {
+        // Add a 'Clone' button to the sidebar. It will show up near the bottom which isn't where it's
+        // supposed to go, but the jQuery for AvantElements will move it up under the other buttons.
+        $itemId = $item->id;
+        $url = $itemId ? 'items/add/' . $itemId : '.';
+        $url = WEB_ROOT . '/admin/' . $url;
+        $label = __('Clone this Item');
+        echo "<a id='clone-button' href='$url' class='big blue button'>$label</a>";
+    }
 }
