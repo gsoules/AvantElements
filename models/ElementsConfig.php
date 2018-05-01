@@ -157,14 +157,14 @@ class ElementsConfig extends ConfigOptions
 
                 foreach ($callbackDefinition['callbacks'] as $callback)
                 {
-                    $callbackType = $callback['type'];
+                    $callbackAction = $callback['action'];
                     $className = $callback['class'];
                     $functionName = $callback['function'];
                     if (!empty($text))
                     {
                         $text .= PHP_EOL;
                     }
-                    $text .= "$elementName, $callbackType: $className, $functionName";
+                    $text .= "$elementName, $callbackAction: $className, $functionName";
                 }
             }
         }
@@ -338,10 +338,23 @@ class ElementsConfig extends ConfigOptions
                 self::errorIf($elementId == 0, CONFIG_LABEL_CALLBACK, __("'%s' is not an element.", $elementName));
             }
 
-            $callbackType = isset($nameParts[1]) ? $nameParts[1] : '';
-            $types = $isItemCallback ? array ('validate') : array('filter', 'validate', 'default');
+            $action = isset($nameParts[1]) ? $nameParts[1] : '';
+            if ($isItemCallback)
+            {
+                $actions = array(
+                    ElementValidator::CALLBACK_ACTION_VALIDATE,
+                    ElementValidator::CALLBACK_ACTION_SAVE);
+            }
+            else
+            {
+                $actions = array(
+                    ElementValidator::CALLBACK_ACTION_VALIDATE,
+                    ElementValidator::CALLBACK_ACTION_DEFAULT);
+            }
+            $allowed = implode(', ', $actions);
 
-            self::errorRowIf(empty($callbackType) || !in_array($callbackType, $types), CONFIG_LABEL_CALLBACK, $elementName, __('Missing or invalid callback type.'));
+            self::errorRowIf(empty($action), CONFIG_LABEL_CALLBACK, $elementName, __('Missing callback type. Options: %s.', $allowed));
+            self::errorRowIf(!in_array($action, $actions), CONFIG_LABEL_CALLBACK, $elementName, __("Invalid callback type '%s'. Options: %s.", $action, $allowed));
             self::errorRowIf(!isset($parts[1]), CONFIG_LABEL_CALLBACK, $elementName, __('No callback function specified.'));
 
             $functionParts = array_map('trim', explode(',', $parts[1]));
@@ -353,9 +366,9 @@ class ElementsConfig extends ConfigOptions
             self::errorRowIf(empty($functionName), CONFIG_LABEL_CALLBACK, $elementName, __('No callback function specified.'));
 
             $function = "$className::$functionName";
-            self::errorRowIf(!is_callable($function), CONFIG_LABEL_CALLBACK, $elementName, __("%s function '%s' does not exist or is not public.", $callbackType, $function));
+            self::errorRowIf(!is_callable($function), CONFIG_LABEL_CALLBACK, $elementName, __("%s function '%s' does not exist or is not public.", $action, $function));
 
-            $data[$elementId][] = array('type' => $callbackType, 'class' => $className, 'function' => $functionName);
+            $data[$elementId][] = array('action' => $action, 'class' => $className, 'function' => $functionName);
         }
 
         set_option(self::OPTION_CALLBACK, json_encode($data));
@@ -425,6 +438,7 @@ class ElementsConfig extends ConfigOptions
 
             $elementId = ItemMetadata::getElementIdForElementName($name);
             self::errorIf($elementId == 0, CONFIG_LABEL_TEXT_FIELD, __("'%s' is not an element.", $name));
+            self::errorIf(!empty(ElementFields::getSimpleVocabTerms($elementId)), CONFIG_LABEL_TEXT_FIELD, __("'%s' cannot be a text field. It is a SimpleVocab element that displays as a dropdown list.", $name));
 
             $data[$elementId] = array('width' => $width);
         }
@@ -459,19 +473,23 @@ class ElementsConfig extends ConfigOptions
 
             $argParts = array_map('trim', explode(',', $parts[1]));
 
-            $argNames = array('required', 'date', 'year', 'restricted', 'readonly');
+            $options = array(
+                ElementValidator::VALIDATION_TYPE_REQUIRED,
+                ElementValidator::VALIDATION_TYPE_DATE,
+                ElementValidator::VALIDATION_TYPE_YEAR,
+                ElementValidator::VALIDATION_TYPE_RESTRICTED);
 
             // Determine which args are specified, and issue an error for any that are unrecognized.
             $args = array();
             foreach ($argParts as $argName)
             {
-                if (in_array($argName, $argNames))
+                if (in_array($argName, $options))
                 {
                     $args[] = $argName;
                 }
                 else
                 {
-                    $allowed = implode(', ', $argNames);
+                    $allowed = implode(', ', $options);
                     self::errorRowIf(true, CONFIG_LABEL_VALIDATION, $elementName, __("'%s' is not a valid parameter. Options: %s.", $argName, $allowed));
                 }
             }

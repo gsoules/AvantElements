@@ -28,17 +28,17 @@ class TitleSync
     protected function updateElementText($elementId, $oldTitleText, $newTitleText)
     {
         // Get all the elements that have the old title value.
-        $elements = ItemMetadata::getElementsByValue($elementId, $oldTitleText);
+        $elementTexts = ItemMetadata::getElementTextsByValue($elementId, $oldTitleText);
 
-        foreach ($elements as $element)
+        foreach ($elementTexts as $elementText)
         {
             // Update the element with the new title value.
-            $element->text = $newTitleText;
-            $element->save();
+            $elementText->text = $newTitleText;
+            $elementText->save();
 
             // Update the text in the Search Texts table.
             $db = get_db();
-            $select =  get_db()->select()->from($db->SearchTexts)->where('record_id = ?', $element->record_id);
+            $select =  get_db()->select()->from($db->SearchTexts)->where('record_id = ?', $elementText->record_id);
             $searchText = $db->getTable('SearchText')->fetchObject($select);
             $text = $searchText['text'];
             $searchText['text'] = str_replace($oldTitleText, $newTitleText, $text);
