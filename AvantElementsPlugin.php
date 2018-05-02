@@ -2,6 +2,7 @@
 
 class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 {
+    protected $displayFilter;
     protected $elementFilters;
     protected $elementValidator;
     protected $linkBuilder;
@@ -28,22 +29,26 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         parent::__construct();
 
+        $this->displayFilter = new DisplayFilter($this->_filters);
         $this->elementFilters = new ElementFilters();
         $this->elementValidator = new ElementValidator();
         $this->linkBuilder = new LinkBuilder($this->_filters);
         $this->titleSync = new TitleSync();
     }
 
-    public function __call($name, $arguments)
+    public function __call($filterName, $arguments)
     {
         // Handle filter requests from the LinkBuilder for filterLinkImplicit and filterLinkExternal.
         $result = null;
 
-        if (strpos($name, 'filterLink') === 0)
+        if (strpos($filterName, 'filterLink') === 0)
         {
-            $result = $this->linkBuilder->buildLink($name, $arguments);
+            $result = $this->linkBuilder->buildLink($filterName, $arguments);
         }
-
+        elseif (strpos($filterName, 'filterDisplay') === 0)
+        {
+            $result = $this->displayFilter->displayField($filterName, $arguments);
+        }
         return $result;
     }
 

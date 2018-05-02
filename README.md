@@ -12,7 +12,7 @@ The AvantElements plugin adds data entry and validation features to the Omeka ad
 * Control of element display order and mixing of Dublin Core and non Dublin Core elements on public pages
 * Identifier validation to ensure that the Identifier is unique.
 * Bolder error messages.
-* Clone item feature.
+* Duplicate item feature (does not dup multi-input fields)
 * Data validation for specific elements.
 * Detection of carriage returns, leading/trailing spaces, and en/em dashes where prohibited.
 * Validation for Date, Year Start, Year End. Hide start/end when same.

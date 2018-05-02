@@ -9,17 +9,19 @@ class LinkBuilder
         $this->initializeExternalLinkFilters($filters);
     }
 
-    public function buildLink($name, $arguments)
+    public function buildLink($filterName, $arguments)
     {
-        $text = '';
+        $text = $arguments[0];
+        $elementId = $arguments[1]['element_text']['element_id'];
+        $elementName = ItemMetadata::getElementNameFromId($elementId);
 
-        if (strpos($name, 'filterLinkImplicit') === 0)
+        if (strpos($filterName, 'filterLinkImplicit') === 0)
         {
-            $text = $this->filterImplicitLink($arguments);
+            $text = $this->filterImplicitLink($text, $elementId);
         }
-        else if (strpos($name, 'filterLinkExternal') === 0)
+        else if (strpos($filterName, 'filterLinkExternal') === 0)
         {
-            $text = $this->filterExternalLink($arguments);
+            $text = $this->filterExternalLink($text, $elementName);
         }
 
         return $text;
@@ -64,19 +66,14 @@ class LinkBuilder
         return "<div class='element-text'><p><a href='$url' class='metadata-search-link' title='See other items that have this value'>$text</a></p></div>";
     }
 
-    protected function filterExternalLink($arguments)
+    protected function filterExternalLink($text, $elementName)
     {
-        $text = $arguments[0];
-        $elementId = $arguments[1]['element_text']['element_id'];
-        $elementName = ItemMetadata::getElementNameFromId($elementId);
         $definition = $this->externalLinkDefinitions[$elementName];
         return $this->emitExternalLink($text, $definition);
     }
 
-    protected function filterImplicitLink($arguments)
+    protected function filterImplicitLink($text, $elementId)
     {
-        $text = $arguments[0];
-        $elementId = $arguments[1]['element_text']['element_id'];
         return $this->emitImplicitLink($elementId, $text);
     }
 

@@ -55,8 +55,10 @@ class ElementValidator
 
     public function filterElementText($item, $elementId, $text)
     {
-        if (empty($text))
+        if (strlen($text) == 0)
         {
+            // The string has no content. Note use of strlen() instead of empty()
+            // to safely detect that a boolean value "0" is not considered empty.
             return self::performCallbackForDefault($item, $elementId);
         }
 

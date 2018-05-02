@@ -2,10 +2,12 @@
 
 class ElementFields
 {
+    protected $checkboxFields;
     protected $textFields;
 
     public function __construct()
     {
+        $this->checkboxFields = ElementsConfig::getOptionDataForCheckboxField();
         $this->textFields = ElementsConfig::getOptionDataForTextField();
     }
 
@@ -27,12 +29,17 @@ class ElementFields
 
         // See if this element is configured to be a text field.
         $convertToTextBox = array_key_exists($elementId, $this->textFields);
+        $convertToCheckBox = array_key_exists($elementId, $this->checkboxFields);
 
         if ($convertToTextBox)
         {
             // Emit a Text Box for this element whether or not it has a value.
             $width = $this->textFields[$elementId]['width'];
             $inputs = self::createTextBox($value, $stem, $width);
+        }
+        else if ($convertToCheckBox)
+        {
+            $inputs = self::createCheckbox($value, $stem);
         }
         elseif ($hasValue)
         {
@@ -57,6 +64,11 @@ class ElementFields
 
         // Wrap the input in the divs that Omeka expects for the form.
         return "<div class='input-block'><div class='input'>$inputs</div></div>";
+    }
+
+    protected function createCheckbox($value, $stem)
+    {
+        return get_view()->formCheckbox($stem, (bool)$value, array(), array('1', '0'));
     }
 
     protected function createSelect($value, $stem, $vocabulary)

@@ -28,6 +28,9 @@ $htmlOptionRows = max(3, count(explode(PHP_EOL, $htmlOption)));
 $textField = ElementsConfig::getOptionTextForTextField();
 $textFieldRows = max(3, count(explode(PHP_EOL, $textField)));
 
+$checkboxField = ElementsConfig::getOptionTextForCheckboxField();
+$checkboxFieldRows = max(3, count(explode(PHP_EOL, $checkboxField)));
+
 ?>
 <style>
     .error{color:red;font-size:16px;}
@@ -128,5 +131,15 @@ $textFieldRows = max(3, count(explode(PHP_EOL, $textField)));
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that should display as a text field."); ?></p>
         <?php echo $view->formTextarea(ElementsConfig::OPTION_TEXT_FIELD, $textField, array('rows' => $textFieldRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_CHECKBOX_FIELD; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Elements that should display as a checkbox."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_CHECKBOX_FIELD, $checkboxField, array('rows' => $checkboxFieldRows)); ?>
     </div>
 </div>

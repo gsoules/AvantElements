@@ -2,6 +2,7 @@
 
 define('CONFIG_LABEL_ADD_INPUT', __('Allow Add Input'));
 define('CONFIG_LABEL_CALLBACK', __('Callback'));
+define('CONFIG_LABEL_CHECKBOX_FIELD', __('Checkbox Field'));
 define('CONFIG_LABEL_DISPLAY_ORDER', __('Display Order'));
 define('CONFIG_LABEL_EXTERNAL_LINK', __('External Link'));
 define('CONFIG_LABEL_HTML', __('Allow HTML'));
@@ -14,6 +15,7 @@ class ElementsConfig extends ConfigOptions
 {
     const OPTION_ADD_INPUT = 'avantelements_allow_add_input';
     const OPTION_CALLBACK = 'avantelements_callback';
+    const OPTION_CHECKBOX_FIELD = 'avantelements_checkbox_field';
     const OPTION_DISPLAY_ORDER = 'avantelements_display_order';
     const OPTION_EXTERNAL_LINK = 'avantelements_external_link';
     const OPTION_HTML = 'avantelements_allow_html';
@@ -24,12 +26,17 @@ class ElementsConfig extends ConfigOptions
 
     public static function getOptionDataForAddInput()
     {
-        return self::getOptionData(self::OPTION_ADD_INPUT);
+        return self::getOptionListData(self::OPTION_ADD_INPUT);
+    }
+
+    public static function getOptionDataForCheckboxField()
+    {
+        return self::getOptionDefinitionData(self::OPTION_CHECKBOX_FIELD);
     }
 
     public static function getOptionDataForDisplayOrder()
     {
-        return self::getOptionData(self::OPTION_DISPLAY_ORDER);
+        return self::getOptionListData(self::OPTION_DISPLAY_ORDER);
     }
 
     public static function getOptionDataForCallback()
@@ -62,82 +69,37 @@ class ElementsConfig extends ConfigOptions
 
     public static function getOptionDataForExternalLink()
     {
-        $rawData = self::getRawData(self::OPTION_EXTERNAL_LINK);
-        $data = array();
-
-        foreach ($rawData as $elementId => $linkData)
-        {
-            $elementName = ItemMetadata::getElementNameFromId($elementId);
-            if (empty($elementName))
-            {
-                // This element must have been deleted since the AvantElements configuration was last saved.
-                continue;
-            }
-            $linkData['name'] = $elementName;
-            $data[$elementId] = $linkData;
-        }
-
-        return $data;
+        return self::getOptionDefinitionData(self::OPTION_EXTERNAL_LINK);
     }
 
     public static function getOptionDataForHtml()
     {
-        return self::getOptionData(self::OPTION_HTML);
+        return self::getOptionListData(self::OPTION_HTML);
     }
 
     public static function getOptionDataForImplicitLink()
     {
-        return self::getOptionData(self::OPTION_IMPLICIT_LINK);
+        return self::getOptionListData(self::OPTION_IMPLICIT_LINK);
     }
 
     public static function getOptionDataForTextField()
     {
-        $rawData = self::getRawData(self::OPTION_TEXT_FIELD);
-        $data = array();
-
-        foreach ($rawData as $elementId => $textFieldData)
-        {
-            $elementName = ItemMetadata::getElementNameFromId($elementId);
-            if (empty($elementName))
-            {
-                // This element must have been deleted since the AvantElements configuration was last saved.
-                continue;
-            }
-            $textFieldData['name'] = $elementName;
-            $data[$elementId] = $textFieldData;
-        }
-
-        return $data;
+        return self::getOptionDefinitionData(self::OPTION_TEXT_FIELD);
     }
 
     public static function getOptionDataForTitleSync()
     {
-        return self::getOptionData(self::OPTION_TITLE_SYNC);
+        return self::getOptionListData(self::OPTION_TITLE_SYNC);
     }
 
     public static function getOptionDataForValidation()
     {
-        $rawData = self::getRawData(self::OPTION_VALIDATION);
-        $data = array();
-
-        foreach ($rawData as $elementId => $validationData)
-        {
-            $elementName = ItemMetadata::getElementNameFromId($elementId);
-            if (empty($elementName))
-            {
-                // This element must have been deleted since the AvantElements configuration was last saved.
-                continue;
-            }
-            $validationData['name'] = $elementName;
-            $data[$elementId] = $validationData;
-        }
-
-        return $data;
+        return self::getOptionDefinitionData(self::OPTION_VALIDATION);
     }
 
     public static function getOptionTextForAddInput()
     {
-        return self::getOptionText(self::OPTION_ADD_INPUT);
+        return self::getOptionListText(self::OPTION_ADD_INPUT);
     }
 
     public static function getOptionTextForCallback()
@@ -171,9 +133,35 @@ class ElementsConfig extends ConfigOptions
         return $text;
     }
 
+    public static function getOptionTextForCheckboxField()
+    {
+        if (self::configurationErrorsDetected())
+        {
+            $text = $_POST[self::OPTION_CHECKBOX_FIELD];
+        }
+        else
+        {
+            $data = self::getOptionDataForCheckboxField();
+            $text = '';
+
+            foreach ($data as $elementId => $definition)
+            {
+                if (!empty($text))
+                {
+                    $text .= PHP_EOL;
+                }
+                $elementName = $definition['name'];
+                $checked = $definition['checked'];
+                $unchecked = $definition['unchecked'];
+                $text = "$elementName: $checked | $unchecked";
+            }
+        }
+        return $text;
+    }
+
     public static function getOptionTextForDisplayOrder()
     {
-        return self::getOptionText(self::OPTION_DISPLAY_ORDER);
+        return self::getOptionListText(self::OPTION_DISPLAY_ORDER);
     }
 
     public static function getOptionTextForExternalLink()
@@ -187,20 +175,20 @@ class ElementsConfig extends ConfigOptions
             $data = self::getOptionDataForExternalLink();
             $text = '';
 
-            foreach ($data as $elementId => $link)
+            foreach ($data as $elementId => $definition)
             {
                 if (!empty($text))
                 {
                     $text .= PHP_EOL;
                 }
-                $name = $link['name'];
+                $name = $definition['name'];
                 $text .= $name;
-                if (!empty($link['text']))
-                    $text .= ', ' . $link['text'];
+                if (!empty($definition['text']))
+                    $text .= ', ' . $definition['text'];
                 $text .= ': ';
-                $text .= $link['action'] . ', ';
-                if (!empty($link['class']))
-                    $text .= $link['class'] . ', ';
+                $text .= $definition['action'] . ', ';
+                if (!empty($definition['class']))
+                    $text .= $definition['class'] . ', ';
 
                 // Remove the trailing comma.
                 $text = substr($text, 0, strlen($text) - 2);
@@ -211,12 +199,12 @@ class ElementsConfig extends ConfigOptions
 
     public static function getOptionTextForHtml()
     {
-        return self::getOptionText(self::OPTION_HTML);
+        return self::getOptionListText(self::OPTION_HTML);
     }
 
     public static function getOptionTextForImplicitLink()
     {
-        return self::getOptionText(self::OPTION_IMPLICIT_LINK);
+        return self::getOptionListText(self::OPTION_IMPLICIT_LINK);
     }
 
     public static function getOptionTextForTextField()
@@ -230,15 +218,15 @@ class ElementsConfig extends ConfigOptions
             $data = self::getOptionDataForTextField();
             $text = '';
 
-            foreach ($data as $elementId => $textField)
+            foreach ($data as $elementId => $definition)
             {
                 if (!empty($text))
                 {
                     $text .= PHP_EOL;
                 }
-                $name = $textField['name'];
+                $name = $definition['name'];
                 $text .= $name;
-                $width = $textField['width'];
+                $width = $definition['width'];
                 if ($width > 0)
                 {
                     $text .= ': ' . $width;
@@ -250,7 +238,7 @@ class ElementsConfig extends ConfigOptions
 
     public static function getOptionTextForTitleSync()
     {
-        return self::getOptionText(self::OPTION_TITLE_SYNC);
+        return self::getOptionListText(self::OPTION_TITLE_SYNC);
     }
 
     public static function getOptionTextForValidation()
@@ -264,15 +252,15 @@ class ElementsConfig extends ConfigOptions
             $data = self::getOptionDataForValidation();
             $text = '';
 
-            foreach ($data as $elementId => $validation)
+            foreach ($data as $elementId => $definition)
             {
                 if (!empty($text))
                 {
                     $text .= PHP_EOL;
                 }
-                $args = $validation['args'];
+                $args = $definition['args'];
 
-                $elementName = $validation['name'];
+                $elementName = $definition['name'];
                 $text .= $elementName . ': ';
 
                 foreach ($args as $argName)
@@ -294,20 +282,21 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForImplicitLink();
         self::saveOptionDataForTitleSync();
         self::saveOptionDataForValidation();
+        self::saveOptionDataForCallback();
         self::saveOptionDataForAddInput();
         self::saveOptionDataForHtml();
         self::saveOptionDataForTextField();
-        self::saveOptionDataForCallback();
+        self::saveOptionDataForCheckboxField();
     }
 
     public static function saveOptionDataForDisplayOrder()
     {
-        self::saveOptionData(self::OPTION_DISPLAY_ORDER, CONFIG_LABEL_DISPLAY_ORDER);
+        self::saveOptionListData(self::OPTION_DISPLAY_ORDER, CONFIG_LABEL_DISPLAY_ORDER);
     }
 
     public static function saveOptionDataForAddInput()
     {
-        self::saveOptionData(self::OPTION_ADD_INPUT, CONFIG_LABEL_ADD_INPUT);
+        self::saveOptionListData(self::OPTION_ADD_INPUT, CONFIG_LABEL_ADD_INPUT);
     }
 
     public static function saveOptionDataForCallback()
@@ -335,7 +324,7 @@ class ElementsConfig extends ConfigOptions
             else
             {
                 $elementId = ItemMetadata::getElementIdForElementName($elementName);
-                self::errorIf($elementId == 0, CONFIG_LABEL_CALLBACK, __("'%s' is not an element.", $elementName));
+                self::errorIfNotElement($elementId, CONFIG_LABEL_CALLBACK, $elementName);
             }
 
             $action = isset($nameParts[1]) ? $nameParts[1] : '';
@@ -374,6 +363,37 @@ class ElementsConfig extends ConfigOptions
         set_option(self::OPTION_CALLBACK, json_encode($data));
     }
 
+    public static function saveOptionDataForCheckboxField()
+    {
+        $data = array();
+        $definitions = array_map('trim', explode(PHP_EOL, $_POST[self::OPTION_CHECKBOX_FIELD]));
+        foreach ($definitions as $definition)
+        {
+            if (empty($definition))
+                continue;
+
+            // Checkbox Field definitions are of the form: <element-name> ":" <true-value> "|" <false-value>
+            $parts = array_map('trim', explode(':', $definition));
+
+            $elementName = $parts[0];
+            $specifiers = isset($parts[1]) ? $parts[1] : '';
+
+            $elementId = ItemMetadata::getElementIdForElementName($elementName);
+            self::errorIfNotElement($elementId, CONFIG_LABEL_CHECKBOX_FIELD, $elementName);
+
+            self::errorRowIf(empty($specifiers), CONFIG_LABEL_CHECKBOX_FIELD, $elementName, __('Missing Checked | Unchecked specifiers.'));
+
+            $specifierParts = array_map('trim', explode('|', $specifiers));
+            self::errorRowIf(empty($specifierParts[0]) || !isset($specifierParts[1]) || empty($specifierParts[1]), CONFIG_LABEL_CHECKBOX_FIELD, $elementName, __('Incomplete Checked | Unchecked specifiers.'));
+            $checked = $specifierParts[0];
+            $unchecked = $specifierParts[1];
+
+            $data[$elementId] = array('checked' => $checked, 'unchecked' => $unchecked);
+        }
+
+        set_option(self::OPTION_CHECKBOX_FIELD, json_encode($data));
+    }
+
     public static function saveOptionDataForExternalLink()
     {
         $data = array();
@@ -392,7 +412,7 @@ class ElementsConfig extends ConfigOptions
             $elementName = $nameParts[0];
 
             $elementId = ItemMetadata::getElementIdForElementName($elementName);
-            self::errorIf($elementId == 0, CONFIG_LABEL_EXTERNAL_LINK, __("'%s' is not an element.", $elementName));
+            self::errorIfNotElement($elementId, CONFIG_LABEL_EXTERNAL_LINK, $elementName);
 
             $linkText = isset($nameParts[1]) ? $nameParts[1] : '';
 
@@ -413,12 +433,12 @@ class ElementsConfig extends ConfigOptions
 
     public static function saveOptionDataForHtml()
     {
-        self::saveOptionData(self::OPTION_HTML, CONFIG_LABEL_HTML);
+        self::saveOptionListData(self::OPTION_HTML, CONFIG_LABEL_HTML);
     }
 
     public static function saveOptionDataForImplicitLink()
     {
-        self::saveOptionData(self::OPTION_IMPLICIT_LINK, CONFIG_LABEL_IMPLICIT_LINK);
+        self::saveOptionListData(self::OPTION_IMPLICIT_LINK, CONFIG_LABEL_IMPLICIT_LINK);
     }
 
     public static function saveOptionDataForTextField()
@@ -433,12 +453,12 @@ class ElementsConfig extends ConfigOptions
             // Text Field definitions are of the form: <element-name> ":" <width>
             $parts = array_map('trim', explode(':', $definition));
 
-            $name = $parts[0];
+            $elementName = $parts[0];
             $width = isset($parts[1]) ? intval($parts[1]) : 0;
 
-            $elementId = ItemMetadata::getElementIdForElementName($name);
-            self::errorIf($elementId == 0, CONFIG_LABEL_TEXT_FIELD, __("'%s' is not an element.", $name));
-            self::errorIf(!empty(ElementFields::getSimpleVocabTerms($elementId)), CONFIG_LABEL_TEXT_FIELD, __("'%s' cannot be a text field. It is a SimpleVocab element that displays as a dropdown list.", $name));
+            $elementId = ItemMetadata::getElementIdForElementName($elementName);
+            self::errorIfNotElement($elementId, CONFIG_LABEL_TEXT_FIELD, $elementName);
+            self::errorIf(!empty(ElementFields::getSimpleVocabTerms($elementId)), CONFIG_LABEL_TEXT_FIELD, __("'%s' cannot be a text field. It is a SimpleVocab element that displays as a dropdown list.", $elementName));
 
             $data[$elementId] = array('width' => $width);
         }
@@ -448,7 +468,7 @@ class ElementsConfig extends ConfigOptions
 
     public static function saveOptionDataForTitleSync()
     {
-        self::saveOptionData(self::OPTION_TITLE_SYNC, CONFIG_LABEL_TITLE_SYNC);
+        self::saveOptionListData(self::OPTION_TITLE_SYNC, CONFIG_LABEL_TITLE_SYNC);
     }
 
     public static function saveOptionDataForValidation()
@@ -467,7 +487,7 @@ class ElementsConfig extends ConfigOptions
             $elementName = $parts[0];
 
             $elementId = ItemMetadata::getElementIdForElementName($elementName);
-            self::errorIf($elementId == 0, CONFIG_LABEL_VALIDATION, __("'%s' is not an element.", $elementName));
+            self::errorIfNotElement($elementId, CONFIG_LABEL_VALIDATION, $elementName);
 
             self::errorRowIf(!isset($parts[1]), CONFIG_LABEL_VALIDATION, $elementName, __('At least one validation parameter is required.'));
 
