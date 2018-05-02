@@ -3,7 +3,7 @@ class ElementFilters
 {
     protected $addInputElements;
     protected $elementCloning;
-    protected $inputElementValues;
+    protected $inputElements;
     protected $fields;
     protected $htmlElements;
 
@@ -11,7 +11,7 @@ class ElementFilters
     {
         $this->addInputElements = ElementsConfig::getOptionDataForAddInput();
         $this->elementCloning = new ElementCloning();
-        $this->inputElementValues = array();
+        $this->inputElements = array();
         $this->fields = new ElementFields();
         $this->htmlElements = ElementsConfig::getOptionDataForHtml();
     }
@@ -34,22 +34,19 @@ class ElementFilters
     {
         // Omeka calls the Element Form Filter to give plugins an opportunity to modify the Edit form's input-block
         // <div> for an element's <input> tag plus additional controls like the Add Input button.
+        // Omeka calls this filter after calling filterElementInput. Note that SimpleVocab emits a select list
+        // when its ElementInput filter is called. Because this filter gets called after that filter, this method
+        // can overwrite SimpleVocab's list with its own.
 
         $item = $args['record'];
         $elementName = $args['element']['name'];
         $elementId = $args['element']['id'];
 
-        // Create the appropriate field HTML (a text box or text area) for the element.
-        $value = $this->inputElementValues[$elementId]['value'];
-        $stem = $this->inputElementValues[$elementId]['stem'];
-        $components['inputs'] = $this->fields->createField($elementValidator, $components, $args, $item, $elementId, $value, $stem);
-
-
-        if ($this->elementCloning->cloning())
-        {
-            $elementSetName = $args['element']['set_name'];
-            $components = $this->elementCloning->cloneElementValue($elementId, $elementSetName, $elementName, $components);
-        }
+        // Create the appropriate field HTML (a Text Box, Text Area, or Select List) for the element.
+        $value = $this->inputElements[$elementId]['value'];
+        $stem = $this->inputElements[$elementId]['stem'];
+        $cloning = $this->elementCloning->cloning();
+        $components['inputs'] = $this->fields->createField($elementValidator, $components, $item, $elementId, $value, $stem, $cloning);
 
         if ($elementName == 'Creator' || $elementName == 'Publisher')
         {
@@ -69,19 +66,29 @@ class ElementFilters
         return $components;
     }
 
-    public function filterElementInput(ElementValidator $elementValidator, $components, $args)
+    public function filterElementInput($components, $args)
     {
         // Omeka calls the Element Input Filter to give this plugin an opportunity to modify an element's <input> tag.
+        // Omeka calls this filter before calling filterElementValidate.
 
-        //$item = $args['record'];
         $elementId = $args['element']['id'];
 
-        // Remember this element's value so that it will be available when filterElementForm is called for this element.
-        $this->inputElementValues[$elementId]['value'] = $args['value'];
-        $this->inputElementValues[$elementId]['stem'] = $args['input_name_stem'] . "[text]";
+        // Get the element's value.
+        if ($this->elementCloning->cloning())
+        {
+            $elementName = $args['element']['name'];
+            $elementSetName = $args['element']['set_name'];
+            $value = $this->elementCloning->getCloneElementValue($elementSetName, $elementName);
+        }
+        else
+        {
+            $value = $args['value'];
+        }
 
-        // Create the appropriate field HTML (a text box or text area) for the element.
-        //$components = $this->fields->createField($elementValidator, $components, $args, $item, $elementId);
+        // Remember the element's value and stem so that this information will be available when
+        // filterElementForm is called for this same element.
+        $this->inputElements[$elementId]['value'] = $value;
+        $this->inputElements[$elementId]['stem'] = $args['input_name_stem'] . "[text]";
 
         $allowHtml = array_key_exists($elementId, $this->htmlElements);
         if (!$allowHtml)

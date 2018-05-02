@@ -32,30 +32,21 @@ class ElementCloning
         return $this->cloning;
     }
 
-    public function cloneElementValue($elementId, $elementSetName, $elementName, $components)
+    public function getCloneElementValue($elementSetName, $elementName)
     {
-        if ($elementName == ItemMetadata::getIdentifierElementName())
+        $value = '';
+
+        if ($elementName != ItemMetadata::getIdentifierElementName())
         {
-            // Don't clone the item's unique identifier.
-            return $components;
+            $value = ItemMetadata::getElementTextFromElementName($this->cloneItem, array($elementSetName, $elementName));
+
+            if ($elementName == ItemMetadata::getTitleElementName())
+            {
+                // Insert CLONED into the title to remind the admin that this new item is a clone.
+                $value = __("--- DUPLICATE ---\n%s", $value);
+            }
         }
-
-        $value = ItemMetadata::getElementTextFromElementName($this->cloneItem, array($elementSetName, $elementName));
-
-        if ($elementName == ItemMetadata::getTitleElementName())
-        {
-            // Insert CLONED into the title to remind the admin that this new item is a clone.
-            $value = __('CLONE OF: %s', $value);
-        }
-
-        if (!empty($value))
-        {
-            // Replace the elements input HTML with a simple text element that contains the cloned value.
-            // This is much simpler than parsing TextAreas and Select lists to insert the value.
-            $components['inputs'] = "<div class='input-block'><div class='input'><input type='text' name='Elements[$elementId][0][text]' id='Elements-$elementId-0-text' value='$value' style='width:400px;'></div></div>";
-        }
-
-        return $components;
+        return $value;
     }
 
     public static function emitCloneButton($item)
@@ -65,7 +56,7 @@ class ElementCloning
         $itemId = $item->id;
         $url = $itemId ? 'items/add/' . $itemId : '.';
         $url = WEB_ROOT . '/admin/' . $url;
-        $label = __('Clone this Item');
+        $label = __('Duplicate this Item');
         echo "<a id='clone-button' href='$url' class='big blue button'>$label</a>";
     }
 }

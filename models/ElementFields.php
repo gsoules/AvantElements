@@ -9,79 +9,72 @@ class ElementFields
         $this->textFields = ElementsConfig::getOptionDataForTextField();
     }
 
-    public function createField(ElementValidator $elementValidator, $components, $args, $item, $elementId, $value, $stem)
+    public function createField(ElementValidator $elementValidator, $components, $item, $elementId, $value, $stem, $cloning)
     {
-        // This method determines if the element's Text Area needs to be modified or converted to a Text Box.
-        // A Text Area is modified when it needs to display a default value for a new item. A TextArea is
-        // converted to a Text Box when the element is specified as a Text Field on the configuration page.
-        // This logic takes a brute force approach to performing these tasks. It's easier and safer to simply
-        // replace the existing <input> HTML for the field than to parse and modify the existing HTML. The
-        // HTML for a field is contained in the $components array's 'input' element.
+        // This method overrides Omeka's logic for emitting fields. Here's why:
+        //    * Omeka only emits Text Area inputs, but AvantElements also supports Text Box inputs.
+        //    * Omeka doesn't offer a way to provide default values or to clone values from other items.
+        //    * The SimpleVocab plugin does not support default values and it uses inline styling for width.
+        //
+        // By emitting its own inputs, this method provides full control over form fields.
 
-        $hasDefaultValue = false;
-
-        if (empty($item->id))
+        if (empty($item->id) && !$cloning)
         {
             // This is a new item. See if there is a default value for this element.
             $value = $elementValidator->getCallbackDefaultElementText($item, $elementId);
-            $hasDefaultValue = !empty($value);
         }
+        $hasValue = !empty($value);
 
         // See if this element is configured to be a text field.
         $convertToTextBox = array_key_exists($elementId, $this->textFields);
 
-        $inputs = $components['inputs'];
-        if ($hasDefaultValue || $convertToTextBox)
+        if ($convertToTextBox)
         {
-            if ($convertToTextBox)
+            // Emit a Text Box for this element whether or not it has a value.
+            $width = $this->textFields[$elementId]['width'];
+            $inputs = self::createTextBox($value, $stem, $width);
+        }
+        elseif ($hasValue)
+        {
+            $vocabulary = $this->getSimpleVocabTerms($elementId);
+            if (!empty($vocabulary))
             {
-                // This element should get rendered as a text box instead of as a multi-line TextArea which is the Omeka
-                // default. A width of zero means max width. Note that this code cannot override the width of <select>
-                // lists created by the SimpleVocab plugin because it gets called after this plugin (they are called
-                // in alphabetical order). To set those widths, use CSS in AvantCustom/views/shared/css/avantcustom.css.
-                $width = $this->textFields[$elementId]['width'];
-                $inputs = self::createTextBox($args, $width, $value, $stem);
+                // This element is configured with the SimpleVocab plugin.
+                // Emit a Select List with a selected value to replace the one emitted by SimpleVocab.
+                $inputs = self::createSelect($value, $stem, $vocabulary);
             }
             else
             {
-                if ($hasDefaultValue)
-                {
-                    // The field should remain a Text Area, but with a default value.
-                    $vocabulary = $this->getSimpleVocabTerms($elementId);
-                    if (empty($vocabulary))
-                    {
-                        $inputs = self::createTextArea($args, $value, $stem);
-                    }
-                    else
-                    {
-                        $inputs = self::createSelect($args, $value, $vocabulary, $stem);
-                    }
-                }
+                // Emit a Text Area with a value.
+                $inputs = self::createTextArea($value, $stem);
             }
         }
+        else
+        {
+            // The element is not a Text Box and has no value. Keep the Text Area emitted by Omeka.
+            $inputs = $components['inputs'];
+        }
 
+        // Wrap the input in the divs that Omeka expects for the form.
         return "<div class='input-block'><div class='input'>$inputs</div></div>";
     }
 
-    protected function createSelect($args, $value, $vocabulary, $stem)
+    protected function createSelect($value, $stem, $vocabulary)
     {
         $style =  array('style' => 'width: 300px;');
         $selectTerms = array('' => __('Select Below')) + array_combine($vocabulary, $vocabulary);
-        $inputs = get_view()->formSelect($stem, $value, $style, $selectTerms);
-        return $inputs;
+        return get_view()->formSelect($stem, $value, $style, $selectTerms);
     }
 
-    protected function createTextArea($args, $value, $stem)
+    protected function createTextArea($value, $stem)
     {
-        $inputs = get_view()->formTextarea($stem, $value, array('rows'=>3));
-        return $inputs;
+        return get_view()->formTextarea($stem, $value, array('rows'=>3));
     }
 
-    protected function createTextBox($args, $width, $value, $stem)
+    protected function createTextBox($value, $stem, $width)
     {
         $width = $width == 0 ? 380 : $width;
-        $inputs = get_view()->formText($stem, $value, array('style' => "width:{$width}px"));
-        return $inputs;
+        return get_view()->formText($stem, $value, array('style' => "width:{$width}px"));
     }
 
     public static function getSimpleVocabTerms($elementId)

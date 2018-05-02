@@ -59,7 +59,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function filterElementInput($components, $args)
     {
-        return $this->elementFilters->filterElementInput($this->elementValidator, $components, $args);
+        return $this->elementFilters->filterElementInput($components, $args);
     }
 
     public function filterElementSave($text, $args)
