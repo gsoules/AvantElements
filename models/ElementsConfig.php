@@ -7,6 +7,7 @@ define('CONFIG_LABEL_DISPLAY_ORDER', __('Display Order'));
 define('CONFIG_LABEL_EXTERNAL_LINK', __('External Link'));
 define('CONFIG_LABEL_HTML', __('Allow HTML'));
 define('CONFIG_LABEL_IMPLICIT_LINK', __('Implicit Link'));
+define('CONFIG_LABEL_READONLY_FIELD', __('Read-only Field'));
 define('CONFIG_LABEL_TEXT_FIELD', __('Text Field'));
 define('CONFIG_LABEL_TITLE_SYNC', __('Title Sync'));
 define('CONFIG_LABEL_VALIDATION', __('Validation'));
@@ -20,6 +21,7 @@ class ElementsConfig extends ConfigOptions
     const OPTION_EXTERNAL_LINK = 'avantelements_external_link';
     const OPTION_HTML = 'avantelements_allow_html';
     const OPTION_IMPLICIT_LINK = 'avantelements_implicit_link';
+    const OPTION_READONLY_FIELD = 'avantelements_readonly_field';
     const OPTION_TEXT_FIELD = 'avantelements_text_field';
     const OPTION_TITLE_SYNC = 'avantelements_title_sync';
     const OPTION_VALIDATION = 'avantelements_validation';
@@ -80,6 +82,11 @@ class ElementsConfig extends ConfigOptions
     public static function getOptionDataForImplicitLink()
     {
         return self::getOptionListData(self::OPTION_IMPLICIT_LINK);
+    }
+
+    public static function getOptionDataForReadonlyField()
+    {
+        return self::getOptionListData(self::OPTION_READONLY_FIELD);
     }
 
     public static function getOptionDataForTextField()
@@ -207,6 +214,11 @@ class ElementsConfig extends ConfigOptions
         return self::getOptionListText(self::OPTION_IMPLICIT_LINK);
     }
 
+    public static function getOptionTextForReadonlyField()
+    {
+        return self::getOptionListText(self::OPTION_READONLY_FIELD);
+    }
+
     public static function getOptionTextForTextField()
     {
         if (self::configurationErrorsDetected())
@@ -287,11 +299,7 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForHtml();
         self::saveOptionDataForTextField();
         self::saveOptionDataForCheckboxField();
-    }
-
-    public static function saveOptionDataForDisplayOrder()
-    {
-        self::saveOptionListData(self::OPTION_DISPLAY_ORDER, CONFIG_LABEL_DISPLAY_ORDER);
+        self::saveOptionDataForReadonlyField();
     }
 
     public static function saveOptionDataForAddInput()
@@ -394,6 +402,11 @@ class ElementsConfig extends ConfigOptions
         set_option(self::OPTION_CHECKBOX_FIELD, json_encode($data));
     }
 
+    public static function saveOptionDataForDisplayOrder()
+    {
+        self::saveOptionListData(self::OPTION_DISPLAY_ORDER, CONFIG_LABEL_DISPLAY_ORDER);
+    }
+
     public static function saveOptionDataForExternalLink()
     {
         $data = array();
@@ -439,6 +452,11 @@ class ElementsConfig extends ConfigOptions
     public static function saveOptionDataForImplicitLink()
     {
         self::saveOptionListData(self::OPTION_IMPLICIT_LINK, CONFIG_LABEL_IMPLICIT_LINK);
+    }
+
+    public static function saveOptionDataForReadonlyField()
+    {
+        self::saveOptionListData(self::OPTION_READONLY_FIELD, CONFIG_LABEL_READONLY_FIELD);
     }
 
     public static function saveOptionDataForTextField()
@@ -497,7 +515,7 @@ class ElementsConfig extends ConfigOptions
                 ElementValidator::VALIDATION_TYPE_REQUIRED,
                 ElementValidator::VALIDATION_TYPE_DATE,
                 ElementValidator::VALIDATION_TYPE_YEAR,
-                ElementValidator::VALIDATION_TYPE_RESTRICTED);
+                ElementValidator::VALIDATION_TYPE_SIMPLE_TEXT);
 
             // Determine which args are specified, and issue an error for any that are unrecognized.
             $args = array();

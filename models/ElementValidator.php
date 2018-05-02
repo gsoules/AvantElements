@@ -7,7 +7,7 @@ class ElementValidator
 
     const VALIDATION_TYPE_DATE = 'date';
     const VALIDATION_TYPE_REQUIRED = 'required';
-    const VALIDATION_TYPE_RESTRICTED = 'restricted';
+    const VALIDATION_TYPE_SIMPLE_TEXT = 'simple-text';
     const VALIDATION_TYPE_YEAR = 'year';
 
     protected $callbacks;
@@ -67,7 +67,7 @@ class ElementValidator
             $text = trim($text);
         }
 
-        if ($this->hasValidationDefinitionFor($elementId, self::VALIDATION_TYPE_RESTRICTED))
+        if ($this->hasValidationDefinitionFor($elementId, self::VALIDATION_TYPE_SIMPLE_TEXT))
         {
             $text = $this->filterRestrictedText($text);
         }

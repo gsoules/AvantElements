@@ -31,6 +31,9 @@ $textFieldRows = max(3, count(explode(PHP_EOL, $textField)));
 $checkboxField = ElementsConfig::getOptionTextForCheckboxField();
 $checkboxFieldRows = max(3, count(explode(PHP_EOL, $checkboxField)));
 
+$readonlyOption = ElementsConfig::getOptionTextForReadonlyField();
+$readonlyOptionRows = max(3, count(explode(PHP_EOL, $readonlyOption)));
+
 ?>
 <style>
     .error{color:red;font-size:16px;}
@@ -141,5 +144,15 @@ $checkboxFieldRows = max(3, count(explode(PHP_EOL, $checkboxField)));
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that should display as a checkbox."); ?></p>
         <?php echo $view->formTextarea(ElementsConfig::OPTION_CHECKBOX_FIELD, $checkboxField, array('rows' => $checkboxFieldRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_READONLY_FIELD; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Elements that should display as read-only."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_READONLY_FIELD, $readonlyOption, array('rows' => $readonlyOptionRows)); ?>
     </div>
 </div>

@@ -3,11 +3,13 @@
 class ElementFields
 {
     protected $checkboxFields;
+    protected $readonlyFields;
     protected $textFields;
 
     public function __construct()
     {
         $this->checkboxFields = ElementsConfig::getOptionDataForCheckboxField();
+        $this->readonlyFields = ElementsConfig::getOptionDataForReadOnlyField();
         $this->textFields = ElementsConfig::getOptionDataForTextField();
     }
 
@@ -30,6 +32,7 @@ class ElementFields
         // See if this element is configured to be a text field.
         $convertToTextBox = array_key_exists($elementId, $this->textFields);
         $convertToCheckBox = array_key_exists($elementId, $this->checkboxFields);
+        $fieldIsReadonly = array_key_exists($elementId, $this->readonlyFields);
 
         if ($convertToTextBox)
         {
@@ -62,6 +65,12 @@ class ElementFields
             $inputs = $components['inputs'];
         }
 
+        if ($fieldIsReadonly)
+        {
+            // Insert a 'disabled' attribute at the end of the <input> tag.
+            $inputs = str_replace('>', ' disabled>', $inputs);
+        }
+
         // Wrap the input in the divs that Omeka expects for the form.
         return "<div class='input-block'><div class='input'>$inputs</div></div>";
     }
@@ -80,7 +89,7 @@ class ElementFields
 
     protected function createTextArea($value, $stem)
     {
-        return get_view()->formTextarea($stem, $value, array('rows'=>3));
+        return get_view()->formTextarea($stem, $value, array('rows'=>3, 'readonly'=>true));
     }
 
     protected function createTextBox($value, $stem, $width)
