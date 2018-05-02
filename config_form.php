@@ -2,37 +2,40 @@
 $view = get_view();
 
 $displayOrderOption = ElementsConfig::getOptionTextForDisplayOrder();
-$displayOrderOptionRows = max(3, count(explode(PHP_EOL, $displayOrderOption)));
+$displayOrderOptionRows = max(2, count(explode(PHP_EOL, $displayOrderOption)));
 
 $implicitLinkOption = ElementsConfig::getOptionTextForImplicitLink();
-$implicitLinkOptionRows = max(3, count(explode(PHP_EOL, $implicitLinkOption)));
+$implicitLinkOptionRows = max(2, count(explode(PHP_EOL, $implicitLinkOption)));
 
 $externalLinkOption = ElementsConfig::getOptionTextForExternalLink();
-$externalLinkOptionRows = max(3, count(explode(PHP_EOL, $externalLinkOption)));
+$externalLinkOptionRows = max(2, count(explode(PHP_EOL, $externalLinkOption)));
 
 $titleSyncOption = ElementsConfig::getOptionTextForTitleSync();
-$titleSyncOptionRows = max(3, count(explode(PHP_EOL, $titleSyncOption)));
+$titleSyncOptionRows = max(2, count(explode(PHP_EOL, $titleSyncOption)));
 
 $validationOption = ElementsConfig::getOptionTextForValidation();
-$validationOptionRows = max(3, count(explode(PHP_EOL, $validationOption)));
+$validationOptionRows = max(2, count(explode(PHP_EOL, $validationOption)));
 
 $callbackOption = ElementsConfig::getOptionTextForCallback();
-$callbackOptionRows = max(3, count(explode(PHP_EOL, $callbackOption)));
+$callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
 
 $addInputOption = ElementsConfig::getOptionTextForAddInput();
-$addInputOptionRows = max(3, count(explode(PHP_EOL, $addInputOption)));
+$addInputOptionRows = max(2, count(explode(PHP_EOL, $addInputOption)));
 
 $htmlOption = ElementsConfig::getOptionTextForHtml();
-$htmlOptionRows = max(3, count(explode(PHP_EOL, $htmlOption)));
+$htmlOptionRows = max(2, count(explode(PHP_EOL, $htmlOption)));
 
 $textField = ElementsConfig::getOptionTextForTextField();
-$textFieldRows = max(3, count(explode(PHP_EOL, $textField)));
+$textFieldRows = max(2, count(explode(PHP_EOL, $textField)));
+
+$selectField = ElementsConfig::getOptionTextForSelectField();
+$selectFieldRows = max(2, count(explode(PHP_EOL, $selectField)));
 
 $checkboxField = ElementsConfig::getOptionTextForCheckboxField();
-$checkboxFieldRows = max(3, count(explode(PHP_EOL, $checkboxField)));
+$checkboxFieldRows = max(2, count(explode(PHP_EOL, $checkboxField)));
 
 $readonlyOption = ElementsConfig::getOptionTextForReadonlyField();
-$readonlyOptionRows = max(3, count(explode(PHP_EOL, $readonlyOption)));
+$readonlyOptionRows = max(2, count(explode(PHP_EOL, $readonlyOption)));
 
 ?>
 <style>
@@ -134,6 +137,20 @@ $readonlyOptionRows = max(3, count(explode(PHP_EOL, $readonlyOption)));
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that should display as a text field."); ?></p>
         <?php echo $view->formTextarea(ElementsConfig::OPTION_TEXT_FIELD, $textField, array('rows' => $textFieldRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_SELECT_FIELD; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <?php if (plugin_is_active('SimpleVocab')): ?>
+            <p class="explanation"><?php echo __("SimpleVocab elements that display as a dropdown list."); ?></p>
+            <?php echo $view->formTextarea(ElementsConfig::OPTION_SELECT_FIELD, $selectField, array('rows' => $selectFieldRows)); ?>
+        <?php else: ?>
+            <?php SearchConfig::emitOptionNotSupported('AvantElements', 'simple-vocab'); ?>
+        <?php endif; ?>
     </div>
 </div>
 

@@ -4,12 +4,14 @@ class ElementFields
 {
     protected $checkboxFields;
     protected $readonlyFields;
+    protected $selectFields;
     protected $textFields;
 
     public function __construct()
     {
         $this->checkboxFields = ElementsConfig::getOptionDataForCheckboxField();
         $this->readonlyFields = ElementsConfig::getOptionDataForReadOnlyField();
+        $this->selectFields = ElementsConfig::getOptionDataForSelectField();
         $this->textFields = ElementsConfig::getOptionDataForTextField();
     }
 
@@ -51,7 +53,9 @@ class ElementFields
             {
                 // This element is configured with the SimpleVocab plugin.
                 // Emit a Select List with a selected value to replace the one emitted by SimpleVocab.
-                $inputs = self::createSelect($value, $stem, $vocabulary);
+                $hasWidth = isset($this->selectFields[$elementId]);
+                $width = $hasWidth ? $this->selectFields[$elementId]['width'] : 0;
+                $inputs = self::createSelect($value, $stem, $vocabulary, $width);
             }
             else
             {
@@ -80,11 +84,11 @@ class ElementFields
         return get_view()->formCheckbox($stem, (bool)$value, array(), array('1', '0'));
     }
 
-    protected function createSelect($value, $stem, $vocabulary)
+    protected function createSelect($value, $stem, $vocabulary, $width)
     {
-        $style =  array('style' => 'width: 300px;');
+        $width = $width == 0 ? 300 : $width;
         $selectTerms = array('' => __('Select Below')) + array_combine($vocabulary, $vocabulary);
-        return get_view()->formSelect($stem, $value, $style, $selectTerms);
+        return get_view()->formSelect($stem, $value, array('style' => "width:{$width}px"), $selectTerms);
     }
 
     protected function createTextArea($value, $stem)

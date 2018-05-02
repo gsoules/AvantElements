@@ -8,6 +8,7 @@ define('CONFIG_LABEL_EXTERNAL_LINK', __('External Link'));
 define('CONFIG_LABEL_HTML', __('Allow HTML'));
 define('CONFIG_LABEL_IMPLICIT_LINK', __('Implicit Link'));
 define('CONFIG_LABEL_READONLY_FIELD', __('Read-only Field'));
+define('CONFIG_LABEL_SELECT_FIELD', __('SimpleVocab Field'));
 define('CONFIG_LABEL_TEXT_FIELD', __('Text Field'));
 define('CONFIG_LABEL_TITLE_SYNC', __('Title Sync'));
 define('CONFIG_LABEL_VALIDATION', __('Validation'));
@@ -22,6 +23,7 @@ class ElementsConfig extends ConfigOptions
     const OPTION_HTML = 'avantelements_allow_html';
     const OPTION_IMPLICIT_LINK = 'avantelements_implicit_link';
     const OPTION_READONLY_FIELD = 'avantelements_readonly_field';
+    const OPTION_SELECT_FIELD = 'avantelements_select_field';
     const OPTION_TEXT_FIELD = 'avantelements_text_field';
     const OPTION_TITLE_SYNC = 'avantelements_title_sync';
     const OPTION_VALIDATION = 'avantelements_validation';
@@ -92,6 +94,11 @@ class ElementsConfig extends ConfigOptions
     public static function getOptionDataForTextField()
     {
         return self::getOptionDefinitionData(self::OPTION_TEXT_FIELD);
+    }
+
+    public static function getOptionDataForSelectField()
+    {
+        return self::getOptionDefinitionData(self::OPTION_SELECT_FIELD);
     }
 
     public static function getOptionDataForTitleSync()
@@ -219,6 +226,35 @@ class ElementsConfig extends ConfigOptions
         return self::getOptionListText(self::OPTION_READONLY_FIELD);
     }
 
+    public static function getOptionTextForSelectField()
+    {
+        if (self::configurationErrorsDetected())
+        {
+            $text = $_POST[self::OPTION_SELECT_FIELD];
+        }
+        else
+        {
+            $data = self::getOptionDataForSelectField();
+            $text = '';
+
+            foreach ($data as $elementId => $definition)
+            {
+                if (!empty($text))
+                {
+                    $text .= PHP_EOL;
+                }
+                $name = $definition['name'];
+                $text .= $name;
+                $width = $definition['width'];
+                if ($width > 0)
+                {
+                    $text .= ': ' . $width;
+                }
+            }
+        }
+        return $text;
+    }
+
     public static function getOptionTextForTextField()
     {
         if (self::configurationErrorsDetected())
@@ -298,6 +334,7 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForAddInput();
         self::saveOptionDataForHtml();
         self::saveOptionDataForTextField();
+        self::saveOptionDataForSelectField();
         self::saveOptionDataForCheckboxField();
         self::saveOptionDataForReadonlyField();
     }
@@ -459,6 +496,40 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionListData(self::OPTION_READONLY_FIELD, CONFIG_LABEL_READONLY_FIELD);
     }
 
+    public static function saveOptionDataForSelectField()
+    {
+        $data = array();
+        $definitions = array_map('trim', explode(PHP_EOL, $_POST[self::OPTION_SELECT_FIELD]));
+        foreach ($definitions as $definition)
+        {
+            if (empty($definition))
+                continue;
+
+            // Text Field definitions are of the form: <element-name> ":" <width>
+            $parts = array_map('trim', explode(':', $definition));
+
+            $elementName = $parts[0];
+
+            if (isset($parts[1]))
+            {
+                $width = intval($parts[1]);
+                self::errorRowIf($width < 20, CONFIG_LABEL_SELECT_FIELD, $elementName, __("Width '%s' is invalid. Specify an integer greater than 20.", $parts[1]));
+            }
+            else
+            {
+                $width = 0;
+            }
+
+            $elementId = ItemMetadata::getElementIdForElementName($elementName);
+            self::errorIfNotElement($elementId, CONFIG_LABEL_SELECT_FIELD, $elementName);
+            self::errorIf(empty(ElementFields::getSimpleVocabTerms($elementId)), CONFIG_LABEL_SELECT_FIELD, __("'%s' cannot be a Select field because it is not a SimpleVocab element that displays as a dropdown list.", $elementName));
+
+            $data[$elementId] = array('width' => $width);
+        }
+
+        set_option(self::OPTION_SELECT_FIELD, json_encode($data));
+    }
+
     public static function saveOptionDataForTextField()
     {
         $data = array();
@@ -472,11 +543,20 @@ class ElementsConfig extends ConfigOptions
             $parts = array_map('trim', explode(':', $definition));
 
             $elementName = $parts[0];
-            $width = isset($parts[1]) ? intval($parts[1]) : 0;
+
+            if (isset($parts[1]))
+            {
+                $width = intval($parts[1]);
+                self::errorRowIf($width < 20, CONFIG_LABEL_TEXT_FIELD, $elementName, __("Width '%s' is invalid. Specify an integer greater than 20.", $parts[1]));
+            }
+            else
+            {
+                $width = 0;
+            }
 
             $elementId = ItemMetadata::getElementIdForElementName($elementName);
             self::errorIfNotElement($elementId, CONFIG_LABEL_TEXT_FIELD, $elementName);
-            self::errorIf(!empty(ElementFields::getSimpleVocabTerms($elementId)), CONFIG_LABEL_TEXT_FIELD, __("'%s' cannot be a text field. It is a SimpleVocab element that displays as a dropdown list.", $elementName));
+            self::errorIf(!empty(ElementFields::getSimpleVocabTerms($elementId)), CONFIG_LABEL_TEXT_FIELD, __("'%s' cannot be a Text field. It is a SimpleVocab element that displays as a dropdown list.", $elementName));
 
             $data[$elementId] = array('width' => $width);
         }
