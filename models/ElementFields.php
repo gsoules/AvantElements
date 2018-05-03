@@ -3,6 +3,7 @@
 class ElementFields
 {
     protected $checkboxFields;
+    protected $defaultValues;
     protected $readonlyFields;
     protected $selectFields;
     protected $textFields;
@@ -10,6 +11,7 @@ class ElementFields
     public function __construct()
     {
         $this->checkboxFields = ElementsConfig::getOptionDataForCheckboxField();
+        $this->defaultValues = ElementsConfig::getOptionDataForDefaultValue();
         $this->readonlyFields = ElementsConfig::getOptionDataForReadOnlyField();
         $this->selectFields = ElementsConfig::getOptionDataForSelectField();
         $this->textFields = ElementsConfig::getOptionDataForTextField();
@@ -24,17 +26,29 @@ class ElementFields
         //
         // By emitting its own inputs, this method provides full control over form fields.
 
-        if (empty($item->id) && !$cloning)
+        $isNewItem = empty($item->id) && !$cloning;
+        if ($isNewItem)
         {
             // This is a new item. See if there is a default value for this element.
-            $value = $elementValidator->getCallbackDefaultElementText($item, $elementId);
+            if (array_key_exists($elementId, $this->defaultValues))
+            {
+                $value = $this->defaultValues[$elementId]['value'];
+            }
+            if (strlen($value) == 0)
+            {
+                // There is no configured default value. Check for a custom callback value.
+                // Note that a configured value takes precedence over a custom value.
+                $value = $elementValidator->getCallbackDefaultElementText($item, $elementId);
+            }
         }
-        $hasValue = !empty($value);
+        $hasValue = strlen($value) > 0;
 
         // See if this element is configured to be a text field.
         $convertToTextBox = array_key_exists($elementId, $this->textFields);
         $convertToCheckBox = array_key_exists($elementId, $this->checkboxFields);
         $fieldIsReadonly = array_key_exists($elementId, $this->readonlyFields);
+        $vocabulary = $this->getSimpleVocabTerms($elementId);
+        $isSelect = !empty($vocabulary);
 
         if ($convertToTextBox)
         {
@@ -46,10 +60,9 @@ class ElementFields
         {
             $inputs = self::createCheckbox($value, $stem);
         }
-        elseif ($hasValue)
+        elseif ($hasValue || $isSelect)
         {
-            $vocabulary = $this->getSimpleVocabTerms($elementId);
-            if (!empty($vocabulary))
+            if ($isSelect)
             {
                 // This element is configured with the SimpleVocab plugin.
                 // Emit a Select List with a selected value to replace the one emitted by SimpleVocab.
@@ -86,9 +99,10 @@ class ElementFields
 
     protected function createSelect($value, $stem, $vocabulary, $width)
     {
-        $width = $width == 0 ? 300 : $width;
+        $style = $width == 0 ? '' : "width:{$width}px";
+        $class = $width == 0 ? 'input-field-full-width' : '';
         $selectTerms = array('' => __('Select Below')) + array_combine($vocabulary, $vocabulary);
-        return get_view()->formSelect($stem, $value, array('style' => "width:{$width}px"), $selectTerms);
+        return get_view()->formSelect($stem, $value, array('class' => $class, 'style' => $style), $selectTerms);
     }
 
     protected function createTextArea($value, $stem)
@@ -98,8 +112,9 @@ class ElementFields
 
     protected function createTextBox($value, $stem, $width)
     {
-        $width = $width == 0 ? 380 : $width;
-        return get_view()->formText($stem, $value, array('style' => "width:{$width}px"));
+        $style = $width == 0 ? '' : "width:{$width}px";
+        $class = $width == 0 ? 'input-field-full-width' : '';
+        return get_view()->formText($stem, $value, array('class' => $class, 'style' => $style));
     }
 
     public static function getSimpleVocabTerms($elementId)

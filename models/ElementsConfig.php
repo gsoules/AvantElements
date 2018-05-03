@@ -3,6 +3,7 @@
 define('CONFIG_LABEL_ADD_INPUT', __('Allow Add Input'));
 define('CONFIG_LABEL_CALLBACK', __('Callback'));
 define('CONFIG_LABEL_CHECKBOX_FIELD', __('Checkbox Field'));
+define('CONFIG_LABEL_DEFAULT_VALUE', __('Default Value'));
 define('CONFIG_LABEL_DISPLAY_ORDER', __('Display Order'));
 define('CONFIG_LABEL_EXTERNAL_LINK', __('External Link'));
 define('CONFIG_LABEL_HTML', __('Allow HTML'));
@@ -18,6 +19,7 @@ class ElementsConfig extends ConfigOptions
     const OPTION_ADD_INPUT = 'avantelements_allow_add_input';
     const OPTION_CALLBACK = 'avantelements_callback';
     const OPTION_CHECKBOX_FIELD = 'avantelements_checkbox_field';
+    const OPTION_DEFAULT_VALUE = 'avantelements_default_value';
     const OPTION_DISPLAY_ORDER = 'avantelements_display_order';
     const OPTION_EXTERNAL_LINK = 'avantelements_external_link';
     const OPTION_HTML = 'avantelements_allow_html';
@@ -36,6 +38,11 @@ class ElementsConfig extends ConfigOptions
     public static function getOptionDataForCheckboxField()
     {
         return self::getOptionDefinitionData(self::OPTION_CHECKBOX_FIELD);
+    }
+
+    public static function getOptionDataForDefaultValue()
+    {
+        return self::getOptionDefinitionData(self::OPTION_DEFAULT_VALUE);
     }
 
     public static function getOptionDataForDisplayOrder()
@@ -168,6 +175,31 @@ class ElementsConfig extends ConfigOptions
                 $checked = $definition['checked'];
                 $unchecked = $definition['unchecked'];
                 $text = "$elementName: $checked | $unchecked";
+            }
+        }
+        return $text;
+    }
+
+    public static function getOptionTextForDefaultValue()
+    {
+        if (self::configurationErrorsDetected())
+        {
+            $text = $_POST[self::OPTION_DEFAULT_VALUE];
+        }
+        else
+        {
+            $data = self::getOptionDataForDefaultValue();
+            $text = '';
+
+            foreach ($data as $elementId => $definition)
+            {
+                if (!empty($text))
+                {
+                    $text .= PHP_EOL;
+                }
+                $name = $definition['name'];
+                $value = $definition['value'];
+                $text .= "$name: $value";
             }
         }
         return $text;
@@ -337,6 +369,7 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForSelectField();
         self::saveOptionDataForCheckboxField();
         self::saveOptionDataForReadonlyField();
+        self::saveOptionDataForDefaultValue();
     }
 
     public static function saveOptionDataForAddInput()
@@ -437,6 +470,32 @@ class ElementsConfig extends ConfigOptions
         }
 
         set_option(self::OPTION_CHECKBOX_FIELD, json_encode($data));
+    }
+
+    public static function saveOptionDataForDefaultValue()
+    {
+        $data = array();
+        $definitions = array_map('trim', explode(PHP_EOL, $_POST[self::OPTION_DEFAULT_VALUE]));
+        foreach ($definitions as $definition)
+        {
+            if (empty($definition))
+                continue;
+
+            // Text Field definitions are of the form: <element-name> ":" <width>
+            $parts = array_map('trim', explode(':', $definition));
+
+            $elementName = $parts[0];
+
+            $value = isset($parts[1]) ? $parts[1] : '';
+            self::errorRowIf(strlen($value) == 0, CONFIG_LABEL_DEFAULT_VALUE, $elementName, __('No value specified.'));
+
+            $elementId = ItemMetadata::getElementIdForElementName($elementName);
+            self::errorIfNotElement($elementId, CONFIG_LABEL_DEFAULT_VALUE, $elementName);
+
+            $data[$elementId] = array('value' => $value);
+        }
+
+        set_option(self::OPTION_DEFAULT_VALUE, json_encode($data));
     }
 
     public static function saveOptionDataForDisplayOrder()

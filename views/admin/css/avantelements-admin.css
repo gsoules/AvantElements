@@ -58,3 +58,16 @@
 .inputs .input-block {
     margin: 0 0 0 0;
 }
+
+.input-block .input .input-field-full-width {
+    width: 380px;
+}
+
+/* === CSS for Width less than 768px ===
+--------------------------------------------------------- */
+@media screen and (max-width: 844px) {
+
+    .input-block .input .input-field-full-width {
+        width: 300px;
+    }
+}
