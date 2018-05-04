@@ -39,29 +39,31 @@ class ElementFilters
         // can overwrite SimpleVocab's list with its own.
 
         $item = $args['record'];
-        $elementName = $args['element']['name'];
         $elementId = $args['element']['id'];
-
-        // Create the appropriate field HTML (a Text Box, Text Area, or Select List) for the element.
-        $value = $this->inputElements[$elementId]['value'];
-        $stem = $this->inputElements[$elementId]['stem'];
         $cloning = $this->elementCloning->cloning();
-        $components['inputs'] = $this->fields->createField($elementValidator, $components, $item, $elementId, $value, $stem, $cloning);
 
-        if ($elementName == 'Creator' || $elementName == 'Publisher')
+        // Create the input field HTML for each instance of the element's value.
+        // See the comments in filterElementInput to learn how the inputElements array gets created.
+        $components['inputs'] = '';
+        foreach ($this->inputElements[$elementId] as $inputElement)
         {
-            // Check if this method is getting called via AJAX to add another input element.
-            // Doing so clobbers the existing Suggest button with a new one, but the new one
-            // no longer has a click handler. For now, just don't show the Suggest button anymore.
-            $singleInput = !isset($args['options']['extraFieldCount']);
-            if ($singleInput)
-            {
-                $suggestButton = '<button class="suggest-button" type="button">' . __('Suggest') . '</button>';
-                $components['inputs'] .= $suggestButton;
-            }
+            $components['inputs'] .= $this->fields->createField($elementValidator, $inputElement, $item, $elementId, $cloning);
         }
 
-        $components = $this->removeAddInputButton($elementId, $components);
+//        if ($elementName == 'Creator' || $elementName == 'Publisher')
+//        {
+//            // Check if this method is getting called via AJAX to add another input element.
+//            // Doing so clobbers the existing Suggest button with a new one, but the new one
+//            // no longer has a click handler. For now, just don't show the Suggest button anymore.
+//            $singleInput = !isset($args['options']['extraFieldCount']);
+//            if ($singleInput)
+//            {
+//                $suggestButton = '<button class="suggest-button" type="button">' . __('Suggest') . '</button>';
+//                $components['inputs'] .= $suggestButton;
+//            }
+//        }
+
+        $components = $this->hideAddInputButton($elementId, $components);
 
         return $components;
     }
@@ -85,17 +87,34 @@ class ElementFilters
             $value = $args['value'];
         }
 
-        // Remember the element's value and stem so that this information will be available when
-        // filterElementForm is called for this same element.
-        $this->inputElements[$elementId]['value'] = $value;
-        $this->inputElements[$elementId]['stem'] = $args['input_name_stem'] . "[text]";
-
         $allowHtml = array_key_exists($elementId, $this->htmlElements);
         if (!$allowHtml)
         {
-            // Remove the HTML checkbox for this element.
-            $components['html_checkbox'] = false;
+            // Remove the HTML for the HTML checkbox for this element.
+            $components['html_checkbox'] = '';
         }
+
+        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements);
+        if (!$allowAddInputButton)
+        {
+            // Remove the HTML for the red 'Remove' button that is emitted for every element. Note that that
+            // Remove buttons are styled as display:none, but when an element has more then one input field,
+            // jQuery displays the button for each field. Since this element can't have more than one input
+            // field, the hidden Remove button isn't needed.
+            $components['form_controls'] = '';
+        }
+
+        // Remember information about the element that's only available when this filter is called. It will
+        // get used later when filterElementForm is called for this same element. Note that this filter is
+        // called once for each instance of an element's value. If an element has more than one value, e.g.
+        // two titles, the Edit form will display an input field for each title along with a red Remove
+        // button for each. The code below puts the data for this instance into $inputElement and appends
+        // the instance to the inputElements array indexed by the element's Id.
+        $inputElement = array();
+        $inputElement['value'] = $value;
+        $inputElement['stem'] = $args['input_name_stem'] . "[text]";
+        $inputElement['form_controls'] = $components['form_controls'];
+        $this->inputElements[$elementId][] = $inputElement;
 
         // Return the modified HTML.
         return $components;
@@ -132,13 +151,13 @@ class ElementFilters
         return true;
     }
 
-    private function removeAddInputButton($elementId, $components)
+    private function hideAddInputButton($elementId, $components)
     {
         $allowAddInputButton = array_key_exists($elementId, $this->addInputElements);
 
         if (!$allowAddInputButton)
         {
-            $components['add_input'] = false;
+            $components['add_input'] = '';
         }
         return $components;
     }

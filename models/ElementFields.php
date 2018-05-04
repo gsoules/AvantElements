@@ -17,7 +17,7 @@ class ElementFields
         $this->textFields = ElementsConfig::getOptionDataForTextField();
     }
 
-    public function createField(ElementValidator $elementValidator, $components, $item, $elementId, $value, $stem, $cloning)
+    public function createField(ElementValidator $elementValidator, $inputElement, $item, $elementId, $cloning)
     {
         // This method overrides Omeka's logic for emitting fields. Here's why:
         //    * Omeka only emits Text Area inputs, but AvantElements also supports Text Box inputs.
@@ -25,6 +25,10 @@ class ElementFields
         //    * The SimpleVocab plugin does not support default values and it uses inline styling for width.
         //
         // By emitting its own inputs, this method provides full control over form fields.
+
+        $value = $inputElement['value'];
+        $stem = $inputElement['stem'];
+        $formControls = $inputElement['form_controls'];
 
         $isNewItem = empty($item->id) && !$cloning;
         if ($isNewItem)
@@ -41,7 +45,6 @@ class ElementFields
                 $value = $elementValidator->getCallbackDefaultElementText($item, $elementId);
             }
         }
-        $hasValue = strlen($value) > 0;
 
         // See if this element is configured to be a text field.
         $convertToTextBox = array_key_exists($elementId, $this->textFields);
@@ -49,37 +52,28 @@ class ElementFields
         $fieldIsReadonly = array_key_exists($elementId, $this->readonlyFields);
         $vocabulary = $this->getSimpleVocabTerms($elementId);
         $isSelect = !empty($vocabulary);
+        $inputs = '';
 
         if ($convertToTextBox)
         {
-            // Emit a Text Box for this element whether or not it has a value.
-            $width = $this->textFields[$elementId]['width'];
-            $inputs = self::createTextBox($value, $stem, $width);
+            // Replace the Text Area with a Text Box.
+            $inputs = self::createTextBox($value, $stem, $this->getFieldWidth($this->textFields, $elementId));
         }
         else if ($convertToCheckBox)
         {
+            // Replace the TextArea with a checkbox.
             $inputs = self::createCheckbox($value, $stem);
         }
-        elseif ($hasValue || $isSelect)
+        elseif ($isSelect)
         {
-            if ($isSelect)
-            {
-                // This element is configured with the SimpleVocab plugin.
-                // Emit a Select List with a selected value to replace the one emitted by SimpleVocab.
-                $hasWidth = isset($this->selectFields[$elementId]);
-                $width = $hasWidth ? $this->selectFields[$elementId]['width'] : 0;
-                $inputs = self::createSelect($value, $stem, $vocabulary, $width);
-            }
-            else
-            {
-                // Emit a Text Area with a value.
-                $inputs = self::createTextArea($value, $stem);
-            }
+            // Replace the <select> emitted by SimpleVocab.
+            $inputs = self::createSelect($value, $stem, $vocabulary, $this->getFieldWidth($this->selectFields, $elementId));
         }
-        else
+
+        if (empty($inputs))
         {
-            // The element is not a Text Box and has no value. Keep the Text Area emitted by Omeka.
-            $inputs = $components['inputs'];
+            // The element is not a Text Box, Checkbox, or Select list. Emit a Text Area.
+            $inputs = self::createTextArea($value, $stem);
         }
 
         if ($fieldIsReadonly)
@@ -89,7 +83,8 @@ class ElementFields
         }
 
         // Wrap the input in the divs that Omeka expects for the form.
-        return "<div class='input-block'><div class='input'>$inputs</div></div>";
+        $inputs = "<div class='input-block'><div class='input'>$inputs</div>$formControls</div>";
+        return $inputs;
     }
 
     protected function createCheckbox($value, $stem)
@@ -107,7 +102,7 @@ class ElementFields
 
     protected function createTextArea($value, $stem)
     {
-        return get_view()->formTextarea($stem, $value, array('rows'=>3, 'readonly'=>true));
+        return get_view()->formTextarea($stem, $value, array('rows' => 3, 'cols' => 50));
     }
 
     protected function createTextBox($value, $stem, $width)
@@ -115,6 +110,11 @@ class ElementFields
         $style = $width == 0 ? '' : "width:{$width}px";
         $class = $width == 0 ? 'input-field-full-width' : '';
         return get_view()->formText($stem, $value, array('class' => $class, 'style' => $style));
+    }
+
+    protected function getFieldWidth($fields, $elementId)
+    {
+        return isset($fields[$elementId]) ? $fields[$elementId]['width'] : 0;
     }
 
     public static function getSimpleVocabTerms($elementId)
