@@ -89,32 +89,42 @@ class ElementFilters
 
         // Get the element's value.
         $values = array();
-        if ($this->elementCloning->cloning())
+        if (!$hasErrors && $this->elementCloning->cloning())
         {
-            if (isset($this->inputElements[$elementId]))
+            $elementName = $args['element']['name'];
+            $values = $this->elementCloning->getCloneElementValues($elementName);
+            if (empty($values))
             {
-                // A duplicated item is posting back with an error. It already has fields which must not be cloned again.
-                return $components;
-            }
-
-            if ($hasErrors)
-            {
-                $values = AvantCommon::getPostedValues($elementId);
-            }
-            else
-            {
-                $elementName = $args['element']['name'];
-                $values = $this->elementCloning->getCloneElementValues($elementName);
-                if (empty($values))
-                {
-                    // There's no value to clone. Create a blank value for the duplicated item.
-                    $values[] = '';
-                }
+                // There's no value to clone. Create a blank value for the duplicated item.
+                $values[] = '';
             }
         }
         else
         {
-            $values[] = $args['value'];
+            $value = '';
+            if ($hasErrors)
+            {
+                if (isset($_POST['Elements'][$elementId]))
+                {
+                    $postedValues = $_POST['Elements'][$elementId];
+                    $index = $args['index'];
+                    $i = 0;
+                    foreach ($postedValues as $postedValue)
+                    {
+                        if ($index == $i)
+                        {
+                            $value = $postedValue['text'];
+                            break;
+                        }
+                        $i++;
+                    }
+                }
+            }
+            else
+            {
+                $value = $args['value'];
+            }
+            $values[] = $value;
         }
 
         $allowHtml = array_key_exists($elementId, $this->htmlElements);
