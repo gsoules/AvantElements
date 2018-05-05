@@ -45,14 +45,14 @@ class ElementFilters
         // Create the input field HTML for each instance of the element's value.
         // See the comments in filterElementInput to learn how the inputElements array gets created.
         $components['inputs'] = '';
-        foreach ($this->inputElements[$elementId] as $inputElement)
+        foreach ($this->inputElements[$elementId] as $index => $inputElement)
         {
             $values = $inputElement['values'];
             $formControls = $inputElement['form_controls'];
 
-            foreach ($values as $key => $value)
+            foreach ($values as $value)
             {
-                $inputName = "Elements[$elementId][$key][text]";
+                $inputName = "Elements[$elementId][$index][text]";
                 $field = $this->fields->createField($elementValidator, $item, $elementId, $cloning, $value, $inputName, $formControls);
                 $components['inputs'] .= $field;
             }
