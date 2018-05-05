@@ -46,6 +46,11 @@ class ElementCloning
                 $values[0] = __("--- DUPLICATE ---\n%s", $values[0]);
             }
         }
+        if (empty($values))
+        {
+            // There's no value to clone. Create a blank value for the duplicated item.
+            $values[] = '';
+        }
         return $values;
     }
 

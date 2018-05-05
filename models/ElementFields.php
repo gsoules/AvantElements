@@ -17,7 +17,7 @@ class ElementFields
         $this->textFields = ElementsConfig::getOptionDataForTextField();
     }
 
-    public function createField(ElementValidator $elementValidator, $item, $elementId, $cloning, $value, $stem, $formControls)
+    public function createField(ElementValidator $elementValidator, $item, $elementId, $cloning, $value, $inputName, $formControls)
     {
         // This method overrides Omeka's logic for emitting fields. Here's why:
         //    * Omeka only emits Text Area inputs, but AvantElements also supports Text Box inputs.
@@ -53,23 +53,23 @@ class ElementFields
         if ($convertToTextBox)
         {
             // Replace the Text Area with a Text Box.
-            $inputs = self::createTextBox($value, $stem, $this->getFieldWidth($this->textFields, $elementId));
+            $inputs = self::createTextBox($value, $inputName, $this->getFieldWidth($this->textFields, $elementId));
         }
         else if ($convertToCheckBox)
         {
             // Replace the TextArea with a checkbox.
-            $inputs = self::createCheckbox($value, $stem);
+            $inputs = self::createCheckbox($value, $inputName);
         }
         elseif ($isSelect)
         {
             // Replace the <select> emitted by SimpleVocab.
-            $inputs = self::createSelect($value, $stem, $vocabulary, $this->getFieldWidth($this->selectFields, $elementId));
+            $inputs = self::createSelect($value, $inputName, $vocabulary, $this->getFieldWidth($this->selectFields, $elementId));
         }
 
         if (empty($inputs))
         {
             // The element is not a Text Box, Checkbox, or Select list. Emit a Text Area.
-            $inputs = self::createTextArea($value, $stem);
+            $inputs = self::createTextArea($value, $inputName);
         }
 
         if ($fieldIsReadonly)
@@ -83,29 +83,29 @@ class ElementFields
         return $inputs;
     }
 
-    protected function createCheckbox($value, $stem)
+    protected function createCheckbox($value, $inputName)
     {
-        return get_view()->formCheckbox($stem, (bool)$value, array(), array('1', '0'));
+        return get_view()->formCheckbox($inputName, (bool)$value, array(), array('1', '0'));
     }
 
-    protected function createSelect($value, $stem, $vocabulary, $width)
+    protected function createSelect($value, $inputName, $vocabulary, $width)
     {
         $style = $width == 0 ? '' : "width:{$width}px";
         $class = $width == 0 ? 'input-field-full-width' : '';
         $selectTerms = array('' => __('Select Below')) + array_combine($vocabulary, $vocabulary);
-        return get_view()->formSelect($stem, $value, array('class' => $class, 'style' => $style), $selectTerms);
+        return get_view()->formSelect($inputName, $value, array('class' => $class, 'style' => $style), $selectTerms);
     }
 
-    protected function createTextArea($value, $stem)
+    protected function createTextArea($value, $inputName)
     {
-        return get_view()->formTextarea($stem, $value, array('rows' => 3, 'cols' => 50));
+        return get_view()->formTextarea($inputName, $value, array('rows' => 3, 'cols' => 50));
     }
 
-    protected function createTextBox($value, $stem, $width)
+    protected function createTextBox($value, $inputName, $width)
     {
         $style = $width == 0 ? '' : "width:{$width}px";
         $class = $width == 0 ? 'input-field-full-width' : '';
-        return get_view()->formText($stem, $value, array('class' => $class, 'style' => $style));
+        return get_view()->formText($inputName, $value, array('class' => $class, 'style' => $style));
     }
 
     protected function getFieldWidth($fields, $elementId)

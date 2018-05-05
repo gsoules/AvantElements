@@ -48,13 +48,13 @@ class ElementFilters
         foreach ($this->inputElements[$elementId] as $inputElement)
         {
             $values = $inputElement['values'];
-            $inputNameStem = $inputElement['stem'];
+            $index = $inputElement['index'];
             $formControls = $inputElement['form_controls'];
 
             foreach ($values as $key => $value)
             {
-                $stem = str_replace('[0]', "[$key]", $inputNameStem);
-                $field = $this->fields->createField($elementValidator, $item, $elementId, $cloning, $value, $stem, $formControls);
+                $inputName = "Elements[$elementId][$key][text]";
+                $field = $this->fields->createField($elementValidator, $item, $elementId, $cloning, $value, $inputName, $formControls);
                 $components['inputs'] .= $field;
             }
         }
@@ -85,65 +85,24 @@ class ElementFilters
 
         $item = $args['record'];
         $elementId = $args['element']['id'];
+        $elementName = $args['element']['name'];
+        $index = $args['index'];
         $values = array();
 
-        // Determine the circumstances under which this method is being called. There are three cases:
-        // 1. Normal Edit (no post back, or post back to add a field when the user clicks the Add Input button).
-        // 2. Cloning another item.
-        // 3. Post back to report a data entry error.
+        // Determine the circumstances under which this method is being called and handle accordingly.
         if (AvantElements::itemHasErrors($item))
         {
-            // The Edit form has posted back with errors. At this point it doesn't matter whether the item is a clone.
-            $value = '';
-
-            // See if the form contains an input for this element (it won't if the element's field is blank).
-            if (isset($_POST['Elements'][$elementId]))
-            {
-                // The form contains an input for this element. Get all of the values for this element. Normally
-                // these is just one value, but the user can add more with the Add Input button.
-                $postedValues = $_POST['Elements'][$elementId];
-
-                // Determine which field this method was called for. An index of 0 means the first, 1 the second etc.
-                $index = $args['index'];
-
-                // Map the index to what's in the form by taking into account the fact that an element can have multiple
-                // fields and that the user can use the Remove button to delete fields. Note that unlike the Add Input
-                // button which posts back to the server to add a new field, the Remove button invokes jQuery which
-                // simple deletes the <input> tag from the form.
-                //
-                // Normally, multiple field values are named in the form like this: Elements[50][0], Elements[50][1],
-                // etc. where Elements is an array in the form, 50 is the element Id, and the last number is an index
-                // indicating which field (first, second etc.) If the user clicks the Remove button to delete the first
-                // field, the second field is still named Elements[50][1] which means its index is no longer accurate.
-                // However, this method references fields using a zero-based index ($args['index']). The loop below maps
-                // that index to what's in the form's Elements array to ensure that the correct fields value is obtained.
-                $i = 0;
-                foreach ($postedValues as $postedValue)
-                {
-                    if ($index == $i)
-                    {
-                        $value = $postedValue['text'];
-                        break;
-                    }
-                    $i++;
-                }
-            }
-            $values[] = $value;
+            // The Edit form has posted back with errors. It doesn't matter whether the item is a clone.
+            $values = $this->getPostedValues($elementId, $values, $index);
         }
         elseif ($this->elementCloning->cloning())
         {
-            // The Edit form is being displayed for the first time for a clone of another item.
-            $elementName = $args['element']['name'];
+            // The Edit form is being displayed for the first time, or to clone of another item.
             $values = $this->elementCloning->getCloneElementValues($elementName);
-            if (empty($values))
-            {
-                // There's no value to clone. Create a blank value for the duplicated item.
-                $values[] = '';
-            }
         }
         else
         {
-            // The Edit form is being displayed for the first time or post back to add a new field.
+            // The Edit form is being displayed for the first time, or it posted back when the user clicked Add Input.
             $values[] = $args['value'];
         }
 
@@ -172,7 +131,7 @@ class ElementFilters
         // the instance to the inputElements array indexed by the element's Id.
         $inputElement = array();
         $inputElement['values'] = $values;
-        $inputElement['stem'] = $args['input_name_stem'] . "[text]";
+        $inputElement['index'] = $index;
         $inputElement['form_controls'] = $components['form_controls'];
         $this->inputElements[$elementId][] = $inputElement;
 
@@ -220,5 +179,42 @@ class ElementFilters
             $components['add_input'] = '';
         }
         return $components;
+    }
+
+    protected function getPostedValues($elementId, $values, $index)
+    {
+        $value = '';
+
+        // See if the form contains an input for this element (it won't if the element's field is blank).
+        if (isset($_POST['Elements'][$elementId]))
+        {
+            // The form contains an input for this element. Get all of the values for this element. Normally
+            // these is just one value, but the user can add more with the Add Input button.
+            $postedValues = $_POST['Elements'][$elementId];
+
+            // Map the index to what's in the form by taking into account the fact that an element can have multiple
+            // fields and that the user can use the Remove button to delete fields. Note that unlike the Add Input
+            // button which posts back to the server to add a new field, the Remove button invokes jQuery which
+            // simple deletes the <input> tag from the form.
+            //
+            // Normally, multiple field values are named in the form like this: Elements[50][0], Elements[50][1],
+            // etc. where Elements is an array in the form, 50 is the element Id, and the last number is an index
+            // indicating which field (first, second etc.) If the user clicks the Remove button to delete the first
+            // field, the second field is still named Elements[50][1] which means its index is no longer accurate.
+            // However, this method references fields using a zero-based index ($args['index']). The loop below maps
+            // that index to what's in the form's Elements array to ensure that the correct fields value is obtained.
+            $i = 0;
+            foreach ($postedValues as $postedValue)
+            {
+                if ($index == $i)
+                {
+                    $value = $postedValue['text'];
+                    break;
+                }
+                $i++;
+            }
+        }
+        $values[] = $value;
+        return $values;
     }
 }
