@@ -6,6 +6,24 @@ class AvantElements
         $item->addError($elementName, $message);
     }
 
+    public static function emitAdminCss()
+    {
+        $hideDescriptions = (boolean)get_option(ElementsConfig::OPTION_HIDE_DESCRIPTIONS);
+
+        if ($hideDescriptions)
+        {
+            echo PHP_EOL . '<style>' . PHP_EOL;
+
+            // Hide large text that repeats what's already highlighted in the tab at the top of the form.
+            echo '#item-metadata h2 {display: none;}';
+
+            // Hide the description of the element set (e.g. Dublin Core) that appears right under the tabs.
+            echo '#edit-form .element-set-description {display: none;}';
+
+            echo '</style>' . PHP_EOL;
+        }
+    }
+
     public static function itemHasErrors($item)
     {
         $errors = $item->getErrors()->get();

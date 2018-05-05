@@ -6,6 +6,7 @@ define('CONFIG_LABEL_CHECKBOX_FIELD', __('Checkbox Field'));
 define('CONFIG_LABEL_DEFAULT_VALUE', __('Default Value'));
 define('CONFIG_LABEL_DISPLAY_ORDER', __('Display Order'));
 define('CONFIG_LABEL_EXTERNAL_LINK', __('External Link'));
+define('CONFIG_LABEL_HIDE_DESCRIPTIONS', __('Hide Descriptions'));
 define('CONFIG_LABEL_HTML', __('Allow HTML'));
 define('CONFIG_LABEL_IMPLICIT_LINK', __('Implicit Link'));
 define('CONFIG_LABEL_READONLY_FIELD', __('Read-only Field'));
@@ -22,6 +23,7 @@ class ElementsConfig extends ConfigOptions
     const OPTION_DEFAULT_VALUE = 'avantelements_default_value';
     const OPTION_DISPLAY_ORDER = 'avantelements_display_order';
     const OPTION_EXTERNAL_LINK = 'avantelements_external_link';
+    const OPTION_HIDE_DESCRIPTIONS = 'avantelements_hide_descriptions';
     const OPTION_HTML = 'avantelements_allow_html';
     const OPTION_IMPLICIT_LINK = 'avantelements_implicit_link';
     const OPTION_READONLY_FIELD = 'avantelements_readonly_field';
@@ -370,6 +372,8 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForCheckboxField();
         self::saveOptionDataForReadonlyField();
         self::saveOptionDataForDefaultValue();
+
+        set_option(self::OPTION_HIDE_DESCRIPTIONS, intval($_POST[self::OPTION_HIDE_DESCRIPTIONS]));
     }
 
     public static function saveOptionDataForAddInput()

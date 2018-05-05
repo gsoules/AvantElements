@@ -85,6 +85,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     public function hookAdminHead($args)
     {
         queue_css_file('avantelements-admin');
+        AvantElements::emitAdminCss();
     }
 
     public function hookAdminItemsShowSidebar($args)

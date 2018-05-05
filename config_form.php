@@ -46,14 +46,14 @@ $defaultValueOptionRows = max(2, count(explode(PHP_EOL, $defaultValueOption)));
 </style>
 
 <div class="plugin-help learn-more">
-    <a href="https://github.com/gsoules/AvantElements#usage" target="_blank">Learn about the configuration options on this page</a>
+   <a href="https://github.com/gsoules/AvantElements#usage" target="_blank">Learn about the configuration options on this page</a>
 </div>
 
 <h3>Public Elements</h3>
 
 <div class="field">
-    <div class="two columns alpha">
-        <label><?php echo CONFIG_LABEL_DISPLAY_ORDER; ?></label>
+   <div class="two columns alpha">
+       <label><?php echo CONFIG_LABEL_DISPLAY_ORDER; ?></label>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("The order to display elements on public Show pages."); ?></p>
@@ -91,7 +91,18 @@ $defaultValueOptionRows = max(2, count(explode(PHP_EOL, $defaultValueOption)));
     </div>
 </div>
 
+
 <h3>Admin Elements</h3>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_HIDE_DESCRIPTIONS ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __('Hide element descriptions.'); ?></p>
+        <?php echo $view->formCheckbox(ElementsConfig::OPTION_HIDE_DESCRIPTIONS, true, array('checked' => (boolean)get_option(ElementsConfig::OPTION_HIDE_DESCRIPTIONS))); ?>
+    </div>
+</div>
 
 <div class="field">
     <div class="two columns alpha">
