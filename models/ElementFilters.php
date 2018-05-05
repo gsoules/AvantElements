@@ -48,7 +48,6 @@ class ElementFilters
         foreach ($this->inputElements[$elementId] as $inputElement)
         {
             $values = $inputElement['values'];
-            $index = $inputElement['index'];
             $formControls = $inputElement['form_controls'];
 
             foreach ($values as $key => $value)
@@ -74,6 +73,11 @@ class ElementFilters
 
         $components = $this->hideAddInputButton($elementId, $components);
 
+        if (get_option(ElementsConfig::OPTION_HIDE_DESCRIPTIONS))
+        {
+            $components['description'] = '';
+        }
+
         return $components;
     }
 
@@ -85,24 +89,23 @@ class ElementFilters
 
         $item = $args['record'];
         $elementId = $args['element']['id'];
-        $elementName = $args['element']['name'];
-        $index = $args['index'];
         $values = array();
 
         // Determine the circumstances under which this method is being called and handle accordingly.
         if (AvantElements::itemHasErrors($item))
         {
             // The Edit form has posted back with errors. It doesn't matter whether the item is a clone.
-            $values = $this->getPostedValues($elementId, $values, $index);
+            $values = $this->getPostedValues($elementId, $values, $args['index']);
         }
         elseif ($this->elementCloning->cloning())
         {
-            // The Edit form is being displayed for the first time, or to clone of another item.
-            $values = $this->elementCloning->getCloneElementValues($elementName);
+            // The Edit form is being displayed for the first time to clone another item.
+            $values = $this->elementCloning->getCloneElementValues($args['element']['name']);
         }
         else
         {
-            // The Edit form is being displayed for the first time, or it posted back when the user clicked Add Input.
+            // The Edit form is being displayed for the first time to edit an item, or it posted back
+            // when the user clicked the Add Input button.
             $values[] = $args['value'];
         }
 
@@ -131,7 +134,6 @@ class ElementFilters
         // the instance to the inputElements array indexed by the element's Id.
         $inputElement = array();
         $inputElement['values'] = $values;
-        $inputElement['index'] = $index;
         $inputElement['form_controls'] = $components['form_controls'];
         $this->inputElements[$elementId][] = $inputElement;
 
@@ -177,6 +179,7 @@ class ElementFilters
         if (!$allowAddInputButton)
         {
             $components['add_input'] = '';
+
         }
         return $components;
     }
