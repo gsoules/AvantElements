@@ -56,7 +56,7 @@ class ElementCloning
         $itemId = $item->id;
         $url = $itemId ? 'items/add/' . $itemId : '.';
         $url = WEB_ROOT . '/admin/' . $url;
-        $label = __('Duplicate this Item');
-        echo "<a id='clone-button' href='$url' class='big blue button'>$label</a>";
+        $label = __('Duplicate This Item');
+        echo "<a id='clone-button' href='$url' target='_blank' class='big blue button'>$label</a>";
     }
 }
