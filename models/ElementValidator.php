@@ -174,7 +174,7 @@ class ElementValidator
         $text = '';
         if (!empty($callbackFunctionName))
         {
-            $text =call_user_func($callbackFunctionName, $item);
+            $text =call_user_func($callbackFunctionName, $item, $elementId);
         }
         return $text;
     }
@@ -194,12 +194,12 @@ class ElementValidator
 
         if ($this->hasValidationDefinitionFor($elementId, self::VALIDATION_TYPE_DATE))
         {
-            $dateValidator->validateElementDate($item, $elementId, $elementName, $text);
+            $dateValidator->validateElementDate($item, $elementName, $text);
         }
 
         if ($this->hasValidationDefinitionFor($elementId, self::VALIDATION_TYPE_YEAR))
         {
-            $dateValidator->validateElementYear($item, $elementId, $elementName, $text);
+            $dateValidator->validateElementYear($item, $elementName, $text);
         }
     }
 

@@ -27,7 +27,7 @@ class DateValidator
         return $elementsBySet;
     }
 
-    protected function parseDate($date)
+    public function parseDate($date)
     {
         $date = strtok($date, " ");
 
@@ -107,7 +107,7 @@ class DateValidator
         }
     }
 
-    public function validateElementDate(Item $item, $elementId, $elementName, $text)
+    public function validateElementDate(Item $item, $elementName, $text)
     {
         list($year, $month, $day, $formatOk) = $this->parseDate($text);
 
@@ -121,7 +121,7 @@ class DateValidator
         return true;
     }
 
-    public function validateElementYear(Item $item, $elementId, $elementName, $text)
+    public function validateElementYear(Item $item, $elementName, $text)
     {
         if (strlen($text) != 4 || !ctype_digit($text)) {
             AvantElements::addError($item, $elementName, __('Value must be a year consisting of exactly four digits with no leading or trailing spaces.'));
