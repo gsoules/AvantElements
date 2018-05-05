@@ -47,7 +47,16 @@ class ElementFilters
         $components['inputs'] = '';
         foreach ($this->inputElements[$elementId] as $inputElement)
         {
-            $components['inputs'] .= $this->fields->createField($elementValidator, $inputElement, $item, $elementId, $cloning);
+            $values = $inputElement['values'];
+            $inputNameStem = $inputElement['stem'];
+            $formControls = $inputElement['form_controls'];
+
+            foreach ($values as $key => $value)
+            {
+                $stem = str_replace('[0]', "[$key]", $inputNameStem);
+                $field = $this->fields->createField($elementValidator, $item, $elementId, $cloning, $value, $stem, $formControls);
+                $components['inputs'] .= $field;
+            }
         }
 
 //        if ($elementName == 'Creator' || $elementName == 'Publisher')
@@ -73,18 +82,39 @@ class ElementFilters
         // Omeka calls the Element Input Filter to give this plugin an opportunity to modify an element's <input> tag.
         // Omeka calls this filter before calling filterElementValidate.
 
+        $item = $args['record'];
         $elementId = $args['element']['id'];
 
+        $hasErrors = AvantElements::itemHasErrors($item);
+
         // Get the element's value.
+        $values = array();
         if ($this->elementCloning->cloning())
         {
-            $elementName = $args['element']['name'];
-            $elementSetName = $args['element']['set_name'];
-            $value = $this->elementCloning->getCloneElementValue($elementSetName, $elementName);
+            if (isset($this->inputElements[$elementId]))
+            {
+                // A duplicated item is posting back with an error. It already has fields which must not be cloned again.
+                return $components;
+            }
+
+            if ($hasErrors)
+            {
+                $values = AvantCommon::getPostedValues($elementId);
+            }
+            else
+            {
+                $elementName = $args['element']['name'];
+                $values = $this->elementCloning->getCloneElementValues($elementName);
+                if (empty($values))
+                {
+                    // There's no value to clone. Create a blank value for the duplicated item.
+                    $values[] = '';
+                }
+            }
         }
         else
         {
-            $value = $args['value'];
+            $values[] = $args['value'];
         }
 
         $allowHtml = array_key_exists($elementId, $this->htmlElements);
@@ -111,7 +141,7 @@ class ElementFilters
         // button for each. The code below puts the data for this instance into $inputElement and appends
         // the instance to the inputElements array indexed by the element's Id.
         $inputElement = array();
-        $inputElement['value'] = $value;
+        $inputElement['values'] = $values;
         $inputElement['stem'] = $args['input_name_stem'] . "[text]";
         $inputElement['form_controls'] = $components['form_controls'];
         $this->inputElements[$elementId][] = $inputElement;

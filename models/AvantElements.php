@@ -6,7 +6,7 @@ class AvantElements
         $item->addError($elementName, $message);
     }
 
-    public static function hasErrors($item)
+    public static function itemHasErrors($item)
     {
         $errors = $item->getErrors()->get();
         return count($errors) > 0;

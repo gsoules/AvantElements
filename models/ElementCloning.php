@@ -32,21 +32,21 @@ class ElementCloning
         return $this->cloning;
     }
 
-    public function getCloneElementValue($elementSetName, $elementName)
+    public function getCloneElementValues($elementName)
     {
-        $value = '';
+        $values = array();
 
         if ($elementName != ItemMetadata::getIdentifierElementName())
         {
-            $value = ItemMetadata::getElementTextFromElementName($this->cloneItem, array($elementSetName, $elementName));
+            $values = ItemMetadata::getAllElementTextsForElementName($this->cloneItem, $elementName);
 
             if ($elementName == ItemMetadata::getTitleElementName())
             {
-                // Insert CLONED into the title to remind the admin that this new item is a clone.
-                $value = __("--- DUPLICATE ---\n%s", $value);
+                // Insert CLONED into the first title to remind the admin that this new item is a clone.
+                $values[0] = __("--- DUPLICATE ---\n%s", $values[0]);
             }
         }
-        return $value;
+        return $values;
     }
 
     public static function emitCloneButton($item)

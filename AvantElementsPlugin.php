@@ -105,7 +105,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $item = $args['record'];
         $this->elementValidator->beforeSaveItem($item);
 
-        if (AvantElements::hasErrors($item))
+        if (AvantElements::itemHasErrors($item))
         {
             return;
         }

@@ -17,7 +17,7 @@ class ElementFields
         $this->textFields = ElementsConfig::getOptionDataForTextField();
     }
 
-    public function createField(ElementValidator $elementValidator, $inputElement, $item, $elementId, $cloning)
+    public function createField(ElementValidator $elementValidator, $item, $elementId, $cloning, $value, $stem, $formControls)
     {
         // This method overrides Omeka's logic for emitting fields. Here's why:
         //    * Omeka only emits Text Area inputs, but AvantElements also supports Text Box inputs.
@@ -25,10 +25,6 @@ class ElementFields
         //    * The SimpleVocab plugin does not support default values and it uses inline styling for width.
         //
         // By emitting its own inputs, this method provides full control over form fields.
-
-        $value = $inputElement['value'];
-        $stem = $inputElement['stem'];
-        $formControls = $inputElement['form_controls'];
 
         $isNewItem = empty($item->id) && !$cloning;
         if ($isNewItem)

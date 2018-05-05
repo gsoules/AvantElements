@@ -10,8 +10,8 @@ class DateValidator
         $yearStartElementName = CommonConfig::getOptionTextForYearStart();
         $yearEndElementName = CommonConfig::getOptionTextForYearEnd();
 
-        $yearStart = ItemMetadata::getElementTextFromElementName($item, array('Item Type Metadata', $yearStartElementName));
-        $yearEnd = ItemMetadata::getElementTextFromElementName($item, array('Item Type Metadata', $yearEndElementName));
+        $yearStart = ItemMetadata::getElementTextForElementName($item,  $yearStartElementName);
+        $yearEnd = ItemMetadata::getElementTextForElementName($item, $yearEndElementName);
 
         if ($yearStart == $yearEnd) {
             // Get the name of the item type metadata set to use as an index into the array of element sets.
