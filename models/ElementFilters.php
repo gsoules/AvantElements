@@ -51,15 +51,13 @@ class ElementFilters
         $components['inputs'] = '';
         foreach ($this->inputElements[$elementId] as $index => $inputElement)
         {
-            $values = $inputElement['values'];
             $formControls = $inputElement['form_controls'];
+            $value = $inputElement['value'];
+            $inputName = "Elements[$elementId][$index][text]";
 
-            foreach ($values as $value)
-            {
-                $inputName = "Elements[$elementId][$index][text]";
-                $field = $this->fields->createField($this->customCallback, $item, $elementId, $cloning, $value, $inputName, $formControls);
-                $components['inputs'] .= $field;
-            }
+            $field = $this->fields->createField($this->customCallback, $item, $elementId, $cloning, $value, $inputName, $formControls);
+
+            $components['inputs'] .= $field;
         }
 
 //        if ($elementName == 'Creator' || $elementName == 'Publisher')
@@ -99,47 +97,42 @@ class ElementFilters
         if (AvantElements::itemHasErrors($item))
         {
             // The Edit form has posted back with errors. It doesn't matter whether the item is a clone.
+            // Save the element's single posted value in the $values array.
             $values = $this->getPostedValues($elementId, $values, $args['index']);
         }
         elseif ($this->elementCloning->cloning())
         {
             // The Edit form is being displayed for the first time to clone another item.
+            // Save all of the cloned element's values in the $values array.
             $values = $this->elementCloning->getCloneElementValues($args['element']['name']);
         }
         else
         {
             // The Edit form is being displayed for the first time to edit an item, or it posted back
-            // when the user clicked the Add Input button.
+            // when the user clicked the Add Input button. Save the element's single value in the $values array.
             $values[] = $args['value'];
         }
 
-        $allowHtml = array_key_exists($elementId, $this->htmlElements);
-        if (!$allowHtml)
-        {
-            // Remove the HTML for the HTML checkbox for this element.
-            $components['html_checkbox'] = '';
-        }
+        // Hide the HTML checkbox and/or the Remove button if the element doesn't need them.
+        $components = $this->hideUnusedFormControls($components, $elementId);
 
-        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements);
-        if (!$allowAddInputButton)
-        {
-            // Remove the HTML for the red 'Remove' button that is emitted for every element. Note that that
-            // Remove buttons are styled as display:none, but when an element has more then one input field,
-            // jQuery displays the button for each field. Since this element can't have more than one input
-            // field, the hidden Remove button isn't needed.
-            $components['form_controls'] = '';
-        }
-
-        // Remember information about the element that's only available when this filter is called. It will
+        // Record information about the element that's only available when this filter is called. It will
         // get used later when filterElementForm is called for this same element. Note that this filter is
-        // called once for each instance of an element's value. If an element has more than one value, e.g.
-        // two titles, the Edit form will display an input field for each title along with a red Remove
-        // button for each. The code below puts the data for this instance into $inputElement and appends
-        // the instance to the inputElements array indexed by the element's Id.
-        $inputElement = array();
-        $inputElement['values'] = $values;
-        $inputElement['form_controls'] = $components['form_controls'];
-        $this->inputElements[$elementId][] = $inputElement;
+        // normally called once for each instance of an element's value. If an element has more than one
+        // value, e.g. two titles, the Edit form will display an input field for each title along with a red
+        // Remove button for each. This filter will get called once for each title. The code below records the
+        // value for each instance into $inputElement and appends the instance to the $inputElements array
+        // indexed by the element's Id. However, when cloning, an element's multiple values are captured above
+        // in the $values array. The loop below ensures that there will still be in inputElement instance for
+        // each value of the element being cloned. When filterElementForm is called, the $inputElements array
+        // will contain value instances for both normal and cloning cases.
+        foreach ($values as $value)
+        {
+            $inputElement = array();
+            $inputElement['value'] = $value;
+            $inputElement['form_controls'] = $components['form_controls'];
+            $this->inputElements[$elementId][] = $inputElement;
+        }
 
         // Return the modified HTML.
         return $components;
@@ -213,18 +206,6 @@ class ElementFilters
         return $text;
     }
 
-    private function hideAddInputButton($elementId, $components)
-    {
-        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements);
-
-        if (!$allowAddInputButton)
-        {
-            $components['add_input'] = '';
-
-        }
-        return $components;
-    }
-
     protected function getPostedValues($elementId, $values, $index)
     {
         $value = '';
@@ -260,5 +241,38 @@ class ElementFilters
         }
         $values[] = $value;
         return $values;
+    }
+
+    private function hideAddInputButton($elementId, $components)
+    {
+        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements);
+
+        if (!$allowAddInputButton)
+        {
+            $components['add_input'] = '';
+
+        }
+        return $components;
+    }
+
+    protected function hideUnusedFormControls($components, $elementId)
+    {
+        $allowHtml = array_key_exists($elementId, $this->htmlElements);
+        if (!$allowHtml)
+        {
+            // Remove the HTML for the HTML checkbox for this element.
+            $components['html_checkbox'] = '';
+        }
+
+        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements);
+        if (!$allowAddInputButton)
+        {
+            // Remove the HTML for the red 'Remove' button that is emitted for every element. Note that that
+            // Remove buttons are styled as display:none, but when an element has more then one input field,
+            // jQuery displays the button for each field. Since this element can't have more than one input
+            // field, the hidden Remove button isn't needed.
+            $components['form_controls'] = '';
+        }
+        return $components;
     }
 }
