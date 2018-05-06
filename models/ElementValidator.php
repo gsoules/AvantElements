@@ -35,6 +35,11 @@ class ElementValidator
         $this->performCallbackBeforeSave($item);
     }
 
+    protected function callUserFunction($callbackFunctionName, $item, $elementId = 0, $text = '')
+    {
+        return call_user_func($callbackFunctionName, $item, $elementId, $text);
+    }
+
     protected function constructCallbackFunctionName(Item $item, $elementId, $callback, $callbackAction)
     {
         if ($callback['action'] != $callbackAction)
@@ -54,61 +59,13 @@ class ElementValidator
         return $callbackFunctionName;
     }
 
-    public function filterElementTextBeforeDisplay($item, $elementId, $text)
-    {
-        $filteredText = $text;
-        $callbackFunctionName = $this->getCallbackFunctionName($item, $elementId, ElementValidator::CALLBACK_ACTION_FILTER);
-        if (!empty($callbackFunctionName))
-        {
-            $filteredText = call_user_func($callbackFunctionName, $item, $elementId, $text);
-        }
-        return $filteredText;
-    }
-
-    public function filterElementTextBeforeSave($item, $elementId, $text)
-    {
-        if (strlen($text) == 0)
-        {
-            // The string has no content. Note use of strlen() instead of empty()
-            // to safely detect that a boolean value "0" is not considered empty.
-            return self::performCallbackForDefault($item, $elementId);
-        }
-
-        if ($this->hasValidationDefinitionFor($elementId, self::VALIDATION_TYPE_YEAR))
-        {
-            $text = trim($text);
-        }
-
-        if ($this->hasValidationDefinitionFor($elementId, self::VALIDATION_TYPE_SIMPLE_TEXT))
-        {
-            $text = $this->filterRestrictedText($text);
-        }
-        return $text;
-    }
-
-    protected function filterRestrictedText($text)
-    {
-        // Remove carriage returns and tabs.
-        $text = str_replace(array("\r", "\n", "\t"), '', $text);
-
-        // Trim away leading or trailing whitespace, carriage returns, and tabs.
-        $text = trim($text);
-
-        // Replace en or em dashes with hyphens.
-        $en_dash = html_entity_decode('&#x2013;', ENT_COMPAT, 'UTF-8');
-        $em_dash = html_entity_decode('&#8212;', ENT_COMPAT, 'UTF-8');
-        $text = str_replace(array($en_dash, $em_dash), '-', $text);
-
-        return $text;
-    }
-
     public function getCallbackDefaultElementText($item, $elementId)
     {
         $text = '';
         $callbackFunctionName = $this->getCallbackFunctionName($item, $elementId, ElementValidator::CALLBACK_ACTION_DEFAULT);
         if (!empty($callbackFunctionName))
         {
-            $text = call_user_func($callbackFunctionName, $item);
+            $text = $this->callUserFunction($callbackFunctionName, $item, $elementId, $text);
         }
         return $text;
     }
@@ -133,7 +90,17 @@ class ElementValidator
         return '';
     }
 
-    protected function getValidationDefinitionsFor($validationType)
+    public function getCallbackFunctionText($callbackAction, $item, $elementId, $text = '')
+    {
+        $callbackFunctionName = $this->getCallbackFunctionName($item, $elementId ,$callbackAction);
+        if (!empty($callbackFunctionName))
+        {
+            $text = $this->callUserFunction($callbackFunctionName, $item, $elementId, $text);
+        }
+        return $text;
+    }
+
+    public function getValidationDefinitionsFor($validationType)
     {
         $definitionsForType = array();
 
@@ -151,7 +118,7 @@ class ElementValidator
         return $definitionsForType;
     }
 
-    protected function hasValidationDefinitionFor($elementId, $validationType)
+    public function hasValidationDefinitionFor($elementId, $validationType)
     {
         if (!isset($this->validationOptionData[$elementId]))
         {
@@ -167,7 +134,7 @@ class ElementValidator
         $callbackFunctionName = $this->getCallbackFunctionName($item, 0, self::CALLBACK_ACTION_SAVE);
         if (!empty($callbackFunctionName))
         {
-            call_user_func($callbackFunctionName, $item);
+            $this->callUserFunction($callbackFunctionName, $item, 0, '');
         }
     }
 
@@ -176,7 +143,7 @@ class ElementValidator
         $callbackFunctionName = $this->getCallbackFunctionName($item, 0, self::CALLBACK_ACTION_VALIDATE);
         if (!empty($callbackFunctionName))
         {
-            call_user_func($callbackFunctionName, $item);
+            $this->callUserFunction($callbackFunctionName, $item, 0, '');
         }
     }
 
@@ -186,17 +153,17 @@ class ElementValidator
         $text = '';
         if (!empty($callbackFunctionName))
         {
-            $text =call_user_func($callbackFunctionName, $item, $elementId);
+            $text = $this->callUserFunction($callbackFunctionName, $item, $elementId, $text);
         }
         return $text;
     }
 
-    public function performCallbackValidation($item, $elementId, $elementName, $text)
+    public function performCallbackValidation($item, $elementId, $text)
     {
         $callbackFunctionName = $this->getCallbackFunctionName($item, $elementId, self::CALLBACK_ACTION_VALIDATE);
         if (!empty($callbackFunctionName))
         {
-            call_user_func($callbackFunctionName, $item, $elementId, $elementName, $text);
+            $this->callUserFunction($callbackFunctionName, $item, $elementId, $text);
         }
     }
 

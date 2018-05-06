@@ -3,14 +3,16 @@ class ElementFilters
 {
     protected $addInputElements;
     protected $elementCloning;
+    protected $elementValidator;
     protected $inputElements;
     protected $fields;
     protected $htmlElements;
 
-    public function __construct()
+    public function __construct(ElementValidator $elementValidator)
     {
         $this->addInputElements = ElementsConfig::getOptionDataForAddInput();
         $this->elementCloning = new ElementCloning();
+        $this->elementValidator = $elementValidator;
         $this->inputElements = array();
         $this->fields = new ElementFields();
         $this->htmlElements = ElementsConfig::getOptionDataForHtml();
@@ -30,7 +32,7 @@ class ElementFilters
         return $elementsBySet;
     }
 
-    public function filterElementForm(ElementValidator $elementValidator, $components, $args)
+    public function filterElementForm($components, $args)
     {
         // Omeka calls the Element Form Filter to give plugins an opportunity to modify the Edit form's input-block
         // <div> for an element's <input> tag plus additional controls like the Add Input button.
@@ -53,7 +55,7 @@ class ElementFilters
             foreach ($values as $value)
             {
                 $inputName = "Elements[$elementId][$index][text]";
-                $field = $this->fields->createField($elementValidator, $item, $elementId, $cloning, $value, $inputName, $formControls);
+                $field = $this->fields->createField($this->elementValidator, $item, $elementId, $cloning, $value, $inputName, $formControls);
                 $components['inputs'] .= $field;
             }
         }
@@ -141,7 +143,7 @@ class ElementFilters
         return $components;
     }
 
-    public function filterElementSave(ElementValidator $elementValidator, $text, $args)
+    public function filterElementSave($text, $args)
     {
         // Omeka calls the Element Save Filter to give this plugin the opportunity to modify
         // the text that will be saved for an element.
@@ -149,11 +151,32 @@ class ElementFilters
 
         $item = $args['record'];
         $elementId = $args['element']['id'];
-        $filteredText = $elementValidator->filterElementTextBeforeSave($item, $elementId, $text);
+        $filteredText = $this->filterElementTextBeforeSave($item, $elementId, $text);
         return $filteredText;
     }
 
-    public function filterElementValidate(ElementValidator $elementValidator, $args)
+    public function filterElementTextBeforeSave($item, $elementId, $text)
+    {
+        if (strlen($text) == 0)
+        {
+            // The string has no content. Note use of strlen() instead of empty()
+            // to safely detect that a boolean value "0" is not considered empty.
+            return $this->elementValidator->performCallbackForDefault($item, $elementId);
+        }
+
+        if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_YEAR))
+        {
+            $text = trim($text);
+        }
+
+        if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_SIMPLE_TEXT))
+        {
+            $text = $this->filterRestrictedText($text);
+        }
+        return $text;
+    }
+
+    public function filterElementValidate($args)
     {
         // Omeka calls the Element Validation Filter to give this plugin the opportunity to accept
         // or reject an element's text. The validation logic called from here rejects a value by
@@ -165,11 +188,27 @@ class ElementFilters
         $elementId = $args['element']['id'];
         $elementName = $args['element']['name'];
         $text = $args['text'];
-        $elementValidator->validateElementText($item, $elementId, $elementName, $text);
+        $this->elementValidator->validateElementText($item, $elementId, $elementName, $text);
 
-        $elementValidator->performCallbackValidation($item, $elementId, $elementName, $text);
+        $this->elementValidator->performCallbackValidation($item, $elementId, $text);
 
         return true;
+    }
+
+    protected function filterRestrictedText($text)
+    {
+        // Remove carriage returns and tabs.
+        $text = str_replace(array("\r", "\n", "\t"), '', $text);
+
+        // Trim away leading or trailing whitespace, carriage returns, and tabs.
+        $text = trim($text);
+
+        // Replace en or em dashes with hyphens.
+        $en_dash = html_entity_decode('&#x2013;', ENT_COMPAT, 'UTF-8');
+        $em_dash = html_entity_decode('&#8212;', ENT_COMPAT, 'UTF-8');
+        $text = str_replace(array($en_dash, $em_dash), '-', $text);
+
+        return $text;
     }
 
     private function hideAddInputButton($elementId, $components)

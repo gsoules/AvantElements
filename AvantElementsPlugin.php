@@ -31,7 +31,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
         $this->elementValidator = new ElementValidator();
         $this->displayFilter = new DisplayFilter($this->_filters, $this->elementValidator);
-        $this->elementFilters = new ElementFilters();
+        $this->elementFilters = new ElementFilters($this->elementValidator);
         $this->linkBuilder = new LinkBuilder($this->_filters);
         $this->titleSync = new TitleSync();
     }
@@ -62,7 +62,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function filterElementForm($components, $args)
     {
-        return $this->elementFilters->filterElementForm($this->elementValidator, $components, $args);
+        return $this->elementFilters->filterElementForm($components, $args);
     }
 
     public function filterElementInput($components, $args)
@@ -72,12 +72,12 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function filterElementSave($text, $args)
     {
-        return $this->elementFilters->filterElementSave($this->elementValidator, $text, $args);
+        return $this->elementFilters->filterElementSave($text, $args);
     }
 
     public function filterElementValidate($isValid, $args)
     {
-        return $this->elementFilters->filterElementValidate($this->elementValidator, $args);
+        return $this->elementFilters->filterElementValidate($args);
     }
 
     public function hookAdminFooter($args)

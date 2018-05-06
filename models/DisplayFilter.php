@@ -34,7 +34,8 @@ class DisplayFilter
 
     public function displayFilteredTextFor($item, $elementId, $text)
     {
-        return $this->elementValidator->filterElementTextBeforeDisplay($item, $elementId, $text);
+        $filteredText = $this->elementValidator->getCallbackFunctionText(ElementValidator::CALLBACK_ACTION_FILTER, $item, $elementId, $text);
+        return $filteredText;
     }
 
     public function initializeCheckboxFields(&$filters)
