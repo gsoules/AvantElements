@@ -17,7 +17,7 @@ class ElementFields
         $this->textFields = ElementsConfig::getOptionDataForTextField();
     }
 
-    public function createField(ElementValidator $elementValidator, $item, $elementId, $cloning, $value, $inputName, $formControls)
+    public function createField(CustomCallback $customCallback, $item, $elementId, $cloning, $value, $inputName, $formControls)
     {
         // This method overrides Omeka's logic for emitting fields. Here's why:
         //    * Omeka only emits Text Area inputs, but AvantElements also supports Text Box inputs.
@@ -38,7 +38,7 @@ class ElementFields
             {
                 // There is no configured default value. Check for a custom callback value.
                 // Note that a configured value takes precedence over a custom value.
-                $value = $elementValidator->getCallbackDefaultElementText($item, $elementId);
+                $value = $customCallback->performCallbackForElement(CustomCallback::CALLBACK_ACTION_DEFAULT, $item, $elementId);
             }
         }
 

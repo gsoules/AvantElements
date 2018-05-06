@@ -2,6 +2,7 @@
 
 class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 {
+    protected $customCallback;
     protected $displayFilter;
     protected $elementFilters;
     protected $elementValidator;
@@ -29,9 +30,10 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         parent::__construct();
 
-        $this->elementValidator = new ElementValidator();
-        $this->displayFilter = new DisplayFilter($this->_filters, $this->elementValidator);
-        $this->elementFilters = new ElementFilters($this->elementValidator);
+        $this->customCallback = new CustomCallback();
+        $this->elementValidator = new ElementValidator($this->customCallback);
+        $this->displayFilter = new DisplayFilter($this->_filters, $this->customCallback);
+        $this->elementFilters = new ElementFilters($this->customCallback, $this->elementValidator);
         $this->linkBuilder = new LinkBuilder($this->_filters);
         $this->titleSync = new TitleSync();
     }

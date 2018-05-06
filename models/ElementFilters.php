@@ -2,17 +2,19 @@
 class ElementFilters
 {
     protected $addInputElements;
+    protected $customCallback;
     protected $elementCloning;
     protected $elementValidator;
     protected $inputElements;
     protected $fields;
     protected $htmlElements;
 
-    public function __construct(ElementValidator $elementValidator)
+    public function __construct(CustomCallback $customCallback, ElementValidator $elementValidator)
     {
+        $this->customCallback = $customCallback;
+        $this->elementValidator = $elementValidator;
         $this->addInputElements = ElementsConfig::getOptionDataForAddInput();
         $this->elementCloning = new ElementCloning();
-        $this->elementValidator = $elementValidator;
         $this->inputElements = array();
         $this->fields = new ElementFields();
         $this->htmlElements = ElementsConfig::getOptionDataForHtml();
@@ -55,7 +57,7 @@ class ElementFilters
             foreach ($values as $value)
             {
                 $inputName = "Elements[$elementId][$index][text]";
-                $field = $this->fields->createField($this->elementValidator, $item, $elementId, $cloning, $value, $inputName, $formControls);
+                $field = $this->fields->createField($this->customCallback, $item, $elementId, $cloning, $value, $inputName, $formControls);
                 $components['inputs'] .= $field;
             }
         }
@@ -161,7 +163,7 @@ class ElementFilters
         {
             // The string has no content. Note use of strlen() instead of empty()
             // to safely detect that a boolean value "0" is not considered empty.
-            return $this->elementValidator->performCallbackForDefault($item, $elementId);
+            return $this->customCallback->performCallbackForElement(CustomCallback::CALLBACK_ACTION_DEFAULT, $item, $elementId);
         }
 
         if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_YEAR))
@@ -171,7 +173,7 @@ class ElementFilters
 
         if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_SIMPLE_TEXT))
         {
-            $text = $this->filterRestrictedText($text);
+            $text = $this->filterSimpleText($text);
         }
         return $text;
     }
@@ -188,14 +190,14 @@ class ElementFilters
         $elementId = $args['element']['id'];
         $elementName = $args['element']['name'];
         $text = $args['text'];
-        $this->elementValidator->validateElementText($item, $elementId, $elementName, $text);
 
-        $this->elementValidator->performCallbackValidation($item, $elementId, $text);
+        $this->elementValidator->validateElementText($item, $elementId, $elementName, $text);
+        $this->customCallback->performCallbackForElement(CustomCallback::CALLBACK_ACTION_VALIDATE, $item, $elementId, $text);
 
         return true;
     }
 
-    protected function filterRestrictedText($text)
+    protected function filterSimpleText($text)
     {
         // Remove carriage returns and tabs.
         $text = str_replace(array("\r", "\n", "\t"), '', $text);

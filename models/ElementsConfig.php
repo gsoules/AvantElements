@@ -1,7 +1,7 @@
 <?php
 
 define('CONFIG_LABEL_ADD_INPUT', __('Allow Add Input'));
-define('CONFIG_LABEL_CALLBACK', __('Callback'));
+define('CONFIG_LABEL_CALLBACK', __('CustomCallback'));
 define('CONFIG_LABEL_CHECKBOX_FIELD', __('Checkbox Field'));
 define('CONFIG_LABEL_DEFAULT_VALUE', __('Default Value'));
 define('CONFIG_LABEL_DISPLAY_ORDER', __('Display Order'));
@@ -413,16 +413,16 @@ class ElementsConfig extends ConfigOptions
             if ($isItemCallback)
             {
                 $actions = array(
-                    ElementValidator::CALLBACK_ACTION_VALIDATE,
-                    ElementValidator::CALLBACK_ACTION_SAVE
+                    CustomCallback::CALLBACK_ACTION_VALIDATE,
+                    CustomCallback::CALLBACK_ACTION_SAVE
                 );
             }
             else
             {
                 $actions = array(
-                    ElementValidator::CALLBACK_ACTION_FILTER,
-                    ElementValidator::CALLBACK_ACTION_DEFAULT,
-                    ElementValidator::CALLBACK_ACTION_VALIDATE
+                    CustomCallback::CALLBACK_ACTION_FILTER,
+                    CustomCallback::CALLBACK_ACTION_DEFAULT,
+                    CustomCallback::CALLBACK_ACTION_VALIDATE
                 );
             }
             $allowed = implode(', ', $actions);
