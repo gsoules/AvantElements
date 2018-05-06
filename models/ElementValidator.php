@@ -2,6 +2,7 @@
 class ElementValidator
 {
     const CALLBACK_ACTION_DEFAULT = 'default';
+    const CALLBACK_ACTION_FILTER = 'filter';
     const CALLBACK_ACTION_SAVE = 'save';
     const CALLBACK_ACTION_VALIDATE = 'validate';
 
@@ -29,7 +30,7 @@ class ElementValidator
         $this->validateRequiredElements($item);
 
         $dateValidator = new DateValidator();
-        $dateValidator->validateDates($item);
+        $dateValidator->validateDateCombinations($item);
 
         $this->performCallbackBeforeSave($item);
     }
@@ -53,7 +54,18 @@ class ElementValidator
         return $callbackFunctionName;
     }
 
-    public function filterElementText($item, $elementId, $text)
+    public function filterElementTextBeforeDisplay($item, $elementId, $text)
+    {
+        $filteredText = $text;
+        $callbackFunctionName = $this->getCallbackFunctionName($item, $elementId, ElementValidator::CALLBACK_ACTION_FILTER);
+        if (!empty($callbackFunctionName))
+        {
+            $filteredText = call_user_func($callbackFunctionName, $item, $elementId, $text);
+        }
+        return $filteredText;
+    }
+
+    public function filterElementTextBeforeSave($item, $elementId, $text)
     {
         if (strlen($text) == 0)
         {
@@ -103,13 +115,13 @@ class ElementValidator
 
     protected function getCallbackFunctionName($item, $elementId, $callbackAction)
     {
-        foreach ($this->callbacks as $callbackElementId => $callbackDefinition)
+        foreach ($this->callbacks as $callbackElementId => $definition)
         {
             if ($elementId != $callbackElementId)
             {
                 continue;
             }
-            foreach ($callbackDefinition['callbacks'] as $callback)
+            foreach ($definition['callbacks'] as $callback)
             {
                 if ($callback['action'] != $callbackAction)
                 {

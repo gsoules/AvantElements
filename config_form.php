@@ -10,9 +10,6 @@ $implicitLinkOptionRows = max(2, count(explode(PHP_EOL, $implicitLinkOption)));
 $externalLinkOption = ElementsConfig::getOptionTextForExternalLink();
 $externalLinkOptionRows = max(2, count(explode(PHP_EOL, $externalLinkOption)));
 
-$titleSyncOption = ElementsConfig::getOptionTextForTitleSync();
-$titleSyncOptionRows = max(2, count(explode(PHP_EOL, $titleSyncOption)));
-
 $validationOption = ElementsConfig::getOptionTextForValidation();
 $validationOptionRows = max(2, count(explode(PHP_EOL, $validationOption)));
 
@@ -39,6 +36,9 @@ $readonlyOptionRows = max(2, count(explode(PHP_EOL, $readonlyOption)));
 
 $defaultValueOption = ElementsConfig::getOptionTextForDefaultValue();
 $defaultValueOptionRows = max(2, count(explode(PHP_EOL, $defaultValueOption)));
+
+$titleSyncOption = ElementsConfig::getOptionTextForTitleSync();
+$titleSyncOptionRows = max(2, count(explode(PHP_EOL, $titleSyncOption)));
 
 ?>
 <style>
@@ -78,16 +78,6 @@ $defaultValueOptionRows = max(2, count(explode(PHP_EOL, $defaultValueOption)));
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that link to external web resources."); ?></p>
         <?php echo $view->formTextarea(ElementsConfig::OPTION_EXTERNAL_LINK, $externalLinkOption, array('rows' => $externalLinkOptionRows)); ?>
-    </div>
-</div>
-
-<div class="field">
-    <div class="two columns alpha">
-        <label><?php echo CONFIG_LABEL_TITLE_SYNC; ?></label>
-    </div>
-    <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Elements that should stay in sync with corrresponding titles."); ?></p>
-        <?php echo $view->formTextarea(ElementsConfig::OPTION_TITLE_SYNC, $titleSyncOption, array('rows' => $titleSyncOptionRows)); ?>
     </div>
 </div>
 
@@ -195,5 +185,15 @@ $defaultValueOptionRows = max(2, count(explode(PHP_EOL, $defaultValueOption)));
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Default values to use when adding a new Item."); ?></p>
         <?php echo $view->formTextarea(ElementsConfig::OPTION_DEFAULT_VALUE, $defaultValueOption, array('rows' => $defaultValueOptionRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_TITLE_SYNC; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Elements that should stay in sync with corrresponding titles."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_TITLE_SYNC, $titleSyncOption, array('rows' => $titleSyncOptionRows)); ?>
     </div>
 </div>

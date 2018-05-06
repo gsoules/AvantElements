@@ -362,7 +362,6 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForDisplayOrder();
         self::saveOptionDataForExternalLink();
         self::saveOptionDataForImplicitLink();
-        self::saveOptionDataForTitleSync();
         self::saveOptionDataForValidation();
         self::saveOptionDataForCallback();
         self::saveOptionDataForAddInput();
@@ -372,6 +371,7 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForCheckboxField();
         self::saveOptionDataForReadonlyField();
         self::saveOptionDataForDefaultValue();
+        self::saveOptionDataForTitleSync();
 
         set_option(self::OPTION_HIDE_DESCRIPTIONS, intval($_POST[self::OPTION_HIDE_DESCRIPTIONS]));
     }
@@ -414,13 +414,16 @@ class ElementsConfig extends ConfigOptions
             {
                 $actions = array(
                     ElementValidator::CALLBACK_ACTION_VALIDATE,
-                    ElementValidator::CALLBACK_ACTION_SAVE);
+                    ElementValidator::CALLBACK_ACTION_SAVE
+                );
             }
             else
             {
                 $actions = array(
-                    ElementValidator::CALLBACK_ACTION_VALIDATE,
-                    ElementValidator::CALLBACK_ACTION_DEFAULT);
+                    ElementValidator::CALLBACK_ACTION_FILTER,
+                    ElementValidator::CALLBACK_ACTION_DEFAULT,
+                    ElementValidator::CALLBACK_ACTION_VALIDATE
+                );
             }
             $allowed = implode(', ', $actions);
 

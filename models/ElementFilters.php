@@ -149,7 +149,7 @@ class ElementFilters
 
         $item = $args['record'];
         $elementId = $args['element']['id'];
-        $filteredText = $elementValidator->filterElementText($item, $elementId, $text);
+        $filteredText = $elementValidator->filterElementTextBeforeSave($item, $elementId, $text);
         return $filteredText;
     }
 

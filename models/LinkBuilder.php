@@ -9,10 +9,8 @@ class LinkBuilder
         $this->initializeExternalLinkFilters($filters);
     }
 
-    public function buildLink($filterName, $arguments)
+    public function buildLink($filterName, $elementId, $text)
     {
-        $text = $arguments[0];
-        $elementId = $arguments[1]['element_text']['element_id'];
         $elementName = ItemMetadata::getElementNameFromId($elementId);
 
         if (strpos($filterName, 'filterLinkImplicit') === 0)
@@ -34,19 +32,17 @@ class LinkBuilder
         return "<div class='element-text'><p>$secondLink<a href='$url' class='metadata-search-link' title='See other items where $elementName is \"$text\"'>$text </a></p></div>";
     }
 
-    protected function emitExternalLink($text, $definition)
+    public function emitExternalLink($href, $linkText, $openInNewTab, $class)
     {
-        $class = $definition['class'];
         if (empty($class))
             $class = 'metadata-external-link';
-        $html = "<a href='$text' class='$class'";
+        $html = "<a href='$href' class='$class'";
 
-        if ($definition['open-in-new-tab'] == 'true')
+        if ($openInNewTab)
             $html .= " target='_blank'";
 
-        $linkText = $definition['link-text'];
         if (empty($linkText))
-            $linkText = $text;
+            $linkText = $href;
 
         $html .= ">$linkText</a>";
         return $html;
@@ -66,10 +62,14 @@ class LinkBuilder
         return "<div class='element-text'><p><a href='$url' class='metadata-search-link' title='See other items that have this value'>$text</a></p></div>";
     }
 
-    protected function filterExternalLink($text, $elementName)
+    protected function filterExternalLink($href, $elementName)
     {
         $definition = $this->externalLinkDefinitions[$elementName];
-        return $this->emitExternalLink($text, $definition);
+        $class = $definition['class'];
+        $openInNewTab = $definition['open-in-new-tab'] == 'true';
+        $linkText = $definition['link-text'];
+
+        return $this->emitExternalLink($href, $linkText, $openInNewTab, $class);
     }
 
     protected function filterImplicitLink($text, $elementId)

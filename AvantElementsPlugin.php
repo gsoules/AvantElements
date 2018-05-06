@@ -29,25 +29,28 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         parent::__construct();
 
-        $this->displayFilter = new DisplayFilter($this->_filters);
-        $this->elementFilters = new ElementFilters();
         $this->elementValidator = new ElementValidator();
+        $this->displayFilter = new DisplayFilter($this->_filters, $this->elementValidator);
+        $this->elementFilters = new ElementFilters();
         $this->linkBuilder = new LinkBuilder($this->_filters);
         $this->titleSync = new TitleSync();
     }
 
-    public function __call($filterName, $arguments)
+    public function __call($filterName, $args)
     {
         // Handle filter requests from the LinkBuilder for filterLinkImplicit and filterLinkExternal.
         $result = null;
+        $item = $args[1]['record'];
+        $elementId = $args[1]['element_text']['element_id'];
+        $text = $args[0];
 
         if (strpos($filterName, 'filterLink') === 0)
         {
-            $result = $this->linkBuilder->buildLink($filterName, $arguments);
+            $result = $this->linkBuilder->buildLink($filterName, $elementId, $text);
         }
         elseif (strpos($filterName, 'filterDisplay') === 0)
         {
-            $result = $this->displayFilter->displayField($filterName, $arguments);
+            $result = $this->displayFilter->displayField($filterName, $item, $elementId, $text);
         }
         return $result;
     }

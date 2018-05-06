@@ -60,7 +60,7 @@ class DateValidator
         return array($year, $month, $day, $formatOk);
     }
 
-    public function validateDates(Item $item)
+    public function validateDateCombinations(Item $item)
     {
         // Make sure Year Start and Year End have values if Date has a value.
 
@@ -113,20 +113,17 @@ class DateValidator
 
         if ($formatOk && checkdate($month, $day, $year))
         {
-            return true;
+            return;
         }
 
         AvantElements::addError($item, $elementName, __('Value must be in the form YYYY-MM-DD or YYYY-MM or YYYY.'));
-
-        return true;
     }
 
     public function validateElementYear(Item $item, $elementName, $text)
     {
-        if (strlen($text) != 4 || !ctype_digit($text)) {
+        if (strlen($text) != 4 || !ctype_digit($text))
+        {
             AvantElements::addError($item, $elementName, __('Value must be a year consisting of exactly four digits with no leading or trailing spaces.'));
         }
-
-        return true;
     }
 }
