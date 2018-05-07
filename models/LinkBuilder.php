@@ -32,10 +32,9 @@ class LinkBuilder
         return "<div class='element-text'><p>$secondLink<a href='$url' class='metadata-search-link' title='See other items where $elementName is \"$text\"'>$text </a></p></div>";
     }
 
-    public function emitExternalLink($href, $linkText, $openInNewTab, $class)
+    public function emitExternalLink($href, $linkText, $openInNewTab)
     {
-        if (empty($class))
-            $class = 'metadata-external-link';
+        $class = 'metadata-external-link';
         $html = "<a href='$href' class='$class'";
 
         if ($openInNewTab)
@@ -65,11 +64,10 @@ class LinkBuilder
     protected function filterExternalLink($href, $elementName)
     {
         $definition = $this->externalLinkDefinitions[$elementName];
-        $class = $definition['class'];
         $openInNewTab = $definition['open-in-new-tab'] == 'true';
         $linkText = $definition['link-text'];
 
-        return $this->emitExternalLink($href, $linkText, $openInNewTab, $class);
+        return $this->emitExternalLink($href, $linkText, $openInNewTab);
     }
 
     protected function filterImplicitLink($text, $elementId)
@@ -100,7 +98,6 @@ class LinkBuilder
             $elementName = $link['name'];
             $this->externalLinkDefinitions[$elementName]['open-in-new-tab'] = $link['action'];
             $this->externalLinkDefinitions[$elementName]['link-text'] = $link['text'];
-            $this->externalLinkDefinitions[$elementName]['class'] = $link['class'];
 
             $elementSetName = ItemMetadata::getElementSetNameForElementName($elementName);
             if (!empty($elementSetName))

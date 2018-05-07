@@ -229,17 +229,10 @@ class ElementsConfig extends ConfigOptions
                 {
                     $text .= PHP_EOL;
                 }
-                $name = $definition['name'];
-                $text .= $name;
-                if (!empty($definition['text']))
-                    $text .= ', ' . $definition['text'];
-                $text .= ': ';
-                $text .= $definition['action'] . ', ';
-                if (!empty($definition['class']))
-                    $text .= $definition['class'] . ', ';
-
-                // Remove the trailing comma.
-                $text = substr($text, 0, strlen($text) - 2);
+                $text = $definition['name'];
+                $text .= $definition['action'] == 'true' ? '' : ', false';
+                $linkText = $definition['text'];
+                $text .= strlen($linkText) > 0 ? ": $linkText" : '';
             }
         }
         return $text;
@@ -519,7 +512,7 @@ class ElementsConfig extends ConfigOptions
             if (empty($definition))
                 continue;
 
-            // Link definitions are of the form: <element-name> [ "," <link-text>] ":" <open-in-new-tab> ["," <class>]
+            // Link definitions are of the form: <element-name> [ “,” <open-in-new-tab>] [ “:” <link-text>]
 
             $parts = array_map('trim', explode(':', $definition));
 
@@ -530,18 +523,12 @@ class ElementsConfig extends ConfigOptions
             $elementId = ItemMetadata::getElementIdForElementName($elementName);
             self::errorIfNotElement($elementId, CONFIG_LABEL_EXTERNAL_LINK, $elementName);
 
-            $linkText = isset($nameParts[1]) ? $nameParts[1] : '';
-
-            self::errorRowIf(!isset($parts[1]), CONFIG_LABEL_EXTERNAL_LINK, $elementName, __('At least one parameter is required.'));
-
-            $argParts = array_map('trim', explode(',', $parts[1]));
-
-            $openInNewTab = $argParts[0];
+            $openInNewTab = isset($nameParts[1]) ? $nameParts[1] : 'true';
             self::errorRowIf(!($openInNewTab == 'true' || $openInNewTab == 'false'), CONFIG_LABEL_EXTERNAL_LINK, $elementName, __("'%s' is not valid for the Open action. Options: true, false.", $openInNewTab));
 
-            $class = isset($argParts[1]) ? $argParts[1] : '';
+            $linkText = isset($parts[1]) ? $parts[1] : '';
 
-            $data[$elementId] = array('text' => $linkText, 'action' => $openInNewTab, 'class' => $class);
+            $data[$elementId] = array('text' => $linkText, 'action' => $openInNewTab);
         }
 
         set_option(self::OPTION_EXTERNAL_LINK, json_encode($data));
