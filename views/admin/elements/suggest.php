@@ -1,3 +1,3 @@
 <?php
 $elementSuggest = new ElementSuggest();
-echo $elementSuggest->getSuggestions();
+echo $elementSuggest->getSuggestions($elementId);

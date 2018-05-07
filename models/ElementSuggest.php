@@ -2,10 +2,10 @@
 
 class ElementSuggest
 {
-    public function getSuggestions()
+    public function getSuggestions($elementId)
     {
         $term = $_GET['term'];
-        $suggestions = $this->filterSuggestImplicitRelationship($term);
+        $suggestions = $this->searchTitles($term);
         if (empty($suggestions))
         {
             $suggestions = array("No suggestions for '$term'");
@@ -13,14 +13,8 @@ class ElementSuggest
         return json_encode($suggestions);
     }
 
-    public function filterSuggestImplicitRelationship($term)
+    public function searchTitles($term)
     {
-        // The term 'implicit relationship' means a relationship that is not established using the Relationship
-        // mechanism that this plugin provides, but that is implied. As an example, if item X is the biography for
-        // a person, and item Y is a photograph and its Creator element is the title of item X, then items X and Y
-        // have an implicit creator/creation relationship.
-
-        // Find titles that contain all of the keywords.
         $words = explode(' ', $term);
         $words = array_map('trim', $words);
         $query = '';
@@ -34,40 +28,29 @@ class ElementSuggest
             {
                 $query .= ' ';
             }
-            $query .= "+$word";
+            $query .= "+$word*";
         }
 
-        $maxResults = 250;
+        $maxResults = 25;
 
         $db = get_db();
         $select = $db->select()
-            ->from($db->SearchTexts)
+            ->from($db->SearchTexts, array('title'))
             ->where("MATCH (title) AGAINST ('$query' IN BOOLEAN MODE)")
+            ->limit($maxResults)
             ->order('title');
 
         $results = $db->getTable('ElementText')->fetchObjects($select);
 
-        // Add titles to a suggestions list, but only if the title's item is of type Article.
         $suggestions = array();
-        $count = 0;
         foreach ($results as $result)
         {
-            if ($result->record_type != 'Item')
-                continue;
-
-            $item = get_record_by_id('Item', $result->record_id);
-            $type = metadata($item, array('Dublin Core', 'Type'), array('no_filter' => true));
-            if (empty($type))
-                continue;
-            if (strpos($type, 'Article') === 0)
+            // Account for the fact that when an item has more than one title, each title value is separated in the
+            // search_texts table's title column with a special delimiter. This code returns each of the titles.
+            $titles = explode('||', $result->title);
+            foreach ($titles as $title)
             {
-                $suggestions[] = $result->title;
-                $count++;
-                if ($count >= $maxResults)
-                {
-                    $suggestions[] = __('STOPPED SEARCHING AFTER %s RESULTS', $count);
-                    break;
-                }
+                $suggestions[] = $title;
             }
         }
 
