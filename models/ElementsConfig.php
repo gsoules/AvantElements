@@ -415,6 +415,7 @@ class ElementsConfig extends ConfigOptions
                 $actions = array(
                     CustomCallback::CALLBACK_ACTION_FILTER,
                     CustomCallback::CALLBACK_ACTION_DEFAULT,
+                    CustomCallback::CALLBACK_ACTION_SUGGEST,
                     CustomCallback::CALLBACK_ACTION_VALIDATE
                 );
             }

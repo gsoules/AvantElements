@@ -1,3 +1,9 @@
+.ui-autocomplete {
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 #avantelements_allow_add_input,
 #avantelements_display_order,
 #avantelements_allow_html,

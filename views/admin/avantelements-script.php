@@ -1,19 +1,16 @@
 <script type="text/javascript">
+    var fields = [<?php echo $fields; ?>];
+
     jQuery(document).ready(function ()
     {
-        for (i=39; i<=41; i++)
+        for (i = 0; i < fields.length; i++)
         {
-            jQuery('#Elements-' + i + '-0-text').autocomplete({
-                source: '<?php echo url('/elements/suggest/'); ?>' + i,
+            var elementId = fields[i];
+            jQuery('[id^=Elements-' + elementId + ']').autocomplete({
+                source: '<?php echo url('/elements/suggest/'); ?>' + elementId,
                 minLength: 2
             });
         }
-
-
-        //jQuery('#Elements-41-0-text').autocomplete({
-        //    source: '<?php //echo url('/elements/suggest'); ?>//',
-        //    minLength: 2
-        //});
 
         jQuery('#clone-button').appendTo('#edit');
     });

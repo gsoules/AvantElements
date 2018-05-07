@@ -5,7 +5,12 @@ class ElementSuggest
     public function getSuggestions($elementId)
     {
         $term = $_GET['term'];
-        $suggestions = $this->searchTitles($term);
+        $customCallback = new CustomCallback();
+        $suggestions = $customCallback->performCallbackForElement(CustomCallback::CALLBACK_ACTION_SUGGEST, null, $elementId, $term);
+
+        //$suggestions = call_user_func('DigitalArchive::suggestTitle', null, $elementId, $term);
+
+        //$suggestions = $this->searchTitles($term);
         if (empty($suggestions))
         {
             $suggestions = array("No suggestions for '$term'");

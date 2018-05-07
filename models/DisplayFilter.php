@@ -3,7 +3,6 @@ class DisplayFilter
 {
     protected $checkboxFieldsData;
     protected $customCallback;
-    protected $filterFieldsCallbacks;
 
     public function __construct(&$filters, CustomCallback $customCallback)
     {
@@ -55,8 +54,8 @@ class DisplayFilter
 
     public function initializeFilterFields(&$filters)
     {
-        $this->filterFieldsCallbacks = ElementsConfig::getOptionDataForCallback();
-        foreach ($this->filterFieldsCallbacks as $callbackElementId => $definition)
+        $definitions = ElementsConfig::getOptionDataForCallback();
+        foreach ($definitions as $definition)
         {
             $elementName = $definition['name'];
             $elementSetName = ItemMetadata::getElementSetNameForElementName($elementName);

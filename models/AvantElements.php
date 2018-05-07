@@ -24,6 +24,23 @@ class AvantElements
         }
     }
 
+    public static function getIdsForSuggestElements()
+    {
+        $elementIds = array();
+        $definitions = ElementsConfig::getOptionDataForCallback();
+        foreach ($definitions as $elementId => $definition)
+        {
+            foreach ($definition['callbacks'] as $callback)
+            {
+                if ($callback['action'] == CustomCallback::CALLBACK_ACTION_SUGGEST)
+                {
+                    $elementIds[] = $elementId;
+                }
+            }
+        }
+        return implode(',', $elementIds);
+    }
+
     public static function itemHasErrors($item)
     {
         $errors = $item->getErrors()->get();

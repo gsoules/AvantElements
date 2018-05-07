@@ -87,7 +87,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAdminFooter($args)
     {
-        echo get_view()->partial('/avantelements-script.php');
+        $elementIds = AvantElements::getIdsForSuggestElements();
+        echo get_view()->partial('/avantelements-script.php', array('fields' => $elementIds));
     }
 
     public function hookAdminHead($args)

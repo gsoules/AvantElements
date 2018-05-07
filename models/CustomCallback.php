@@ -4,13 +4,14 @@ class CustomCallback
     const CALLBACK_ACTION_DEFAULT = 'default';
     const CALLBACK_ACTION_FILTER = 'filter';
     const CALLBACK_ACTION_SAVE = 'save';
+    const CALLBACK_ACTION_SUGGEST = 'suggest';
     const CALLBACK_ACTION_VALIDATE = 'validate';
 
-    protected $callbacks;
+    protected $callbackElements;
 
     public function __construct()
     {
-        $this->callbacks = ElementsConfig::getOptionDataForCallback();
+        $this->callbackElements = ElementsConfig::getOptionDataForCallback();
     }
 
     protected function callUserFunction($callbackFunctionName, $item, $elementId = 0, $text = '')
@@ -18,19 +19,17 @@ class CustomCallback
         return call_user_func($callbackFunctionName, $item, $elementId, $text);
     }
 
-    protected function constructCallbackFunctionName($callbackDefinition, $callbackAction, Item $item, $elementId)
+    protected function formCallbackFunctionName($definition, $item, $elementId)
     {
-        if ($callbackDefinition['action'] != $callbackAction)
-        {
-            return '';
-        }
-
-        $callbackFunctionName = $callbackDefinition['class'] . '::' . $callbackDefinition['function'];
+        $callbackFunctionName = $definition['class'] . '::' . $definition['function'];
 
         if (!is_callable($callbackFunctionName))
         {
-            $target = $elementId == 0 ? '<item>' : ItemMetadata::getElementNameFromId($elementId);
-            AvantElements::addError($item, $target, __('Callback %s function \'%s\' is not callable.', $callbackDefinition['action'], $callbackFunctionName));
+            if ($item)
+            {
+                $target = $elementId == 0 ? '<item>' : ItemMetadata::getElementNameFromId($elementId);
+                AvantElements::addError($item, $target, __('Callback %s function \'%s\' is not callable.', $definition['action'], $callbackFunctionName));
+            }
             $callbackFunctionName = '';
         }
 
@@ -39,19 +38,20 @@ class CustomCallback
 
     protected function getCallbackFunctionName($callbackAction, $item, $elementId)
     {
-        foreach ($this->callbacks as $callbackElementId => $definition)
+        foreach ($this->callbackElements as $callbackElementId => $callbackElement)
         {
             if ($elementId != $callbackElementId)
             {
                 continue;
             }
-            foreach ($definition['callbacks'] as $callback)
+            $definitions = $callbackElement['callbacks'];
+            foreach ($definitions as $definition)
             {
-                if ($callback['action'] != $callbackAction)
+                if ($definition['action'] != $callbackAction)
                 {
                     continue;
                 }
-                return $this->constructCallbackFunctionName($callback, $callbackAction, $item, $elementId);
+                return $this->formCallbackFunctionName($definition, $item, $elementId);
             }
         }
         return '';
