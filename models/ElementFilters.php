@@ -60,19 +60,6 @@ class ElementFilters
             $components['inputs'] .= $field;
         }
 
-//        if ($elementName == 'Creator' || $elementName == 'Publisher')
-//        {
-//            // Check if this method is getting called via AJAX to add another input element.
-//            // Doing so clobbers the existing Suggest button with a new one, but the new one
-//            // no longer has a click handler. For now, just don't show the Suggest button anymore.
-//            $singleInput = !isset($args['options']['extraFieldCount']);
-//            if ($singleInput)
-//            {
-//                $suggestButton = '<button class="suggest-button" type="button">' . __('Suggest') . '</button>';
-//                $components['inputs'] .= $suggestButton;
-//            }
-//        }
-
         $components = $this->hideAddInputButton($elementId, $components);
 
         if (get_option(ElementsConfig::OPTION_HIDE_DESCRIPTIONS))

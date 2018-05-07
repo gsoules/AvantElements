@@ -71,7 +71,11 @@
 
     jQuery(document).ready(function ()
     {
-        initializeSuggestValue();
+        //initializeSuggestValue();
+
+        jQuery('#Elements-39-0-text').autocomplete({
+            source: suggestRelationshipUrl
+        });
 
         jQuery('#clone-button').appendTo('#edit');
     });

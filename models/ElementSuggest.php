@@ -18,6 +18,10 @@ class ElementSuggest
 
     protected function suggestValue()
     {
+        $term = $_GET['term'];
+        $suggestions = $this->filterSuggestImplicitRelationship($term);
+        return json_encode($suggestions);
+
         // This method provides support for a suggestion feature that can be used on the Edit page to provide
         // real time information during data entry. It lets the admin type in keywords and click a Suggest button.
         // Clicking the button triggers an AJAX call that calls this method which in turn calls the
