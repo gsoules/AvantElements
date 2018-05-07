@@ -2,6 +2,11 @@
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
+    background-color: #1e6abc;
+}
+
+.ui-autocomplete-loading {
+    background: #d7f7ff;
 }
 
 #avantelements_allow_add_input,
