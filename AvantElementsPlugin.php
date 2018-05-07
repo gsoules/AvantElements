@@ -30,6 +30,9 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         parent::__construct();
 
+        if ($this->indexing())
+            return;
+
         $this->customCallback = new CustomCallback();
         $this->elementValidator = new ElementValidator($this->customCallback);
         $this->displayFilter = new DisplayFilter($this->_filters, $this->customCallback);
@@ -101,6 +104,9 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAfterSaveItem($args)
     {
+        if ($this->indexing())
+            return;
+
         $item = $args['record'];
         $this->elementValidator->afterSaveItem($item);
         $this->titleSync->syncTitles($item);
@@ -108,6 +114,9 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookBeforeSaveItem($args)
     {
+        if ($this->indexing())
+            return;
+
         $item = $args['record'];
         $this->elementValidator->beforeSaveItem($item);
 
@@ -136,6 +145,9 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookInitialize()
     {
+        if ($this->indexing())
+            return;
+
         // Add callbacks for every element even though some elements require no filtering or validation.
         $elements = get_db()->getTable('Element')->findAll();
 
@@ -159,5 +171,13 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     public function hookPublicHead($args)
     {
         queue_css_file('avantelements');
+    }
+
+    protected function indexing()
+    {
+        // Determine if the user has pressed the Index Records button on the admin Settings > Search page.
+        // During indexing AvantElements should nor perform any of its element filtering functions, and it
+        // should not perform any Save related functions. In other words, it should do nothing.
+        return isset($_POST['submit_index_records']);
     }
 }
