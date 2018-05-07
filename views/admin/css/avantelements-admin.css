@@ -1,13 +1,20 @@
+/* Suggest feature (jQuery auto-complete */
+
 .ui-autocomplete {
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
-    background-color: #1e6abc;
 }
 
 .ui-autocomplete-loading {
     background: #d7f7ff;
 }
+
+.ui-menu .ui-menu-item {
+    background-color: #f0f0f0;
+}
+
+/* Input fields */
 
 #avantelements_allow_add_input,
 #avantelements_display_order,
