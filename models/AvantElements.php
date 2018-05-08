@@ -6,6 +6,20 @@ class AvantElements
         $item->addError($elementName, $message);
     }
 
+    public static function getSimpleVocabTerms($elementId)
+    {
+        $vocabulary = array();
+        if (plugin_is_active('SimpleVocab'))
+        {
+            $simpleVocabTerm = get_db()->getTable('SimpleVocabTerm')->findByElementId($elementId);
+            if (!empty($simpleVocabTerm))
+            {
+                $vocabulary = explode("\n", $simpleVocabTerm->terms);
+            }
+        }
+        return $vocabulary;
+    }
+
     public static function emitAdminCss()
     {
         $hideDescriptions = (boolean)get_option(ElementsConfig::OPTION_HIDE_DESCRIPTIONS);
@@ -22,23 +36,6 @@ class AvantElements
 
             echo '</style>' . PHP_EOL;
         }
-    }
-
-    public static function getIdsForSuggestElements()
-    {
-        $elementIds = array();
-        $definitions = ElementsConfig::getOptionDataForCallback();
-        foreach ($definitions as $elementId => $definition)
-        {
-            foreach ($definition['callbacks'] as $callback)
-            {
-                if ($callback['action'] == CustomCallback::CALLBACK_ACTION_SUGGEST)
-                {
-                    $elementIds[] = $elementId;
-                }
-            }
-        }
-        return implode(',', $elementIds);
     }
 
     public static function itemHasErrors($item)

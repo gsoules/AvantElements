@@ -13,9 +13,6 @@ $externalLinkOptionRows = max(2, count(explode(PHP_EOL, $externalLinkOption)));
 $validationOption = ElementsConfig::getOptionTextForValidation();
 $validationOptionRows = max(2, count(explode(PHP_EOL, $validationOption)));
 
-$callbackOption = ElementsConfig::getOptionTextForCallback();
-$callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
-
 $addInputOption = ElementsConfig::getOptionTextForAddInput();
 $addInputOptionRows = max(2, count(explode(PHP_EOL, $addInputOption)));
 
@@ -36,6 +33,12 @@ $readonlyOptionRows = max(2, count(explode(PHP_EOL, $readonlyOption)));
 
 $defaultValueOption = ElementsConfig::getOptionTextForDefaultValue();
 $defaultValueOptionRows = max(2, count(explode(PHP_EOL, $defaultValueOption)));
+
+$suggestOption = ElementsConfig::getOptionTextForSuggest();
+$suggestOptionRows = max(2, count(explode(PHP_EOL, $suggestOption)));
+
+$callbackOption = ElementsConfig::getOptionTextForCallback();
+$callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
 
 $titleSyncOption = ElementsConfig::getOptionTextForTitleSync();
 $titleSyncOptionRows = max(2, count(explode(PHP_EOL, $titleSyncOption)));
@@ -101,16 +104,6 @@ $titleSyncOptionRows = max(2, count(explode(PHP_EOL, $titleSyncOption)));
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that must be validated."); ?></p>
         <?php echo $view->formTextarea(ElementsConfig::OPTION_VALIDATION, $validationOption, array('rows' => $validationOptionRows)); ?>
-    </div>
-</div>
-
-<div class="field">
-    <div class="two columns alpha">
-        <label><?php echo CONFIG_LABEL_CALLBACK; ?></label>
-    </div>
-    <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Callback functions to be called for individual elements."); ?></p>
-        <?php echo $view->formTextarea(ElementsConfig::OPTION_CALLBACK, $callbackOption, array('rows' => $callbackOptionRows)); ?>
     </div>
 </div>
 
@@ -185,6 +178,26 @@ $titleSyncOptionRows = max(2, count(explode(PHP_EOL, $titleSyncOption)));
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Default values to use when adding a new Item."); ?></p>
         <?php echo $view->formTextarea(ElementsConfig::OPTION_DEFAULT_VALUE, $defaultValueOption, array('rows' => $defaultValueOptionRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_SUGGEST; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Elements that should offer input suggestions."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_SUGGEST, $suggestOption, array('rows' => $suggestOptionRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_CALLBACK; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Callback functions to be called for individual elements."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_CALLBACK, $callbackOption, array('rows' => $callbackOptionRows)); ?>
     </div>
 </div>
 

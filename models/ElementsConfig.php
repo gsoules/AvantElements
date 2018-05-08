@@ -11,6 +11,7 @@ define('CONFIG_LABEL_HTML', __('Allow HTML'));
 define('CONFIG_LABEL_IMPLICIT_LINK', __('Implicit Link'));
 define('CONFIG_LABEL_READONLY_FIELD', __('Read-only Field'));
 define('CONFIG_LABEL_SELECT_FIELD', __('SimpleVocab Field'));
+define('CONFIG_LABEL_SUGGEST', __('Suggest'));
 define('CONFIG_LABEL_TEXT_FIELD', __('Text Field'));
 define('CONFIG_LABEL_TITLE_SYNC', __('Title Sync'));
 define('CONFIG_LABEL_VALIDATION', __('Validation'));
@@ -28,6 +29,7 @@ class ElementsConfig extends ConfigOptions
     const OPTION_IMPLICIT_LINK = 'avantelements_implicit_link';
     const OPTION_READONLY_FIELD = 'avantelements_readonly_field';
     const OPTION_SELECT_FIELD = 'avantelements_select_field';
+    const OPTION_SUGGEST = 'avantelements_suggest';
     const OPTION_TEXT_FIELD = 'avantelements_text_field';
     const OPTION_TITLE_SYNC = 'avantelements_title_sync';
     const OPTION_VALIDATION = 'avantelements_validation';
@@ -108,6 +110,11 @@ class ElementsConfig extends ConfigOptions
     public static function getOptionDataForSelectField()
     {
         return self::getOptionDefinitionData(self::OPTION_SELECT_FIELD);
+    }
+
+    public static function getOptionDataForSuggest()
+    {
+        return self::getOptionListData(self::OPTION_SUGGEST);
     }
 
     public static function getOptionDataForTitleSync()
@@ -282,6 +289,11 @@ class ElementsConfig extends ConfigOptions
         return $text;
     }
 
+    public static function getOptionTextForSuggest()
+    {
+        return self::getOptionListText(self::OPTION_SUGGEST);
+    }
+
     public static function getOptionTextForTextField()
     {
         if (self::configurationErrorsDetected())
@@ -356,7 +368,6 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForExternalLink();
         self::saveOptionDataForImplicitLink();
         self::saveOptionDataForValidation();
-        self::saveOptionDataForCallback();
         self::saveOptionDataForAddInput();
         self::saveOptionDataForHtml();
         self::saveOptionDataForTextField();
@@ -364,6 +375,8 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForCheckboxField();
         self::saveOptionDataForReadonlyField();
         self::saveOptionDataForDefaultValue();
+        self::saveOptionDataForSuggest();
+        self::saveOptionDataForCallback();
         self::saveOptionDataForTitleSync();
 
         set_option(self::OPTION_HIDE_DESCRIPTIONS, intval($_POST[self::OPTION_HIDE_DESCRIPTIONS]));
@@ -584,6 +597,11 @@ class ElementsConfig extends ConfigOptions
         set_option(self::OPTION_SELECT_FIELD, json_encode($data));
     }
 
+    public static function saveOptionDataForSuggest()
+    {
+        self::saveOptionListData(self::OPTION_SUGGEST, CONFIG_LABEL_SUGGEST);
+    }
+
     public static function saveOptionDataForTextField()
     {
         $data = array();
@@ -610,7 +628,7 @@ class ElementsConfig extends ConfigOptions
 
             $elementId = ItemMetadata::getElementIdForElementName($elementName);
             self::errorIfNotElement($elementId, CONFIG_LABEL_TEXT_FIELD, $elementName);
-            self::errorIf(!empty(ElementFields::getSimpleVocabTerms($elementId)), CONFIG_LABEL_TEXT_FIELD, __("'%s' cannot be a Text field. It is a SimpleVocab element that displays as a dropdown list.", $elementName));
+            //self::errorIf(!empty(ElementFields::getSimpleVocabTerms($elementId)), CONFIG_LABEL_TEXT_FIELD, __("'%s' cannot be a Text field. It is a SimpleVocab element that displays as a dropdown list.", $elementName));
 
             $data[$elementId] = array('width' => $width);
         }

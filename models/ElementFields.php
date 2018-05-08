@@ -46,7 +46,7 @@ class ElementFields
         $convertToTextBox = array_key_exists($elementId, $this->textFields);
         $convertToCheckBox = array_key_exists($elementId, $this->checkboxFields);
         $fieldIsReadonly = array_key_exists($elementId, $this->readonlyFields);
-        $vocabulary = $this->getSimpleVocabTerms($elementId);
+        $vocabulary = AvantElements::getSimpleVocabTerms($elementId);
         $isSelect = !empty($vocabulary);
         $inputs = '';
 
@@ -111,19 +111,5 @@ class ElementFields
     protected function getFieldWidth($fields, $elementId)
     {
         return isset($fields[$elementId]) ? $fields[$elementId]['width'] : 0;
-    }
-
-    public static function getSimpleVocabTerms($elementId)
-    {
-        $vocabulary = array();
-        if (plugin_is_active('SimpleVocab'))
-        {
-            $simpleVocabTerm = get_db()->getTable('SimpleVocabTerm')->findByElementId($elementId);
-            if (!empty($simpleVocabTerm))
-            {
-                $vocabulary = explode("\n", $simpleVocabTerm->terms);
-            }
-        }
-        return $vocabulary;
     }
 }
