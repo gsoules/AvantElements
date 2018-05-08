@@ -32,17 +32,17 @@ class ElementSuggest
         return implode(',', $elementIds);
     }
 
-    protected function getQueryForLike($text)
+    protected function getKeywords($term)
     {
-        $words = explode(' ', $text);
-        $words = array_map('trim', $words);
+        return array_map('trim', explode(' ', strtolower($term)));
+    }
+
+    protected function getQueryForLike($term)
+    {
+        $keywords = $this->getKeywords($term);
         $query = '';
-        foreach ($words as $word)
+        foreach ($keywords as $word)
         {
-            if (empty($word))
-            {
-                continue;
-            }
             if (!empty($query))
             {
                 $query .= ' AND ';
@@ -95,35 +95,65 @@ class ElementSuggest
         return $suggestions;
     }
 
-    public function suggestElementValues($elementId, $text)
+    public function suggestElementValues($elementId, $term)
     {
         $vocabulary = AvantElements::getSimpleVocabTerms($elementId);
         if (!empty($vocabulary))
         {
-            $suggestions = $vocabulary;
+            $suggestions = $this->searchVocabulary($term, $vocabulary);
         }
         else
         {
-            $query = $this->getQueryForLike($text);
-
-            $db = get_db();
-            $select = $db->select()
-                ->from($db->ElementText, array('DISTINCT(text)'))
-                ->where('element_id = ?', $elementId)
-                ->where($query)
-                ->limit(self::MAX_SUGGESTIONS)
-                ->order('text');
-
-            $results = $db->getTable('ElementText')->fetchObjects($select);
-
-            $suggestions = array();
-            foreach ($results as $result)
-            {
-                $suggestions[] = $result->text;
-            }
-            $suggestions = $this->prepareSuggestions($suggestions);
+            $suggestions = $this->searchElementValues($elementId, $term);
         }
 
+        return $suggestions;
+    }
+
+    protected function searchVocabulary($term, $vocabulary)
+    {
+        $suggestions = array();
+        $keywords = $this->getKeywords($term);
+        foreach ($vocabulary as $entry)
+        {
+            $entry = strtolower($entry);
+            $found = true;
+            foreach ($keywords as $word)
+            {
+                if (strpos($entry, $word) === false)
+                {
+                    $found = false;
+                    break;
+                }
+            }
+            if ($found)
+            {
+                $suggestions[] = $entry;
+            }
+        }
+        return $suggestions;
+    }
+
+    protected function searchElementValues($elementId, $term)
+    {
+        $query = $this->getQueryForLike($term);
+
+        $db = get_db();
+        $select = $db->select()
+            ->from($db->ElementText, array('DISTINCT(text)'))
+            ->where('element_id = ?', $elementId)
+            ->where($query)
+            ->limit(self::MAX_SUGGESTIONS)
+            ->order('text');
+
+        $results = $db->getTable('ElementText')->fetchObjects($select);
+
+        $suggestions = array();
+        foreach ($results as $result)
+        {
+            $suggestions[] = $result->text;
+        }
+        $suggestions = $this->prepareSuggestions($suggestions);
         return $suggestions;
     }
 }

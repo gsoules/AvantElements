@@ -589,7 +589,7 @@ class ElementsConfig extends ConfigOptions
 
             $elementId = ItemMetadata::getElementIdForElementName($elementName);
             self::errorIfNotElement($elementId, CONFIG_LABEL_SELECT_FIELD, $elementName);
-            self::errorIf(empty(ElementFields::getSimpleVocabTerms($elementId)), CONFIG_LABEL_SELECT_FIELD, __("'%s' cannot be a Select field because it is not a SimpleVocab element that displays as a dropdown list.", $elementName));
+            self::errorIf(empty(AvantElements::getSimpleVocabTerms($elementId)), CONFIG_LABEL_SELECT_FIELD, __("'%s' cannot be a Select field because it is not a SimpleVocab element that displays as a dropdown list.", $elementName));
 
             $data[$elementId] = array('width' => $width);
         }
