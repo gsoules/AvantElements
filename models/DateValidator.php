@@ -66,6 +66,8 @@ class DateValidator
 
         $yearStartElementName = CommonConfig::getOptionTextForYearStart();
         $yearEndElementName = CommonConfig::getOptionTextForYearEnd();
+        if (empty($yearStartElementName) || empty($yearStartElementName))
+            return;
 
         $dateText = AvantCommon::getPostTextForElementName('Date');
         $yearStartText = AvantCommon::getPostTextForElementName($yearStartElementName);
@@ -73,9 +75,7 @@ class DateValidator
 
         // Date, Year Start, and Year End are all empty.
         if (empty($dateText) && empty($yearStartText) && empty($yearEndText))
-        {
             return;
-        }
 
         list($dateYear, $month, $day, $formatOk) = $this->parseDate($dateText);
         if (!empty($dateText) && !$formatOk)
