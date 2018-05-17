@@ -22,8 +22,8 @@ class ElementFilters
 
     public function filterDisplayElements($elementsBySet)
     {
-        // This filter lets a plugin dynamically hide elements from the public user interface
-        // in addition to those elements that are hidden by the HideElements plugin.
+        // Omeka calls this Display Elements filter to give plugins an opportunity to hide elements from
+        // appearing on the Show Item pages
 
         if (is_admin_theme())
             return $elementsBySet;
