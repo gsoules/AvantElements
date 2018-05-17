@@ -146,7 +146,7 @@ $titleSyncOptionRows = max(2, count(explode(PHP_EOL, $titleSyncOption)));
             <p class="explanation"><?php echo __("SimpleVocab elements that display as a dropdown list."); ?></p>
             <?php echo $view->formTextarea(ElementsConfig::OPTION_SELECT_FIELD, $selectField, array('rows' => $selectFieldRows)); ?>
         <?php else: ?>
-            <?php SearchConfig::emitOptionNotSupported('AvantElements', 'simple-vocab'); ?>
+            <?php ElementsConfig::emitOptionNotSupported('AvantElements', 'simple-vocab'); ?>
         <?php endif; ?>
     </div>
 </div>
