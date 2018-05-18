@@ -6,30 +6,78 @@
 
 #################################################
 
-The AvantElements plugin adds data entry and validation features to the Omeka admin interface. These features help ensure data integrity and make data entry easier for archivists. The plugin provides the following:
+Provides data entry and validation features to the Omeka admin interface and allows customization of 
+elements on the public interface. These features help ensure data integrity, make data entry easier,
+and provide an enhanced experience for end users.
 
-* Auto creation of Identifier value when adding a new item.
-* Control of element display order and mixing of Dublin Core and non Dublin Core elements on public pages
-* Identifier validation to ensure that the Identifier is unique.
-* Bolder error messages.
-* Duplicate item feature (does not dup multi-input fields)
-* Data validation for specific elements.
-* Detection of carriage returns, leading/trailing spaces, and en/em dashes where prohibited.
-* Validation for Date, Year Start, Year End. Hide start/end when same.
-* Control of field widths.
-* Auto creation of links to one or more other items having the same element value as the displayed item.
-* Auto creation of links to external web resources.
-* Option to hide the HTML checkbox on any element.
-* Option to hide the Add Input button on any element.
-* Option to make an element required.
-* Option to provide a default value for fields of a newly created item.
-* Suggestion feature for Creator and Publisher fields.
-* Automatic update of Creator and Publisher fields when a corresponding Title field is modified.
-If the item has more than one title, the sync occurs with the first title.
+## Table of Contents
+
+- [Dependencies](https://github.com/gsoules/AvantElements#dependencies)
+- [Installation](https://github.com/gsoules/AvantElements#installation)
+- [Usage](https://github.com/gsoules/AvantElements#usage)
+    - [Duplicate Item Feature](https://github.com/gsoules/AvantElements#duplicate-item-feature)
+    - [Configuration Options](https://github.com/gsoules/AvantElements#configuration-options)
+        - [Display Order Option](https://github.com/gsoules/AvantElements#display-order-option)
+- [Warning](https://github.com/gsoules/AvantElements#warning)
+- [License](https://github.com/gsoules/AvantElements#license)
+- [Copyright](https://github.com/gsoules/AvantElements#copyright)
+- [Credits](https://github.com/gsoules/AvantElements#credits)
+        
+
+## Dependencies
+The AvantElements plugin requires that the [AvantCommon](https://github.com/gsoules/AvantCommon) plugin be installed and activated.
 
 
- > At this time, the AvantElements implementation is specific to the Southwest Harbor Public Library's [Digital Archive](http://swhplibrary.net/archive) and therefore **this plugin is not yet usable as-is for another Omeka installation**. However, the source code is provided here for the benefit of software developers who want to learn about the logic or adapt it for use on another project. 
-This plugin was developed for the [Southwest Harbor Public Library](http://www.swhplibrary.org/), in Southwest Harbor, Maine. Funding was provided in part by the [John S. and James L. Knight Foundation](https://knightfoundation.org/).
+## Installation
+
+To install the AvantElements plugin, follow these steps:
+
+1. First install and activate the [AvantCommon](https://github.com/gsoules/AvantCommon) plugin.
+1. Unzip the AvantElements-master file into your Omeka installation's plugin directory.
+1. Rename the folder to AvantElements.
+1. Activate the plugin from the Admin → Settings → Plugins page.
+1. Configure the AvantCommon plugin to specify your item identifier and title elements.
+1. Configure the AvantElements plugin as described in the [Configuration Options](https://github.com/gsoules/AvantElements#configuration-options) section below.
+
+## Usage
+Once installed, AvantSearch entirely overrides Omeka's native user interface for public search (Omeka's native admin
+search is still available from admin pages). There are several configuration options available on the plugin's
+configuration page.
+
+### Duplicate Item Feature
+When AvantElements is installed, a logged in admin or super user will see a **Duplicate This Item** button when viewing
+an item in the admin interface. When you click this button, a new browser tab opens to display an **Add an Item**
+page with its fields already filled in with data from the Item being duplicated. The one exception is the field used as
+the item's unique identifier (see [AvantCommon Identifier Element option](https://github.com/gsoules/AvantCommon#usage)).
+That field is left blank.
+
+This feature can save a lot of time when entering a series of items that contain nearly the same data, but vary in just
+a few places. Note that only an item's element values, not images or other file attachments, are duplicated.
+
+### Other Plugins
+Mention SimpleVocab
+Recommend using HideElements
+
+### Configuration Options
+The sections that follow describe each of the options on the AvantElements plugin configuration page.
+
+Many options require that you specify a formatted list of information using commas or other characters as separators.
+For these options, spaces before and after the separators are ignored.
+
+<hr/>
+
+#### Display Order Option
+This option lets you specify the order, top to bottom, in which elements appear on public Show pages. Normally Omeka
+displays Dublin Core elements first followed by Item Type Metadata elements. This option lets you intermingle both kinds
+of elements in any sequence you like.
+
+This option does not control the order of elements on admin pages. In the admin interface, the order of elements is
+dictated by the order on the Edit Element Set page (for Dublin Core elements) and the Edit Item Type page (for Item Type elements).
+
+
+## Warning
+
+Use it at your own risk.
 
 ##  License
 
@@ -49,10 +97,14 @@ You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-Copyright
----------
+## Copyright
 
-* Created by [gsoules](https://github.com/gsoules) for the Southwest Harbor Public Library's [Digital Archive](http://swhplibrary.net/archive)
-* Copyright George Soules, 2016-2017.
-* See [LICENSE](https://github.com/gsoules/AvantRelationships/blob/master/LICENSE) for more information.
+* Created by [gsoules](https://github.com/gsoules) 
+* Copyright George Soules, 2016-2018.
+* See [LICENSE](https://github.com/gsoules/AvantElements/blob/master/LICENSE) for more information.
+
+
+## Credits
+This plugin was originally developed for the Southwest Harbor Public Library [Digital Archive](http://swhplibrary.net/archive).
+Funding was provided in part by the [John S. and James L. Knight Foundation](https://knightfoundation.org/).
 
