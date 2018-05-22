@@ -1,7 +1,7 @@
 <?php
 
 define('CONFIG_LABEL_ADD_INPUT', __('Allow Add Input'));
-define('CONFIG_LABEL_CALLBACK', __('CustomCallback'));
+define('CONFIG_LABEL_CALLBACK', __('Custom Callback'));
 define('CONFIG_LABEL_CHECKBOX_FIELD', __('Checkbox Field'));
 define('CONFIG_LABEL_DEFAULT_VALUE', __('Default Value'));
 define('CONFIG_LABEL_DISPLAY_ORDER', __('Display Order'));
@@ -264,7 +264,7 @@ class ElementsConfig extends ConfigOptions
     {
         if (self::configurationErrorsDetected())
         {
-            $text = $_POST[self::OPTION_SELECT_FIELD];
+            $text = plugin_is_active('SimpleVocab') ? $_POST[self::OPTION_SELECT_FIELD] : '';
         }
         else
         {
@@ -566,7 +566,7 @@ class ElementsConfig extends ConfigOptions
     public static function saveOptionDataForSelectField()
     {
         $data = array();
-        $definitions = array_map('trim', explode(PHP_EOL, $_POST[self::OPTION_SELECT_FIELD]));
+        $definitions = array_map('trim', explode(PHP_EOL, plugin_is_active('SimpleVocab') ? $_POST[self::OPTION_SELECT_FIELD] : ''));
         foreach ($definitions as $definition)
         {
             if (empty($definition))
