@@ -30,7 +30,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         parent::__construct();
 
-        if ($this->indexing())
+        if ($this->batchEditing())
             return;
 
         $this->customCallback = new CustomCallback();
@@ -58,6 +58,25 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
             $result = $this->displayFilter->displayField($filterName, $item, $elementId, $text);
         }
         return $result;
+    }
+
+    protected function batchEditing()
+    {
+        // Determine if the user has pressed the Index Records button on the admin Settings > Search page
+        // or if they are doing batch editing via the Omeka admin interface. In either case, AvantElements
+        // should nor perform any of its element filtering functions which perform validation based on
+        // posted values that are not present during bulk edits because the user is not interactively editing
+        // data. The lack of posted values would cause AvantElements to report data errors that don't really
+        // exist and these errors would cause the bulk edits to fail or get an exception when they attempt to
+        // save updated items. As such, when bulk editing, AvantElements should do nothing as though the plugin
+        // were deactivated. Note that the Bulk Editor plugin operates directly on the database and does not save
+        // via Omeka's normal item update logic. Thus it is not side-affected by AvantElements.
+        $batchEditing =
+            isset($_POST['submit_index_records']) ||
+            isset($_POST['batch_edit_hash']) ||
+            isset($_POST['submit-batch-edit']);
+
+        return $batchEditing;
     }
 
     public function filterDisplayElements($elementsBySet)
@@ -105,7 +124,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAfterSaveItem($args)
     {
-        if ($this->indexing())
+        if ($this->batchEditing())
             return;
 
         $item = $args['record'];
@@ -115,7 +134,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookBeforeSaveItem($args)
     {
-        if ($this->indexing())
+        if ($this->batchEditing())
             return;
 
         $item = $args['record'];
@@ -146,7 +165,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookInitialize()
     {
-        if ($this->indexing())
+        if ($this->batchEditing())
             return;
 
         // Add callbacks for every element even though some elements require no filtering or validation.
@@ -172,13 +191,5 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     public function hookPublicHead($args)
     {
         queue_css_file('avantelements');
-    }
-
-    protected function indexing()
-    {
-        // Determine if the user has pressed the Index Records button on the admin Settings > Search page.
-        // During indexing AvantElements should nor perform any of its element filtering functions, and it
-        // should not perform any Save related functions. In other words, it should do nothing.
-        return isset($_POST['submit_index_records']);
     }
 }
