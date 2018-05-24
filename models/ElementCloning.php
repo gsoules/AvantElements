@@ -59,7 +59,7 @@ class ElementCloning
         // Add a 'Clone' button to the sidebar. It will show up near the bottom which isn't where it's
         // supposed to go, but the jQuery for AvantElements will move it up under the other buttons.
 
-        if (!is_allowed('Users', 'edit'))
+        if (!is_allowed('Items', 'edit'))
         {
             // Don't show the button to someone who cannot edit items.
             return;
