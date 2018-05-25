@@ -611,7 +611,7 @@ class ElementsConfig extends ConfigOptions
             if (empty($definition))
                 continue;
 
-            // Text Field definitions are of the form: <element-name> ":" <width>
+            // Text Field definitions are of the form: <element-name> [ ":" <width> ]
             $parts = array_map('trim', explode(':', $definition));
 
             $elementName = $parts[0];
@@ -628,7 +628,6 @@ class ElementsConfig extends ConfigOptions
 
             $elementId = ItemMetadata::getElementIdForElementName($elementName);
             self::errorIfNotElement($elementId, CONFIG_LABEL_TEXT_FIELD, $elementName);
-            //self::errorIf(!empty(ElementFields::getSimpleVocabTerms($elementId)), CONFIG_LABEL_TEXT_FIELD, __("'%s' cannot be a Text field. It is a SimpleVocab element that displays as a dropdown list.", $elementName));
 
             $data[$elementId] = array('width' => $width);
         }

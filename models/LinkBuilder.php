@@ -25,13 +25,6 @@ class LinkBuilder
         return $text;
     }
 
-    protected function emitAdvancedSearchLink($elementName, $text, $secondLink = '')
-    {
-        $elementId = ItemMetadata::getElementIdForElementName($elementName);
-        $url = ItemSearch::getAdvancedSearchUrl($elementId, $text);
-        return "<div class='element-text'><p>$secondLink<a href='$url' class='metadata-search-link' title='See other items where $elementName is \"$text\"'>$text </a></p></div>";
-    }
-
     public function emitExternalLink($href, $linkText, $openInNewTab)
     {
         $class = 'metadata-external-link';
@@ -58,7 +51,8 @@ class LinkBuilder
         }
 
         $url = ItemSearch::getAdvancedSearchUrl($elementId, $text);
-        return "<div class='element-text'><p><a href='$url' class='metadata-search-link' title='See other items that have this value'>$text</a></p></div>";
+        $title = __('See other items that have this value');
+        return "<div class='element-text'><p><a href='$url' class='metadata-search-link' title='$title'>$text</a></p></div>";
     }
 
     protected function filterExternalLink($href, $elementName)
