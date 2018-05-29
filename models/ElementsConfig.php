@@ -464,7 +464,7 @@ class ElementsConfig extends ConfigOptions
             if (empty($definition))
                 continue;
 
-            // Checkbox Field definitions are of the form: <element-name> ":" <true-value> "|" <false-value>
+            // Syntax: <element-name> ":" <true-value> "|" <false-value>
             $parts = array_map('trim', explode(':', $definition));
 
             $elementName = $parts[0];
@@ -495,7 +495,7 @@ class ElementsConfig extends ConfigOptions
             if (empty($definition))
                 continue;
 
-            // Text Field definitions are of the form: <element-name> ":" <width>
+            // Syntax: <element-name> ":" <value>
             $parts = array_map('trim', explode(':', $definition));
 
             $elementName = $parts[0];
@@ -572,7 +572,7 @@ class ElementsConfig extends ConfigOptions
             if (empty($definition))
                 continue;
 
-            // Text Field definitions are of the form: <element-name> ":" <width>
+            // Syntax: <element-name> ":" <width>
             $parts = array_map('trim', explode(':', $definition));
 
             $elementName = $parts[0];
@@ -611,7 +611,7 @@ class ElementsConfig extends ConfigOptions
             if (empty($definition))
                 continue;
 
-            // Text Field definitions are of the form: <element-name> [ ":" <width> ]
+            // Syntax: <element-name> [ ":" <width> ]
             $parts = array_map('trim', explode(':', $definition));
 
             $elementName = $parts[0];

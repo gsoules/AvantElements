@@ -168,9 +168,9 @@ The table below explains the meaning of the rules.
 Rule|Explanation
 --------|------------
 required | The element value must not be blank or contain only spaces.
-date | The element value must be a date in the form YYY-MM-DD e.g. 2018-05-29. This format ensures that dates can be sorted properly.
+date | The element value must be a date in the form YYY-MM-DD e.g. 2018-05-29. This format ensures that dates will sort properly.
 year | The element value must be a four digit year
-simple-text | The element value must not contain carriage returns, tabs, leading or trailing spaces, en or em dashes. If the text contains any of these, AvantElements will not report an error, but before saving the item, it will remove carriage returns and tabs, strip leading or trailing spaces, and replace an en or em dashe with a hyphen.  This option is especially useful for the Title element to ensure that every title has simple, consistent formatting that can be reliably searched.
+simple-text | The element value must not contain carriage returns, tabs, leading or trailing spaces, en or em dashes. If the text contains any of these, AvantElements will not report an error, but before saving the item, it will remove carriage returns and tabs, strip leading or trailing spaces, and replace an en or em dash with a hyphen.  This option is especially useful for the Title element to ensure that every title has simple, consistent formatting that can be reliably searched.
 
 You can specify more than one rule as shown in the example below for the Title element.
 
@@ -185,39 +185,144 @@ Date: date
 
 ---
 #### Allow Add Input Option
-This option...
+This option overrides Omeka's default behavior of displaying an "Add Input" button for every element on the admin Edit
+page. AvantElements reverses this behavior so that the button appears only on the elements specified with this option.
+
+###### Syntax:
+
+Specify each element name on a separate row.
 
 ---
 #### Allow HTML Option
-This option...
+This option overrides Omeka's default behavior of displaying a "Use HTML" checkbox for every element on the admin Edit
+page. AvantElements reverses this behavior so that the checkbox appears only on the elements specified with this option.
+
+###### Syntax:
+
+Specify each element name on a separate row.
 
 ---
 #### Text Field Option
-This option...
+The Text Field option lets you specify which elements should display on the admin Edit page as a one-line text box
+instead of a multi-line textarea which is what Omeka displays normally.
+
+###### Syntax:
+
+The syntax for each row of the Text Field option is
+
+    <element-name> [ ":" <width> ]
+
+Where:
+
+* `<element-name>` is the name of an Omeka element.
+* `<width>` is an optional integer parameter indicating the width in pixels of the text box. If the parameter is omitted, the 
+text box occupies the maximum available width.
 
 ---
 #### SimpleVocab Field Option
-This option...
+The purpose of this option is to let you specify the width of dropdown lists that are displayed and populated by the
+[SimpleVocab plugin](https://omeka.org/classic/docs/Plugins/SimpleVocab/). It lets you specify the width of the
+dropdown in pixels.
+
+By default, SimpleVocab always displays the dropdown as 300px wide.
+
+Note that this option will not be available if the SimpleVocab plugin is not installed.
+
+###### Syntax:
+
+The syntax for each row of the Text Field option is
+
+    <element-name> [ ":" <width> ]
+
+Where:
+
+* `<element-name>` is the name of an Omeka element.
+* `<width>` is an optional integer  parameter indicating the width in pixels of the dropdown list. If the parameter is omitted, the 
+dropdown list occupies the maximum available width.
 
 ---
 #### Checkbox Field Option
-This option...
+This option lets you treat an element as a boolean (true or false) value that displays as a checkbox on the admin Edit
+page. An element value of zero is considered false, and any other value is considered true. When you specify an element
+using this option, you also provide text to display on the admin and public Show page to indicate whether the value is
+true or false (the checkbox itself only appears on the admin Edit page).
+
+###### Syntax:
+
+The syntax for each row of the Checkbox Field option is
+
+    <element-name> ":" <true-value> "|" <false-value>
+
+Where:
+
+* `<element-name>` is the name of an Omeka element.
+* `<true-value>` is the text that should display on the Show page when the value is true.
+* `<false-value>` is the text that should display on the Show page when the value is false.
+
+###### Example:
+```
+Approved: Yes | No
+```
 
 ---
 #### Read-only Field Option
-This option...
+Elements listed using this option appear on the admin Edit page as read-only text. Use this option for element values
+that are set by a plugin or other mechanism, but cannot be edited by an administrator.
+
+###### Syntax:
+
+Specify each element name on a separate row.
 
 ---
 #### Default Value Option
-This option...
+Use the Default Value option to provide text that should be automatically filled in for an element when you add a new item.
+
+If the element displays as a dropdown list with contents that come from the SimpleVocab plugin, be sure that the
+default value you provide is one of the vocabulary values. For example, if you have a Status element with SimpleVocab
+values 'Pending Approval', 'Approved', and 'Denied', the default value must be one of those three options.
+
+###### Syntax:
+
+The syntax for each row of the Default Value option is
+
+    <element-name> ":" <value>
+
+Where:
+
+* `<element-name>` is the name of an Omeka element.
+* `<value>` is the text that should be used for the default value of the element when a new item is added.
+
+
+###### Example:
+```
+Status: Pending Approval
+```
 
 ---
 #### Suggest Option
-This option...
+The Suggest option lets you designate elements that should automatically suggest a list of values to choose from as
+you are typing into the field. The behavior is similar to how the Add Tags field works on the Tags tab.
+
+The suggested values come can come from two different sources:
+- The values of the specified element in the other items in the database. For example, if you specify the Creator
+element, then as you type, the Suggest logic queries all of the other Creator elements in the database looking for
+values that contain the text you typed. This feature is especially useful for ensuring consistent data entry because
+it lets you choose from text that already exists.
+- A SimpleVocab vocabulary for the element. For this to work, you must also specify the same element name using the
+Text Field option described above. By specifing the element in both the Text Field and Suggest options, the field will
+display as a text box, not a dropdown list, and the suggestions will come from the vocabulary.
+
+###### Syntax:
+
+Specify each element name on a separate row.
 
 ---
 #### Title Sync Option
 This option...
+
+###### Syntax:
+
+Specify each element name on a separate row.
 
 ---
 #### Custom Callback Option
