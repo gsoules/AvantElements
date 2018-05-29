@@ -360,10 +360,10 @@ The table below explains the meaning of the callback types.
 
 Type | Used with | What the callback function must do
 --------|------------|-----------
-filter | <element-name>| Return a filtered version of the element's text e.g. change "2018-05-29" to "May 5, 2018"
-default |<element-name>| Provide a default value for the element when a new item is added
-suggest |<element-name>| Return a list of suggestions while the user types into the element's field
-validate | <element-name> or "\<item\>" | Validate the element text, or the item as a whole, and supplies an error message if the text or item is invalid
+filter | \<element-name\> | Return a filtered version of the element's text e.g. change "2018-05-29" to "May 5, 2018"
+default | \<element-name\> | Provide a default value for the element when a new item is added
+suggest | \<element-name\> | Return a list of suggestions while the user types into the element's field
+validate | \<element-name\> or "\<item\>" | Validate the element text, or the item as a whole, and supplies an error message if the text or item is invalid
 save | "\<item\>" | Perform processing that occurs immediately after an item is saved to the database
 
 ###### Example:
