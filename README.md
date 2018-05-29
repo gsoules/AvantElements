@@ -318,7 +318,14 @@ Specify each element name on a separate row.
 
 ---
 #### Title Sync Option
-This option...
+The Title Sync option lets you specify the name of an element that contains text that must match the value of the Title
+element in another item. For example, suppose the Creator element in ten different photograph items contains the name
+of the photographer "John Smith" who took all ten pictures. Also suppose another item's Title element contains "John
+Smith" and its description has biographical information about this photographer. Now suppose you realize that John's 
+last name is really "Smyth" and so you edit the Title field in the bio item. If Creator is specified as an element in
+the Title Sync option, the ten items that have "John Smith" as their Creator will automatically be updated to contain
+the new value "John Smyth". 
+ 
 
 ###### Syntax:
 
