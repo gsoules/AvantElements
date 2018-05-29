@@ -114,7 +114,7 @@ the book.
 
 You can style external links using the class `metadata-external-link`.
 
-**Important:** The URL stored as the value for an element used as an external link should start with http:// or https://
+**Important:** The URL stored as the value for an element used as an external link should start with `http://` or `https://`
 Otherwise the browser will attempt to locate the resource on the Omeka site.
 
 ###### Syntax:
@@ -126,37 +126,62 @@ The syntax for each row of the External Link option is
 Where:
 
 * `<element-name>` is the name of an Omeka element.
-* `<open-in-new-tab>` is an optional parameter with value 'true' | 'false' to indicate whether the linked-to page should be opened in a new browser tab.
-If not specified, the default is 'true'.
+* `<open-in-new-tab>` is an optional parameter with value "true" | "false" (without quotes )to indicate whether the
+linked-to page should be opened in a new browser tab. If the parameter is omitted, the default is "true".
 * `<link-text>` is an optional parameter specifying text to appear as the link text. If the parameter is omitted, the
 URL from the element value appears as the link text.
 
 ###### Example:
 ```
-Web Resource, false: View this item online
+Web Resource: View this item online
 ```
+
+The example above will generate a hyperlink like the one shown below for the element value `http://www.somewebsite.com`:
+
+    <a href="http://www.somewebsite.com" class="metadata-external-link" target="_blank">View this item online</a>
 
 ---
 #### Hide Descriptions Option
-This option...
+When checked, this option hides the descriptive information that Omeka normally displays on the admin Edit page to
+explain what Dublin Core means and what each element is used for. Use this option to make the Edit page more compact
+and to hide information that is often not useful to anyone, but a first time user.
 
 ---
 #### Validation Option
-This option...
+The Validation option lets you specify one or more validation rules for an element. When you click the Save Changes
+button on the admin Edit page, AvantElements applies the rules. If the element value does not satisfy the rule, the
+page reloads, still in edit mode, with an error message displayed at the top of the page. 
 
 ###### Syntax:
 
 The syntax for each row of the Validation option is
 
-    <element-name> [ "," <alias>] [ ":" <width> [ "," <alignment>] ] ]
+    <element-name> ":" <rule> {"," <rule>}
 
 Where:
 
 * `<element-name>` is the name of an Omeka element.
-* `<alias>` is an optional parameter preceded by a comma to provide another name for element e.g. 'ID' for 'Identifier'.
-* `<width>` is an optional parameter preceded by a colon to indicate the width of the element's column in pixels.
-* `<alignment>` is an optional parameter preceded by a comma that can only be specified if `width` is provided. It
-specifies the alignment of the column's text as `right`, `center`, or `left`.
+* `<rule>` is ""required" | date" | "year" | "simple-text"
+
+The table below explains the meaning of the rules.
+
+Rule|Explanation
+--------|------------
+required | The element value must not be blank or contain only spaces.
+date | The element value must be a date in the form YYY-MM-DD e.g. 2018-05-29. This format ensures that dates can be sorted properly.
+year | The element value must be a four digit year
+simple-text | The element value must not contain carriage returns, tabs, leading or trailing spaces, en or em dashes. If the text contains any of these, AvantElements will not report an error, but before saving the item, it will remove carriage returns and tabs, strip leading or trailing spaces, and replace an en or em dashe with a hyphen.  This option is especially useful for the Title element to ensure that every title has simple, consistent formatting that can be reliably searched.
+
+You can specify more than one rule as shown in the example below for the Title element.
+
+###### Example:
+```
+Title: required, simple-text
+Type: required
+Subject: required
+Creator: simple-text
+Date: date
+```
 
 ---
 #### Allow Add Input Option

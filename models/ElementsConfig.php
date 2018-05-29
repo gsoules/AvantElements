@@ -649,7 +649,7 @@ class ElementsConfig extends ConfigOptions
             if (empty($definition))
                 continue;
 
-            // Validation definitions are of the form: <element-name> ":" <arg> {"," <arg>}
+            // Syntax: <element-name> ":" <arg> {"," <arg>}
 
             $parts = array_map('trim', explode(':', $definition));
 
