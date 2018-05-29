@@ -14,8 +14,8 @@ and provide an enhanced experience for end users.
 
 - [Dependencies](https://github.com/gsoules/AvantElements#dependencies)
 - [Installation](https://github.com/gsoules/AvantElements#installation)
+- [Duplicate Item Feature](https://github.com/gsoules/AvantElements#duplicate-item-feature)
 - [Usage](https://github.com/gsoules/AvantElements#usage)
-    - [Duplicate Item Feature](https://github.com/gsoules/AvantElements#duplicate-item-feature)
     - [Configuration Options](https://github.com/gsoules/AvantElements#configuration-options)
         - [Display Order Option](https://github.com/gsoules/AvantElements#display-order-option)
 - [Warning](https://github.com/gsoules/AvantElements#warning)
@@ -25,24 +25,20 @@ and provide an enhanced experience for end users.
         
 
 ## Dependencies
-The AvantElements plugin requires that the [AvantCommon](https://github.com/gsoules/AvantCommon) plugin be installed and activated.
+The AvantElements plugin requires that the [AvantCommon] plugin be installed and activated.
 
 
 ## Installation
 
 To install the AvantElements plugin, follow these steps:
 
-1. First install and activate the [AvantCommon](https://github.com/gsoules/AvantCommon) plugin.
+1. First install and activate the [AvantCommon] plugin.
 1. Unzip the AvantElements-master file into your Omeka installation's plugin directory.
 1. Rename the folder to AvantElements.
 1. Activate the plugin from the Admin → Settings → Plugins page.
 1. Configure the AvantCommon plugin to specify your item identifier and title elements.
 1. Configure the AvantElements plugin as described in the [Configuration Options](https://github.com/gsoules/AvantElements#configuration-options) section below.
 
-## Usage
-Once installed, AvantSearch entirely overrides Omeka's native user interface for public search (Omeka's native admin
-search is still available from admin pages). There are several configuration options available on the plugin's
-configuration page.
 
 ### Duplicate Item Feature
 When AvantElements is installed, a logged in admin or super user will see a **Duplicate This Item** button when viewing
@@ -54,9 +50,10 @@ That field is left blank.
 This feature can save a lot of time when entering a series of items that contain nearly the same data, but vary in just
 a few places. Note that only an item's element values, not images or other file attachments, are duplicated.
 
-### Other Plugins
-Mention SimpleVocab
-Recommend using HideElements
+## Usage
+Once installed, AvantSearch entirely overrides Omeka's native user interface for public search (Omeka's native admin
+search is still available from admin pages). There are several configuration options available on the plugin's
+configuration page.
 
 ### Configuration Options
 The sections that follow describe each of the options on the AvantElements plugin configuration page.
@@ -64,7 +61,7 @@ The sections that follow describe each of the options on the AvantElements plugi
 Many options require that you specify a formatted list of information using commas or other characters as separators.
 For these options, spaces before and after the separators are ignored.
 
-<hr/>
+---
 
 #### Display Order Option
 This option lets you specify the order, top to bottom, in which elements appear on public Show pages. Normally Omeka
@@ -74,10 +71,9 @@ of elements in any sequence you like.
 This option does not control the order of elements on admin pages. In the admin interface, the order of elements is
 dictated by the order on the Edit Element Set page (for Dublin Core elements) and the Edit Item Type page (for Item Type elements).
 
-
 ## Warning
 
-Use it at your own risk.
+Use this software at your own risk.
 
 ##  License
 
@@ -108,3 +104,9 @@ this program; if not, write to the Free Software Foundation, Inc.,
 This plugin was originally developed for the Southwest Harbor Public Library [Digital Archive](http://swhplibrary.net/archive).
 Funding was provided in part by the [John S. and James L. Knight Foundation](https://knightfoundation.org/).
 
+[AvantAdmin]:https://github.com/gsoules/AvantAdmin
+[AvantCommon]:https://github.com/gsoules/AvantCommon
+[AvantCustom]:https://github.com/gsoules/AvantCustom
+[AvantElements]:https://github.com/gsoules/AvantElements
+[AvantRelationships]:https://github.com/gsoules/AvantRelationships
+[AvantSearch]:https://github.com/gsoules/AvantSearch
