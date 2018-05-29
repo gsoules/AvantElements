@@ -82,16 +82,59 @@ This option lets you specify the order, top to bottom, in which elements appear 
 displays Dublin Core elements first followed by Item Type Metadata elements. This option lets you intermingle both kinds
 of elements in any sequence you like.
 
-This option does not control the order of elements on admin pages. In the admin interface, the order of elements is
-dictated by the order on the Edit Element Set page (for Dublin Core elements) and the Edit Item Type page (for Item Type elements).
+This option does not control the order of elements on admin pages. On the the admin Edit page, the order of elements on the
+Dublin Core tab is dictated by the order on the Edit Element Set page. The order of elements on the Item Type Metadata
+tab is dictated by the order on the Edit Item Type page.
+
+###### Syntax:
+
+Specify each element name on a separate row.
 
 ---
 #### Implicit Link Option
-This option...
+Use this option to specify which elements will have their value display as a hyperlink to other elements that have
+the exact same value. For example, if you list the `Type` element using this option, the text for the `Type` field on
+public and admin Show pages will display a hyperlink that when clicked, will display search results listing every other
+item that has the same value. If no other items share the value, there will be no hyperlink.
+
+This feature will work whether or not [AvantSearch] is installed.
+
+You can style implicit links using the class `metadata-search-link`.
+
+###### Syntax:
+
+Specify each element name on a separate row.
 
 ---
 #### External Link Option
-This option...
+Use this option to specify which elements will have their value display as a hyperlink where the hyperlink's `href`
+attribute is the element's value. For instance, you may have an element named Web Resource that is used to store the
+URL to a web page that represents an item. If the item were for a book, the Web Resource might link to an online copy of
+the book.
+
+You can style external links using the class `metadata-external-link`.
+
+**Important:** The URL stored as the value for an element used as an external link should start with http:// or https://
+Otherwise the browser will attempt to locate the resource on the Omeka site.
+
+###### Syntax:
+
+The syntax for each row of the External Link option is
+
+    <element-name> [ “,” <open-in-new-tab> ] [ “:” <link-text> ]
+
+Where:
+
+* `<element-name>` is the name of an Omeka element.
+* `<open-in-new-tab>` is an optional parameter with value 'true' | 'false' to indicate whether the linked-to page should be opened in a new browser tab.
+If not specified, the default is 'true'.
+* `<link-text>` is an optional parameter specifying text to appear as the link text. If the parameter is omitted, the
+URL from the element value appears as the link text.
+
+###### Example:
+```
+Web Resource, false: View this item online
+```
 
 ---
 #### Hide Descriptions Option
@@ -100,6 +143,20 @@ This option...
 ---
 #### Validation Option
 This option...
+
+###### Syntax:
+
+The syntax for each row of the Validation option is
+
+    <element-name> [ "," <alias>] [ ":" <width> [ "," <alignment>] ] ]
+
+Where:
+
+* `<element-name>` is the name of an Omeka element.
+* `<alias>` is an optional parameter preceded by a comma to provide another name for element e.g. 'ID' for 'Identifier'.
+* `<width>` is an optional parameter preceded by a colon to indicate the width of the element's column in pixels.
+* `<alignment>` is an optional parameter preceded by a comma that can only be specified if `width` is provided. It
+specifies the alignment of the column's text as `right`, `center`, or `left`.
 
 ---
 #### Allow Add Input Option

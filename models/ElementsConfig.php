@@ -526,7 +526,7 @@ class ElementsConfig extends ConfigOptions
             if (empty($definition))
                 continue;
 
-            // Link definitions are of the form: <element-name> [ “,” <open-in-new-tab>] [ “:” <link-text>]
+            // Syntax: <element-name> [ “,” <open-in-new-tab>] [ “:” <link-text>]
 
             $parts = array_map('trim', explode(':', $definition));
 
