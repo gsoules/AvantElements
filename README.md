@@ -161,7 +161,7 @@ The syntax for each row of the Validation option is
 Where:
 
 * `<element-name>` is the name of an Omeka element.
-* `<rule>` is ""required" | date" | "year" | "simple-text"
+* `<rule>` is "required" | "date" | "year" | "simple-text"
 
 The table below explains the meaning of the rules.
 
@@ -292,7 +292,6 @@ Where:
 * `<element-name>` is the name of an Omeka element.
 * `<value>` is the text that should be used for the default value of the element when a new item is added.
 
-
 ###### Example:
 ```
 Status: Pending Approval
@@ -324,7 +323,14 @@ of the photographer "John Smith" who took all ten pictures. Also suppose another
 Smith" and its description has biographical information about this photographer. Now suppose you realize that John's 
 last name is really "Smyth" and so you edit the Title field in the bio item. If Creator is specified as an element in
 the Title Sync option, the ten items that have "John Smith" as their Creator will automatically be updated to contain
-the new value "John Smyth". 
+the new value "John Smyth".
+
+This option, along with the Suggest option described above, help to ensure data consistency among items. This is
+especially important for searching purposes so that if, for example, a user finds one item matching "Smyth" they find
+all the others. Note that although Omeka uses a relational database, it does not have separate tables for elements
+like Creator which are commonly used to establish relationships between elements. The Omeka model makes for simpler
+searching, but puts the burden on archivists to ensure data consistency. Options like Suggest and Title Sync help ease
+that burden.
  
 
 ###### Syntax:
@@ -333,8 +339,44 @@ Specify each element name on a separate row.
 
 ---
 #### Custom Callback Option
-This option...
+This is an advanced feature intended for you only by PHP programmers who have at least basic familiarity with how
+Omeka plugins work. The Custom Callback option lets you specify actions to be performed by custom written PHP functions
+that you provide.
 
+###### Syntax:
+
+The syntax for each row of the Default Value option is
+
+    <element-name> "," <callback-type> ":" <class-name> "," <function-name>
+
+Where:
+
+* `<element-name> | "<item">` indicates that the callback is for the named element or for the entire item
+* `<callback-type>` is "validate" | "save" | "filter" | "default" | "suggest"
+* `<class-name>` is the name of a PHP class in a custom plugin
+* `<function-name>` is the name of a public static function in <class-name>
+
+The table below explains the meaning of the callback types.
+
+Type | Used with | What the callback function must do
+--------|------------|-----------
+filter | <element-name>| Return a filtered version of the element's text e.g. change "2018-05-29" to "May 5, 2018"
+default |<element-name>| Provide a default value for the element when a new item is added
+suggest |<element-name>| Return a list of suggestions while the user types into the element's field
+validate | <element-name> or "\<item\>" | Validate the element text, or the item as a whole, and supplies an error message if the text or item is invalid
+save | "\<item\>" | Perform processing that occurs immediately after an item is saved to the database
+
+###### Example:
+The example below shows custom functions located in two different classes, Gcihs and DigitalArchive. The easiest way
+to provide custom classes is to add your own .php file to the models folder of the [AvantCustom] plugin. See the source
+code for that plugin for examples.
+```
+Identifier, default: DigitalArchive, getDefaultIdentifier
+Identifier, validate: DigitalArchive, validateIdentifier
+Accession #, validate: Gcihs, validateAccesssionNumber
+Rights, filter: DigitalArchive, filterRights
+<item>, save: Gcihs, saveItem
+```
 
 ## Warning
 

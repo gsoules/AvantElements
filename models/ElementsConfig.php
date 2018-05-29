@@ -396,7 +396,7 @@ class ElementsConfig extends ConfigOptions
             if (empty($definition))
                 continue;
 
-            // Callback definitions are of the form: <element-name> "," <callback-type> ":" <function-name>
+            // Syntax: <element-name> "," <callback-type> ":" <class-name> "," <function-name>
             $parts = array_map('trim', explode(':', $definition));
 
             $nameParts = array_map('trim', explode(',', $parts[0]));
@@ -671,7 +671,7 @@ class ElementsConfig extends ConfigOptions
             // Determine which args are specified, and issue an error for any that are unrecognized.
             $args = array();
             foreach ($argParts as $argName)
-            {
+            {fil
                 if (in_array($argName, $options))
                 {
                     $args[] = $argName;
