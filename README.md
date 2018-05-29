@@ -62,7 +62,6 @@ Many options require that you specify a formatted list of information using comm
 For these options, spaces before and after the separators are ignored.
 
 ---
-
 #### Display Order Option
 This option lets you specify the order, top to bottom, in which elements appear on public Show pages. Normally Omeka
 displays Dublin Core elements first followed by Item Type Metadata elements. This option lets you intermingle both kinds
@@ -70,6 +69,10 @@ of elements in any sequence you like.
 
 This option does not control the order of elements on admin pages. In the admin interface, the order of elements is
 dictated by the order on the Edit Element Set page (for Dublin Core elements) and the Edit Item Type page (for Item Type elements).
+
+---
+#### Implicit Link Option
+This option...
 
 ## Warning
 
