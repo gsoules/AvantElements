@@ -18,6 +18,20 @@ and provide an enhanced experience for end users.
 - [Usage](https://github.com/gsoules/AvantElements#usage)
     - [Configuration Options](https://github.com/gsoules/AvantElements#configuration-options)
         - [Display Order Option](https://github.com/gsoules/AvantElements#display-order-option)
+        - [Implicit Link Option](https://github.com/gsoules/AvantElements#implicit-link-option)
+        - [External Link Option](https://github.com/gsoules/AvantElements#external-link-option)
+        - [Hide Descriptions Option](https://github.com/gsoules/AvantElements#hide-descriptions-option)
+        - [Validation Option](https://github.com/gsoules/AvantElements#validation-option)
+        - [Allow Add Input Option](https://github.com/gsoules/AvantElements#allow-add-input-option)
+        - [Allow HTML Option](https://github.com/gsoules/AvantElements#allow-html-option)
+        - [Text Field Option](https://github.com/gsoules/AvantElements#text-field-option)
+        - [SimpleVocab Field Option](https://github.com/gsoules/AvantElements#simplevocab-field-option)
+        - [Checkbox Field Option](https://github.com/gsoules/AvantElements#checkbox-field-option)
+        - [Read-only Field Option](https://github.com/gsoules/AvantElements#read-only-field-option)
+        - [Default Value Option](https://github.com/gsoules/AvantElements#default-value-option)
+        - [Suggest Option](https://github.com/gsoules/AvantElements#suggest-option)
+        - [Title Sync Option](https://github.com/gsoules/AvantElements#title-sync-option)
+        - [Custom Callback Option](https://github.com/gsoules/AvantElements#custom-callback-option)
 - [Warning](https://github.com/gsoules/AvantElements#warning)
 - [License](https://github.com/gsoules/AvantElements#license)
 - [Copyright](https://github.com/gsoules/AvantElements#copyright)
@@ -84,15 +98,15 @@ This option...
 This option...
 
 ---
+#### Validation Option
+This option...
+
+---
 #### Allow Add Input Option
 This option...
 
 ---
 #### Allow HTML Option
-This option...
-
----
-#### Validation Option
 This option...
 
 ---
@@ -112,6 +126,10 @@ This option...
 This option...
 
 ---
+#### Default Value Option
+This option...
+
+---
 #### Suggest Option
 This option...
 
@@ -123,9 +141,6 @@ This option...
 #### Custom Callback Option
 This option...
 
----
-#### Default Value Option
-This option...
 
 ## Warning
 
