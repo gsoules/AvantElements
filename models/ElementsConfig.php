@@ -376,8 +376,8 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForReadonlyField();
         self::saveOptionDataForDefaultValue();
         self::saveOptionDataForSuggest();
-        self::saveOptionDataForCallback();
         self::saveOptionDataForTitleSync();
+        self::saveOptionDataForCallback();
 
         set_option(self::OPTION_HIDE_DESCRIPTIONS, intval($_POST[self::OPTION_HIDE_DESCRIPTIONS]));
     }

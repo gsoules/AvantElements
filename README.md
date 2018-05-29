@@ -51,15 +51,16 @@ This feature can save a lot of time when entering a series of items that contain
 a few places. Note that only an item's element values, not images or other file attachments, are duplicated.
 
 ## Usage
-Once installed, AvantSearch entirely overrides Omeka's native user interface for public search (Omeka's native admin
-search is still available from admin pages). There are several configuration options available on the plugin's
-configuration page.
+Once installed, AvantElements overrides many of Omeka's native user interface features for the public Show page and for
+the admin Show and Edit pages. How it affects those pages depends on which configuration options are selected.
 
 ### Configuration Options
 The sections that follow describe each of the options on the AvantElements plugin configuration page.
 
 Many options require that you specify a formatted list of information using commas or other characters as separators.
 For these options, spaces before and after the separators are ignored.
+
+Syntax for some options is shown using [BNF notation](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form).
 
 ---
 #### Display Order Option
@@ -72,6 +73,58 @@ dictated by the order on the Edit Element Set page (for Dublin Core elements) an
 
 ---
 #### Implicit Link Option
+This option...
+
+---
+#### External Link Option
+This option...
+
+---
+#### Hide Descriptions Option
+This option...
+
+---
+#### Allow Add Input Option
+This option...
+
+---
+#### Allow HTML Option
+This option...
+
+---
+#### Validation Option
+This option...
+
+---
+#### Text Field Option
+This option...
+
+---
+#### SimpleVocab Field Option
+This option...
+
+---
+#### Checkbox Field Option
+This option...
+
+---
+#### Read-only Field Option
+This option...
+
+---
+#### Suggest Option
+This option...
+
+---
+#### Title Sync Option
+This option...
+
+---
+#### Custom Callback Option
+This option...
+
+---
+#### Default Value Option
 This option...
 
 ## Warning

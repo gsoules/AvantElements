@@ -37,11 +37,11 @@ $defaultValueOptionRows = max(2, count(explode(PHP_EOL, $defaultValueOption)));
 $suggestOption = ElementsConfig::getOptionTextForSuggest();
 $suggestOptionRows = max(2, count(explode(PHP_EOL, $suggestOption)));
 
-$callbackOption = ElementsConfig::getOptionTextForCallback();
-$callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
-
 $titleSyncOption = ElementsConfig::getOptionTextForTitleSync();
 $titleSyncOptionRows = max(2, count(explode(PHP_EOL, $titleSyncOption)));
+
+$callbackOption = ElementsConfig::getOptionTextForCallback();
+$callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
 
 ?>
 <style>
@@ -193,20 +193,20 @@ $titleSyncOptionRows = max(2, count(explode(PHP_EOL, $titleSyncOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo CONFIG_LABEL_CALLBACK; ?></label>
-    </div>
-    <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Callback functions to be called for individual elements."); ?></p>
-        <?php echo $view->formTextarea(ElementsConfig::OPTION_CALLBACK, $callbackOption, array('rows' => $callbackOptionRows)); ?>
-    </div>
-</div>
-
-<div class="field">
-    <div class="two columns alpha">
         <label><?php echo CONFIG_LABEL_TITLE_SYNC; ?></label>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that should stay in sync with corrresponding titles."); ?></p>
         <?php echo $view->formTextarea(ElementsConfig::OPTION_TITLE_SYNC, $titleSyncOption, array('rows' => $titleSyncOptionRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_CALLBACK; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Callback functions to be called for individual elements."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_CALLBACK, $callbackOption, array('rows' => $callbackOptionRows)); ?>
     </div>
 </div>
