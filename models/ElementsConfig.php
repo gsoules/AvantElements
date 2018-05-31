@@ -671,7 +671,7 @@ class ElementsConfig extends ConfigOptions
             // Determine which args are specified, and issue an error for any that are unrecognized.
             $args = array();
             foreach ($argParts as $argName)
-            {fil
+            {
                 if (in_array($argName, $options))
                 {
                     $args[] = $argName;
