@@ -25,8 +25,11 @@ class ElementFilters
         // Omeka calls this Display Elements filter to give plugins an opportunity to hide elements from
         // appearing on the Show Item pages
 
-        if (is_admin_theme())
+        if (current_user())
+        {
+            // A user is logged in. Don't filter any elements.
             return $elementsBySet;
+        }
 
         $dateValidator = new DateValidator();
         $elementsBySet = $dateValidator->hideStartEndYears($elementsBySet);
