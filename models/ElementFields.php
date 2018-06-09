@@ -17,7 +17,7 @@ class ElementFields
         $this->textFields = ElementsConfig::getOptionDataForTextField();
     }
 
-    public function createField(CustomCallback $customCallback, $item, $elementId, $cloning, $value, $inputName, $formControls)
+    public function createField(CustomCallback $customCallback, $item, $elementId, $cloning, $value, $inputName, $formControls, $htmlCheckbox)
     {
         // This method overrides Omeka's logic for emitting fields. Here's why:
         //    * Omeka only emits Text Area inputs, but AvantElements also supports Text Box inputs.
@@ -79,7 +79,7 @@ class ElementFields
         }
 
         // Wrap the input in the divs that Omeka expects for the form.
-        $inputs = "<div class='input-block'><div class='input'>$inputs</div>$formControls</div>";
+        $inputs = "<div class='input-block'><div class='input'>$inputs</div>$formControls $htmlCheckbox</div>";
         return $inputs;
     }
 

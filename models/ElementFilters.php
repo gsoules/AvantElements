@@ -55,10 +55,11 @@ class ElementFilters
         foreach ($this->inputElements[$elementId] as $index => $inputElement)
         {
             $formControls = $inputElement['form_controls'];
+            $htmlCheckbox = $inputElement['html_checkbox'];
             $value = $inputElement['value'];
             $inputName = "Elements[$elementId][$index][text]";
 
-            $field = $this->fields->createField($this->customCallback, $item, $elementId, $cloning, $value, $inputName, $formControls);
+            $field = $this->fields->createField($this->customCallback, $item, $elementId, $cloning, $value, $inputName, $formControls, $htmlCheckbox);
 
             $components['inputs'] .= $field;
         }
@@ -121,6 +122,7 @@ class ElementFilters
             $inputElement = array();
             $inputElement['value'] = $value;
             $inputElement['form_controls'] = $components['form_controls'];
+            $inputElement['html_checkbox'] = $components['html_checkbox'];
             $this->inputElements[$elementId][] = $inputElement;
         }
 
