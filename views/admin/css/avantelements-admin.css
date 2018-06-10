@@ -67,13 +67,16 @@
 }
 
 .input-block .input .input-field-full-width {
-    width: 380px;
+    width: 420px;
 }
 
-/* === CSS for Width less than 768px ===
---------------------------------------------------------- */
-@media screen and (max-width: 844px) {
+@media screen and (max-width: 1200px) {
+    .input-block .input .input-field-full-width {
+        width: 380px;
+    }
+}
 
+@media screen and (max-width: 960px) {
     .input-block .input .input-field-full-width {
         width: 300px;
     }

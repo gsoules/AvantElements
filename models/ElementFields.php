@@ -63,7 +63,7 @@ class ElementFields
         elseif ($isSelect)
         {
             // Replace the <select> emitted by SimpleVocab.
-            $inputs = self::createSelect($value, $inputName, $vocabulary, $this->getFieldWidth($this->selectFields, $elementId));
+            $inputs = self::createSelect($value, $inputName, $vocabulary, $elementId);
         }
 
         if (empty($inputs))
@@ -88,8 +88,19 @@ class ElementFields
         return get_view()->formCheckbox($inputName, (bool)$value, array(), array('1', '0'));
     }
 
-    protected function createSelect($value, $inputName, $vocabulary, $width)
+    protected function createSelect($value, $inputName, $vocabulary, $elementId)
     {
+        if (array_key_exists($elementId, $this->selectFields))
+        {
+            // This SimpleVocab element is configured in the AvantElements SimpleVocab Field option list.
+            // Use the configured size or if no size, the default of 0 which means max width.
+            $width = $this->getFieldWidth($this->selectFields, $elementId);
+        }
+        else
+        {
+            // Use the default fixed width of 300px that the SimpleVocab plugin uses.
+            $width = 300;
+        }
         $style = $width == 0 ? '' : "width:{$width}px";
         $class = $width == 0 ? 'input-field-full-width' : '';
         $selectTerms = array('' => __('Select Below')) + array_combine($vocabulary, $vocabulary);
