@@ -222,13 +222,13 @@ text box occupies the maximum available width.
 #### SimpleVocab Field Option
 The purpose of this option is to let you specify the width of dropdown lists that are displayed and populated by the
 [SimpleVocab plugin](https://omeka.org/classic/docs/Plugins/SimpleVocab/). It lets you specify the width of the
-dropdown in pixels.
-
-A SimpleVocab element that is not listed with this option will always display as 300px which is the width set by
-the SimpleVocab plugin. For example, you can use a narrow width for an element having a vocabulary consisting of
+dropdown in pixels. For example, you can use a narrow width for an element having a vocabulary consisting of
 only one or two word values. 
 
-Note that this option will not be available if the SimpleVocab plugin is not installed.
+A SimpleVocab element that is not listed with this option will always display as 300px which is the width set by
+the SimpleVocab plugin. 
+
+This option will not be available if the SimpleVocab plugin is not installed.
 
 ###### Syntax:
 
