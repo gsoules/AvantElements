@@ -30,8 +30,17 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         parent::__construct();
 
-        if ($this->batchEditing())
+        if (AvantCommon::batchEditing())
+        {
+            // Multiple items are being saved automatically as part of batch processing such as bulk edit. AvantElements
+            // should nor perform any of its element filtering functions which perform validation based on
+            // posted values that are not present during bulk edits because the user is not interactively editing
+            // data. The lack of posted values would cause AvantElements to report data errors that don't really
+            // exist and these errors would cause the bulk edits to fail or get an exception when they attempt to
+            // save updated items. As such, when bulk editing, AvantElements should do nothing as though the plugin
+            // were deactivated.
             return;
+        }
 
         $this->customCallback = new CustomCallback();
         $this->elementValidator = new ElementValidator($this->customCallback);
@@ -58,25 +67,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
             $result = $this->displayFilter->displayField($filterName, $item, $elementId, $text);
         }
         return $result;
-    }
-
-    protected function batchEditing()
-    {
-        // Determine if the user has pressed the Index Records button on the admin Settings > Search page
-        // or if they are doing batch editing via the Omeka admin interface. In either case, AvantElements
-        // should nor perform any of its element filtering functions which perform validation based on
-        // posted values that are not present during bulk edits because the user is not interactively editing
-        // data. The lack of posted values would cause AvantElements to report data errors that don't really
-        // exist and these errors would cause the bulk edits to fail or get an exception when they attempt to
-        // save updated items. As such, when bulk editing, AvantElements should do nothing as though the plugin
-        // were deactivated. Note that the Bulk Editor plugin operates directly on the database and does not save
-        // via Omeka's normal item update logic. Thus it is not side-affected by AvantElements.
-        $batchEditing =
-            isset($_POST['submit_index_records']) ||
-            isset($_POST['batch_edit_hash']) ||
-            isset($_POST['submit-batch-edit']);
-
-        return $batchEditing;
     }
 
     public function filterDisplayElements($elementsBySet)
@@ -124,7 +114,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAfterSaveItem($args)
     {
-        if ($this->batchEditing())
+        if (AvantCommon::batchEditing())
             return;
 
         $item = $args['record'];
@@ -134,7 +124,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookBeforeSaveItem($args)
     {
-        if ($this->batchEditing())
+        if (AvantCommon::batchEditing())
             return;
 
         $item = $args['record'];
@@ -165,7 +155,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookInitialize()
     {
-        if ($this->batchEditing())
+        if (AvantCommon::batchEditing())
             return;
 
         // Add callbacks for every element even though some elements require no filtering or validation.
