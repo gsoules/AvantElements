@@ -109,36 +109,52 @@ Specify each element name on a separate row.
 #### External Link Option
 Use this option to specify which elements will have their value display as a hyperlink where the hyperlink's `href`
 attribute is the element's value. For instance, you may have an element named Web Resource that is used to store the
-URL to a web page that represents an item. If the item were for a book, the Web Resource might link to an online copy of
+URL to a web page that associated with the item. If the item were for a book, the Web Resource might link to an online copy of
 the book.
 
 You can style external links using the class `metadata-external-link`.
 
-**Important:** The URL stored as the value for an element used as an external link should start with `http://` or `https://`
-Otherwise the browser will attempt to locate the resource on the Omeka site.
-
-###### Syntax:
+###### Option Syntax:
 
 The syntax for each row of the External Link option is
 
-    <element-name> [ “,” <open-in-new-tab> ] [ “:” <link-text> ]
+    <element-name> [ “,” <open-in-new-tab> ] [ “:” <default-link-text> ]
 
 Where:
 
 * `<element-name>` is the name of an Omeka element.
 * `<open-in-new-tab>` is an optional parameter with value "true" | "false" (without quotes )to indicate whether the
 linked-to page should be opened in a new browser tab. If the parameter is omitted, the default is "true".
-* `<link-text>` is an optional parameter specifying text to appear as the link text. If the parameter is omitted, the
-URL from the element value appears as the link text.
+* `<default-link-text>` is an optional parameter specifying text to appear as the link text if you don't provide
+any other text as explained below in the Element Value Syntax for `<link-text>`.
 
-###### Example:
+###### Option Example:
 ```
 Web Resource: View this item online
 ```
 
-The example above will generate a hyperlink like the one shown below for the element value `http://www.somewebsite.com`:
+###### Element Value Syntax:
 
-    <a href="http://www.somewebsite.com" class="metadata-external-link" target="_blank">View this item online</a>
+The syntax for the value of an element that is used as an External Link is
+
+    [ <link-text> “,” ] [ <protocol> ] <url>
+
+Where:
+
+* `<link-text>` is an optional text string to display as the link text (the text a user sees and can click on to
+go to the external resource). If you omit this text, `<default-link-text>`
+is used for the link text. If `<default-link-text>` is blank, `<url>` is used for the link text.
+* `<protocol>` is either `http://` or `https://`. If you omit this value, `<url>` will automatically be prefixed with `http://`.
+* `<url>` is the URL of the external resource..
+
+###### Element Value Example:
+```
+Visit Some Website, wwww.somewebsite.com
+```
+
+The examples above will generate a hyperlink like the one shown below:
+
+    <a href="http://www.somewebsite.com" class="metadata-external-link" target="_blank">Visit Some Website</a>
 
 ---
 #### Hide Descriptions Option

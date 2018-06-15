@@ -25,18 +25,35 @@ class LinkBuilder
         return $text;
     }
 
-    public function emitExternalLink($href, $linkText, $openInNewTab)
+    public function emitExternalLink($text, $defaultLinkText, $openInNewTab)
     {
         $class = 'metadata-external-link';
+
+        $parts = array_map('trim', explode(',', $text));
+        if (count($parts) == 1)
+        {
+            $href = $parts[0];
+            $linkText = empty($defaultLinkText) ? $href : $defaultLinkText;
+        }
+        else
+        {
+            $href = $parts[1];
+            $linkText = $parts[0];
+        }
+
+        $prefix = strtolower($href);
+        if (!(substr($prefix, 0, 7) == 'http://' || substr($prefix, 0, 8) == 'https://'))
+        {
+            $href = 'http://' . $href;
+        }
+
         $html = "<a href='$href' class='$class'";
 
         if ($openInNewTab)
             $html .= " target='_blank'";
 
-        if (empty($linkText))
-            $linkText = $href;
-
         $html .= ">$linkText</a>";
+
         return $html;
     }
 
@@ -55,13 +72,13 @@ class LinkBuilder
         return "<div class='element-text'><p><a href='$url' class='metadata-search-link' title='$title'>$text</a></p></div>";
     }
 
-    protected function filterExternalLink($href, $elementName)
+    protected function filterExternalLink($text, $elementName)
     {
         $definition = $this->externalLinkDefinitions[$elementName];
         $openInNewTab = $definition['open-in-new-tab'] == 'true';
         $linkText = $definition['link-text'];
 
-        return $this->emitExternalLink($href, $linkText, $openInNewTab);
+        return $this->emitExternalLink($text, $linkText, $openInNewTab);
     }
 
     protected function filterImplicitLink($text, $elementId)
