@@ -377,8 +377,16 @@ Identifier, default: DigitalArchive, getDefaultIdentifier
 Identifier, validate: DigitalArchive, validateIdentifier
 Accession #, validate: Gcihs, validateAccesssionNumber
 Rights, filter: DigitalArchive, filterRights
+<item>, validate: DigitalArchive, validateItem
 <item>, save: Gcihs, saveItem
 ```
+
+Notes
+* `<item>, validate` is called before the item is saved. Use this callback to perform validation that can result in an
+error that prevents the item from being saved. For example, to validate that the Subject value is consistent with the
+Type value.
+* `<item>, save` is called after the item is saved and cannot be used to report an error. Use this callback to
+execute logic such as updating a table in the database.
 
 ## Warning
 
