@@ -137,24 +137,26 @@ Web Resource: View this item online
 
 The syntax for the value of an element that is used as an External Link is
 
-    [ <link-text> “,” ] [ <protocol> ] <url>
+    [ <link-text> <newline> ] [ <protocol> ] <url>
 
 Where:
 
 * `<link-text>` is an optional text string to display as the link text (the text a user sees and can click on to
 go to the external resource). If you omit this text, `<default-link-text>`
+* `<newline>` is a carriage return
 is used for the link text. If `<default-link-text>` is blank, `<url>` is used for the link text.
 * `<protocol>` is either `http://` or `https://`. If you omit this value, `<url>` will automatically be prefixed with `http://`.
 * `<url>` is the URL of the external resource..
 
 ###### Element Value Example:
 ```
-Visit Some Website, wwww.somewebsite.com
+Read this book online
+wwww.somewebsite.com
 ```
 
 The examples above will generate a hyperlink like the one shown below:
 
-    <a href="http://www.somewebsite.com" class="metadata-external-link" target="_blank">Visit Some Website</a>
+    <a href="http://www.somewebsite.com" class="metadata-external-link" target="_blank">Read this book online</a>
 
 ---
 #### Hide Descriptions Option

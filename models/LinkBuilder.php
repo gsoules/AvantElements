@@ -29,7 +29,7 @@ class LinkBuilder
     {
         $class = 'metadata-external-link';
 
-        $parts = array_map('trim', explode(',', $text));
+        $parts = array_map('trim', explode(PHP_EOL, $text));
         if (count($parts) == 1)
         {
             $href = $parts[0];
