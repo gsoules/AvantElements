@@ -301,6 +301,9 @@ If the element displays as a dropdown list with contents that come from the Simp
 default value you provide is one of the vocabulary values. For example, if you have a Status element with SimpleVocab
 values 'Pending Approval', 'Approved', and 'Denied', the default value must be one of those three options.
 
+Note that you can also use the Custom Callback option to provide a default value. You would do that when the value 
+needs to be determined dynamically. Use the Default Value option when the value is always the same.
+
 ###### Syntax:
 
 The syntax for each row of the Default Value option is
