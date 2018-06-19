@@ -85,7 +85,7 @@ class ElementFields
 
     protected function createCheckbox($value, $inputName)
     {
-        return get_view()->formCheckbox($inputName, (bool)$value, array(), array('1', '0'));
+        return get_view()->formCheckbox($inputName, (bool)$value, array(), array('1', null));
     }
 
     protected function createSelect($value, $inputName, $vocabulary, $elementId)

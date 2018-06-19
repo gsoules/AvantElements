@@ -262,26 +262,33 @@ dropdown list occupies the maximum available width.
 
 ---
 #### Checkbox Field Option
-This option lets you treat an element as a boolean (true or false) value that displays as a checkbox on the admin Edit
-page. An element value of zero is considered false, and any other value is considered true. When you specify an element
-using this option, you also provide text to display on the admin and public Show page to indicate whether the value is
-true or false (the checkbox itself only appears on the admin Edit page).
+This option lets you treat an element as a boolean (true or false) value that appears as a checkbox on the admin Edit
+page. When you save the item, an unchecked element is saved with an empty value, and a checked element is saved
+with a value of 1.
+
+The value of 1 is stored in the database to mean true, but you specify what displays on the Show page for achecked element.
+For example you can specify that "Yes" displays for a checked element. An unchecked element does not
+display at all unless you have Omeka configured to show empty element values on the Appearance > Settings page.
+
+If you configue an existing element to become a checkbox, any existing non-empty values for that element will be
+considered as true. The value 1, as mentioned above, gets set for checked elements when an item is saved. Because any
+not empty value is considered true, when searching for items based on an element's checkbox status, use the `Is not empty`
+and `Is empty` options to search for checked and unchecked elements respectively.
 
 ###### Syntax:
 
 The syntax for each row of the Checkbox Field option is
 
-    <element-name> ":" <true-value> "|" <false-value>
+    <element-name> ":" <true-value>
 
 Where:
 
 * `<element-name>` is the name of an Omeka element.
 * `<true-value>` is the text that should display on the Show page when the value is true.
-* `<false-value>` is the text that should display on the Show page when the value is false.
 
 ###### Example:
 ```
-Approved: Yes | No
+Approved: Yes
 ```
 
 ---

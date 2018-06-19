@@ -15,7 +15,7 @@ class DisplayFilter
     {
         if (strpos($filterName, 'filterDisplayCheckbox') === 0)
         {
-            $text = $this->displayFieldForCheckbox($elementId, $text);
+            $text = $this->displayFieldForCheckbox($elementId);
         }
         elseif (strpos($filterName, 'filterDisplayField') === 0)
         {
@@ -25,10 +25,10 @@ class DisplayFilter
         return $text;
     }
 
-    public function displayFieldForCheckbox($elementId, $text)
+    public function displayFieldForCheckbox($elementId)
     {
         $definition = $this->checkboxFieldsData[$elementId];
-        return (bool)$text ? $definition['checked'] : $definition['unchecked'];
+        return $definition['checked'];
     }
 
     public function displayFilteredTextFor($item, $elementId, $text)

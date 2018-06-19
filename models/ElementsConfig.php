@@ -182,8 +182,7 @@ class ElementsConfig extends ConfigOptions
                 }
                 $elementName = $definition['name'];
                 $checked = $definition['checked'];
-                $unchecked = $definition['unchecked'];
-                $text = "$elementName: $checked | $unchecked";
+                $text = "$elementName: $checked";
             }
         }
         return $text;
@@ -464,23 +463,18 @@ class ElementsConfig extends ConfigOptions
             if (empty($definition))
                 continue;
 
-            // Syntax: <element-name> ":" <true-value> "|" <false-value>
+            // Syntax: <element-name> ":" <true-value>
             $parts = array_map('trim', explode(':', $definition));
 
             $elementName = $parts[0];
-            $specifiers = isset($parts[1]) ? $parts[1] : '';
+            $trueText = isset($parts[1]) ? $parts[1] : '';
 
             $elementId = ItemMetadata::getElementIdForElementName($elementName);
             self::errorIfNotElement($elementId, CONFIG_LABEL_CHECKBOX_FIELD, $elementName);
 
-            self::errorRowIf(empty($specifiers), CONFIG_LABEL_CHECKBOX_FIELD, $elementName, __('Missing Checked | Unchecked specifiers.'));
+            self::errorRowIf(empty($trueText), CONFIG_LABEL_CHECKBOX_FIELD, $elementName, __('Missing text to display when checked'));
 
-            $specifierParts = array_map('trim', explode('|', $specifiers));
-            self::errorRowIf(empty($specifierParts[0]) || !isset($specifierParts[1]) || empty($specifierParts[1]), CONFIG_LABEL_CHECKBOX_FIELD, $elementName, __('Incomplete Checked | Unchecked specifiers.'));
-            $checked = $specifierParts[0];
-            $unchecked = $specifierParts[1];
-
-            $data[$elementId] = array('checked' => $checked, 'unchecked' => $unchecked);
+            $data[$elementId] = array('checked' => $trueText);
         }
 
         set_option(self::OPTION_CHECKBOX_FIELD, json_encode($data));
