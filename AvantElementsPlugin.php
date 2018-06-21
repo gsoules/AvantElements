@@ -30,18 +30,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         parent::__construct();
 
-        if (AvantCommon::batchEditing())
-        {
-            // Multiple items are being saved automatically as part of batch processing such as bulk edit. AvantElements
-            // should nor perform any of its element filtering functions which perform validation based on
-            // posted values that are not present during bulk edits because the user is not interactively editing
-            // data. The lack of posted values would cause AvantElements to report data errors that don't really
-            // exist and these errors would cause the bulk edits to fail or get an exception when they attempt to
-            // save updated items. As such, when bulk editing, AvantElements should do nothing as though the plugin
-            // were deactivated.
-            return;
-        }
-
         $this->customCallback = new CustomCallback();
         $this->elementValidator = new ElementValidator($this->customCallback);
         $this->displayFilter = new DisplayFilter($this->_filters, $this->customCallback);
@@ -114,8 +102,11 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAfterSaveItem($args)
     {
-        if (AvantCommon::batchEditing())
+        if (!AvantCommon::userClickedSaveChanges())
+        {
+            // Don't perform validation for a save that is done programmatically such as when batch editing.
             return;
+        }
 
         $item = $args['record'];
         $this->elementValidator->afterSaveItem($item);
@@ -124,8 +115,11 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookBeforeSaveItem($args)
     {
-        if (AvantCommon::batchEditing())
+        if (!AvantCommon::userClickedSaveChanges())
+        {
+            // Don't perform validation for a save that is done programmatically such as when batch editing.
             return;
+        }
 
         $item = $args['record'];
         $this->elementValidator->beforeSaveItem($item);
@@ -155,9 +149,6 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookInitialize()
     {
-        if (AvantCommon::batchEditing())
-            return;
-
         // Add callbacks for every element even though some elements require no filtering or validation.
         $elements = get_db()->getTable('Element')->findAll();
 
