@@ -109,7 +109,7 @@ class ElementFields
 
     protected function createTextArea($value, $inputName)
     {
-        return get_view()->formTextarea($inputName, $value, array('rows' => 3, 'cols' => 50));
+        return get_view()->formTextarea($inputName, $value, array('rows' => 2, 'cols' => 50));
     }
 
     protected function createTextBox($value, $inputName, $width)
