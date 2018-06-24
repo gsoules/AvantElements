@@ -450,10 +450,13 @@ class ElementsConfig extends ConfigOptions
 
             if ($action == CustomCallback::CALLBACK_ACTION_FILTER )
             {
-                $implicitLinkData = ElementsConfig::getOptionDataForImplicitLink();
+                $implicitLinkData = self::getOptionDataForImplicitLink();
                 self::errorRowIf(array_key_exists($elementId, $implicitLinkData), CONFIG_LABEL_CALLBACK, $elementName,
-                    __("A custom filter for %s cannot be used because %s is already specified in the Implicit Link option. " .
+                    __("A custom filter for %s cannot be used because %s is specified in the Implicit Link option. " .
                         "See the Implicit Link option documentation to learn how to resolve this conflict.", $elementName, $elementName));
+                $externalLinkData = self::getOptionDataForExternalLink();
+                self::errorRowIf(array_key_exists($elementId, $externalLinkData), CONFIG_LABEL_CALLBACK, $elementName,
+                    __("A custom filter for %s cannot be used because %s is specified in the External Link option.", $elementName, $elementName));
             }
 
             $data[$elementId][] = array('action' => $action, 'class' => $className, 'function' => $functionName);
