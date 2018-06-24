@@ -105,6 +105,38 @@ You can style implicit links using the class `metadata-search-link`.
 
 Specify each element name on a separate row.
 
+**Important:** An element specified using this option cannot also be specified as a filter in the Custom Callback option.
+If you attempt to do this, you will get an error when you try to save the AvantElements configuration page.
+If you need an element to display an implicit link and you also want to perform custom filtering on that element, your
+custom callback code must emit the implicit link. This is because the Omeka/Zend framework for
+display filtering only honors one display filter per element. Thus if the same element is specified in the
+Implicit Link option (which sets display filters) and as a display filter in the Custom Callback option, the custom
+callback function won't get called because it would be creating a second display filter which the framework would ignore.
+
+As an example of this situation, suppose you have an element named `Place` that contains hierarchical data such as
+"USA, Maine, Southwest Harbor" and you want an implicit link to other elements with the same value; however, you don't
+want to display "USA, ". To achieve this, don't specify the element in the Implicit Link option and instead specify
+the following in the Custom Callback option where 'SomeClass' contains a function called filterPlace.
+
+```
+Place, filter: SomeClass, filterPlace
+```
+In your SomeClass file, code the filterPlace function as shown below. The function first asks AvantElements to provide
+the implicit link HTML and then removes the "USA" prefix it it exists. It then returns the implicit link without "USA".
+
+```
+public static function filterPlace($item, $elementId, $text)
+{
+    $prefix = 'USA, ';
+    $link = AvantElements::getImplicitLink($elementId, $text);
+    if (strpos($link, $prefix) !== false)
+    {
+        $link = str_replace($prefix, '', $link);
+    }
+    return $link;
+}
+```
+
 ---
 #### External Link Option
 Use this option to specify which elements will have their value display as a hyperlink where the hyperlink's `href`

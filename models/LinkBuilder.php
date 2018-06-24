@@ -3,12 +3,6 @@ class LinkBuilder
 {
     protected $externalLinkDefinitions = array();
 
-    public function __construct(&$filters)
-    {
-        $this->initializeImplicitLinkFilters($filters);
-        $this->initializeExternalLinkFilters($filters);
-    }
-
     public function buildLink($filterName, $elementId, $text)
     {
         $elementName = ItemMetadata::getElementNameFromId($elementId);
@@ -57,7 +51,7 @@ class LinkBuilder
         return $html;
     }
 
-    protected function emitImplicitLink($elementId, $text)
+    public function emitImplicitLink($elementId, $text)
     {
         $results = ItemMetadata::getItemsWithElementValue($elementId, $text);
 
@@ -86,21 +80,7 @@ class LinkBuilder
         return $this->emitImplicitLink($elementId, $text);
     }
 
-    public function initializeImplicitLinkFilters(&$filters)
-    {
-        $elementsData = ElementsConfig::getOptionDataForImplicitLink();
-        foreach ($elementsData as $elementName)
-        {
-            $elementSetName = ItemMetadata::getElementSetNameForElementName($elementName);
-            if (!empty($elementSetName))
-            {
-                // Set up a call to be made when this element is displayed on a Show page.
-                $filters['filterLinkImplicit' . $elementName] = array('Display', 'Item', $elementSetName, $elementName);
-            }
-        }
-    }
-
-    public function initializeExternalLinkFilters(&$filters)
+    protected function initializeExternalLinkFilters(&$filters)
     {
         $linksData = ElementsConfig::getOptionDataForExternalLink();
 
@@ -115,6 +95,26 @@ class LinkBuilder
             {
                 // Set up a call to be made when this element is displayed on a Show page.
                 $filters['filterLinkExternal' . $elementName] = array('Display', 'Item', $elementSetName, $elementName);
+            }
+        }
+    }
+
+    public function initializeFilters(&$filters)
+    {
+        $this->initializeImplicitLinkFilters($filters);
+        $this->initializeExternalLinkFilters($filters);
+    }
+
+    protected function initializeImplicitLinkFilters(&$filters)
+    {
+        $elementsData = ElementsConfig::getOptionDataForImplicitLink();
+        foreach ($elementsData as $elementName)
+        {
+            $elementSetName = ItemMetadata::getElementSetNameForElementName($elementName);
+            if (!empty($elementSetName))
+            {
+                // Set up a call to be made when this element is displayed on a Show page.
+                $filters['filterLinkImplicit' . $elementName] = array('Display', 'Item', $elementSetName, $elementName);
             }
         }
     }

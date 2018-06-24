@@ -6,6 +6,12 @@ class AvantElements
         $item->addError($elementName, $message);
     }
 
+    public static function getImplicitLink($elmentId, $text)
+    {
+        $linkBuilder = new LinkBuilder();
+        return $linkBuilder->emitImplicitLink($elmentId, $text);
+    }
+
     public static function getSimpleVocabTerms($elementId)
     {
         $vocabulary = array();

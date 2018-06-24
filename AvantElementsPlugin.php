@@ -34,7 +34,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         $this->elementValidator = new ElementValidator($this->customCallback);
         $this->displayFilter = new DisplayFilter($this->_filters, $this->customCallback);
         $this->elementFilters = new ElementFilters($this->customCallback, $this->elementValidator);
-        $this->linkBuilder = new LinkBuilder($this->_filters);
+        $this->linkBuilder = new LinkBuilder();
+        $this->linkBuilder->initializeFilters($this->_filters);
         $this->titleSync = new TitleSync();
     }
 

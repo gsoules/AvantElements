@@ -448,6 +448,14 @@ class ElementsConfig extends ConfigOptions
             $function = "$className::$functionName";
             self::errorRowIf(!is_callable($function), CONFIG_LABEL_CALLBACK, $elementName, __("%s function '%s' does not exist or is not public.", $action, $function));
 
+            if ($action == CustomCallback::CALLBACK_ACTION_FILTER )
+            {
+                $implicitLinkData = ElementsConfig::getOptionDataForImplicitLink();
+                self::errorRowIf(array_key_exists($elementId, $implicitLinkData), CONFIG_LABEL_CALLBACK, $elementName,
+                    __("A custom filter for %s cannot be used because %s is already specified in the Implicit Link option. " .
+                        "See the Implicit Link option documentation to learn how to resolve this conflict.", $elementName, $elementName));
+            }
+
             $data[$elementId][] = array('action' => $action, 'class' => $className, 'function' => $functionName);
         }
 
