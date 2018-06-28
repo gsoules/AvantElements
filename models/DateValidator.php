@@ -118,15 +118,16 @@ class DateValidator
         }
         else
         {
-            if (empty($yearStartText) && empty($yearEndText))
-            {
-                // The Date is set, but both start and end year are empty. Give them default values.
-                $dateStartElementId = ItemMetadata::getElementIdForElementName($yearStartElementName);
-                AvantCommon::setPostTextForElementId($dateStartElementId, $dateYear);
-                $dateEndElementId = ItemMetadata::getElementIdForElementName($yearEndElementName);
-                AvantCommon::setPostTextForElementId($dateEndElementId, $dateYear);
-            }
-            else if ($dateStartYear != $dateYear || $dateEndYear != $dateYear)
+//            if (empty($yearStartText) && empty($yearEndText))
+//            {
+//                // The Date is set, but both start and end year are empty. Give them default values.
+//                $dateStartElementId = ItemMetadata::getElementIdForElementName($yearStartElementName);
+//                AvantCommon::setPostTextForElementId($dateStartElementId, $dateYear);
+//                $dateEndElementId = ItemMetadata::getElementIdForElementName($yearEndElementName);
+//                AvantCommon::setPostTextForElementId($dateEndElementId, $dateYear);
+//            }
+//            else if ($dateStartYear != $dateYear || $dateEndYear != $dateYear)
+            if ($dateStartYear != $dateYear || $dateEndYear != $dateYear)
             {
                 AvantElements::addError($item, 'Dates', "When Date is set, Year Start and Year End must be set to the same year as Date");
                 return;
