@@ -1,11 +1,5 @@
 # AvantElements (plugin for Omeka Classic)
 
-#################################################
-
-> **This plugin is under development. Please wait for Release 2.0.**
-
-#################################################
-
 Provides data entry and validation features to the Omeka admin interface and allows customization of 
 elements on the public interface. These features help ensure data integrity, make data entry easier,
 and provide an enhanced experience for end users.
