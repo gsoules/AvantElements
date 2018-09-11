@@ -419,7 +419,7 @@ Type | Used with | What the callback function must do
 filter | \<element-name\> | Return a filtered version of the element's text. As an example, the filter could change "2018-05-29" to "May 5, 2018"
 default | \<element-name\> | Provide a default value for the element when a new item is added
 suggest | \<element-name\> | Return a list of suggestions while the user types into the element's field
-validate | \<element-name\> or "\<item\>" | Validate the element text, or the item as a whole, and supply an error message if the text or item is invalid
+validate | \<element-name\> or "\<item\>" | Validate non-blank element text, or the item as a whole, and supply an error message if the text or item is invalid. Not called for a blank element.
 save | "\<item\>" | Perform processing that occurs immediately after an item is saved to the database
 
 ###### Example:
