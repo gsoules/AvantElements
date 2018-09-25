@@ -276,7 +276,7 @@ This option will not be available if the SimpleVocab plugin is not installed.
 
 ###### Syntax:
 
-The syntax for each row of the Text Field option is
+The syntax for each row of the SimpleVocab Field option is
 
     <element-name> [ ":" <width> ]
 
@@ -285,6 +285,11 @@ Where:
 * `<element-name>` is the name of an Omeka element.
 * `<width>` is an optional integer  parameter indicating the width in pixels of the dropdown list. If the parameter is omitted, the 
 dropdown list occupies the maximum available width.
+
+Notes
+
+*  If you specify the same element name as both a SimpleVocab Field and as a Text Field, the element will not display
+as a dropdown list. So if you change an element from Text to SimpleVocab, be sure to remove it from the Text Field option.
 
 ---
 #### Checkbox Field Option
