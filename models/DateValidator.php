@@ -1,11 +1,9 @@
 <?php
 class DateValidator
 {
-    public function hideStartEndYears($elementsBySet)
+    public function hideStartEndYears($item, $elementsBySet)
     {
         // Hide the Year Start and Year End elements when they both show the same value.
-
-        $item = get_current_record('item');
 
         $yearStartElementName = CommonConfig::getOptionTextForYearStart();
         $yearEndElementName = CommonConfig::getOptionTextForYearEnd();

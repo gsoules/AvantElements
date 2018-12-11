@@ -23,10 +23,15 @@ class ElementFilters
     public function filterDisplayElements($elementsBySet)
     {
         // Omeka calls this Display Elements filter to give plugins an opportunity to hide elements from
-        // appearing on the Show Item pages
+        // appearing on the Show Item pages.
 
-        $dateValidator = new DateValidator();
-        $elementsBySet = $dateValidator->hideStartEndYears($elementsBySet);
+        $item = get_current_record('item', false);
+
+        if ($item)
+        {
+            $dateValidator = new DateValidator();
+            $elementsBySet = $dateValidator->hideStartEndYears($item, $elementsBySet);
+        }
 
         return $elementsBySet;
     }
