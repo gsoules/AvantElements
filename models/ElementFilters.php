@@ -27,8 +27,9 @@ class ElementFilters
 
         $item = get_current_record('item', false);
 
-        if ($item)
+        if ($item && empty(current_user()))
         {
+            // Hide Start and End years when they are the same, but only for public (not logged in) users.
             $dateValidator = new DateValidator();
             $elementsBySet = $dateValidator->hideStartEndYears($item, $elementsBySet);
         }
