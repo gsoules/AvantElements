@@ -105,29 +105,36 @@ class DateValidator
         {
             if ($dateStartYear == $dateEndYear)
             {
-                AvantElements::addError($item, 'Dates', "When Date is empty, Year Start and Year End must each be set to a different year");
+                AvantElements::addError($item, 'Dates', __("When Date is empty, Year Start and Year End must each be set to a different year"));
                 return;
             }
             if ($dateStartYear > $dateEndYear)
             {
-                AvantElements::addError($item, 'Dates', "Year Start must be less than Year End");
+                AvantElements::addError($item, 'Dates', __("Year Start must be less than Year End"));
                 return;
             }
         }
         else
         {
-//            if (empty($yearStartText) && empty($yearEndText))
-//            {
-//                // The Date is set, but both start and end year are empty. Give them default values.
-//                $dateStartElementId = ItemMetadata::getElementIdForElementName($yearStartElementName);
-//                AvantCommon::setPostTextForElementId($dateStartElementId, $dateYear);
-//                $dateEndElementId = ItemMetadata::getElementIdForElementName($yearEndElementName);
-//                AvantCommon::setPostTextForElementId($dateEndElementId, $dateYear);
-//            }
-//            else if ($dateStartYear != $dateYear || $dateEndYear != $dateYear)
-            if ($dateStartYear != $dateYear || $dateEndYear != $dateYear)
+            if (empty($yearStartText) && empty($yearEndText))
             {
-                AvantElements::addError($item, 'Dates', "When Date is set, Year Start and Year End must be set to the same year as Date");
+                // The Date is set, but both start and end year are empty. Give them default values.
+                $dateStartElementId = ItemMetadata::getElementIdForElementName($yearStartElementName);
+                AvantCommon::setPostTextForElementId($dateStartElementId, $dateYear);
+                $dateEndElementId = ItemMetadata::getElementIdForElementName($yearEndElementName);
+                AvantCommon::setPostTextForElementId($dateEndElementId, $dateYear);
+
+                // Notify the admin about the default values. Doing this also causes the page to post again which works
+                // around a problem whereby just setting the post text above is not causing the values to get saved.
+                // If you want to eliminate the warning, you'll have to figure out why the values don't get saved. Note
+                // that they will get saved if the page has an error, but that's because it posts again. For now, this
+                // warning is preferable to having to set the data start/end values manually.
+                $buttonName = empty($item->id) ? _("Add Item") : __("Save Changes");
+                AvantElements::addError($item, 'Date', __("$yearStartElementName and $yearEndElementName cannot be empty when Date is set. Click $buttonName to set them to $dateYear."));
+            }
+            else if ($dateStartYear != $dateYear || $dateEndYear != $dateYear)
+            {
+                AvantElements::addError($item, 'Dates', __("When Date is set, Year Start and Year End must be set to the same year as Date"));
                 return;
             }
         }
