@@ -212,7 +212,7 @@ The table below explains the meaning of the rules.
 Rule|Explanation
 --------|------------
 required | The element value must not be blank or contain only spaces.
-date | The element value must be a date in the form YYY-MM-DD e.g. 2018-05-29. This format ensures that dates will sort properly.
+date | The element value must be a date in the form YYYY-MM-DD e.g. 2018-05-29. This format ensures that dates will sort properly.
 year | The element value must be a four digit year
 simple-text | The element value must not contain carriage returns, tabs, leading or trailing spaces, en or em dashes. If the text contains any of these, AvantElements will not report an error, but before saving the item, it will remove carriage returns and tabs, strip leading or trailing spaces, and replace an en or em dash with a hyphen.  This option is especially useful for the Title element to ensure that every title has simple, consistent formatting that can be reliably searched.
 
