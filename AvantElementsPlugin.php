@@ -30,6 +30,12 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     {
         parent::__construct();
 
+        if (AvantCommon::isSearchRequest())
+        {
+            // Don't spend the execution time to construct this class since it's not used for search requests.
+            return;
+        }
+
         $this->customCallback = new CustomCallback();
         $this->elementValidator = new ElementValidator($this->customCallback);
         $this->displayFilter = new DisplayFilter($this->_filters, $this->customCallback);
