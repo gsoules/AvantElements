@@ -156,6 +156,12 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookInitialize()
     {
+        if (AvantCommon::isSearchRequest())
+        {
+            // Don't spend the execution time to construct this class since it's not used for search requests.
+            return;
+        }
+
         // Add callbacks for every element even though some elements require no filtering or validation.
         $elements = get_db()->getTable('Element')->findAll();
 
