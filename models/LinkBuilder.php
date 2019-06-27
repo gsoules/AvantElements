@@ -5,14 +5,13 @@ class LinkBuilder
 
     public function buildLink($filterName, $elementId, $text)
     {
-        $elementName = ItemMetadata::getElementNameFromId($elementId);
-
         if (strpos($filterName, 'filterLinkImplicit') === 0)
         {
             $text = $this->filterImplicitLink($text, $elementId);
         }
         else if (strpos($filterName, 'filterLinkExternal') === 0)
         {
+            $elementName = ItemMetadata::getElementNameFromId($elementId);
             $text = $this->filterExternalLink($text, $elementName);
         }
 
