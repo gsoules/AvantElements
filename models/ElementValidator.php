@@ -23,10 +23,6 @@ class ElementValidator
     public function beforeSaveItem($item)
     {
         $this->validateRequiredElements($item);
-
-        $dateValidator = new DateValidator();
-        $dateValidator->validateDateCombinations($item);
-
         $this->customCallback->performCallbackForItem(CustomCallback::CALLBACK_ACTION_VALIDATE, $item);
     }
 
