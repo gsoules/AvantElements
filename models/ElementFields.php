@@ -72,7 +72,12 @@ class ElementFields
             $inputs = self::createTextArea($value, $inputName);
         }
 
-        if ($fieldIsReadonly)
+        // Don't let the user change an existing item's identifier because doing so would leave vestiges of
+        // the old identifier in the Elasticsearch indexes and in AWS S3. Instead of adding logic to do the
+        // necessary cleanup, simply prevent the situation from occurring.
+        $identifierIsReadonly = !$isNewItem && $elementId == ItemMetadata::getIdentifierElementId();
+
+        if ($fieldIsReadonly || $identifierIsReadonly)
         {
             // Insert a 'disabled' attribute at the end of the <input> tag.
             $inputs = str_replace('>', ' disabled>', $inputs);
