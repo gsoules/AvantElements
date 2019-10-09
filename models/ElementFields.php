@@ -75,7 +75,7 @@ class ElementFields
         // Don't let the user change an existing item's identifier because doing so would leave vestiges of
         // the old identifier in the Elasticsearch indexes and in AWS S3. Instead of adding logic to do the
         // necessary cleanup, simply prevent the situation from occurring.
-        $identifierIsReadonly = !$isNewItem && $elementId == ItemMetadata::getIdentifierElementId();
+        $identifierIsReadonly = !$isNewItem && $elementId == ItemMetadata::getIdentifierElementId() && !empty(ItemMetadata::getItemIdentifier($item));
 
         if ($fieldIsReadonly || $identifierIsReadonly)
         {
