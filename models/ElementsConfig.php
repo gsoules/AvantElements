@@ -235,7 +235,7 @@ class ElementsConfig extends ConfigOptions
                 {
                     $text .= PHP_EOL;
                 }
-                $text = $definition['name'];
+                $text .= $definition['name'];
                 $text .= $definition['action'] == 'true' ? '' : ', false';
                 $linkText = $definition['text'];
                 $text .= strlen($linkText) > 0 ? ": $linkText" : '';
