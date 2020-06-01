@@ -91,6 +91,13 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAdminFooter($args)
     {
+        $item = get_current_record('item', false);
+        if (!$item)
+            return;
+
+        // The code below should only get called when editing an item, but for now it gets invoked
+        // even when just viewing an item. It needs to get moved to a method that only gets called
+        // when editing an item. For now, it's harmless as-is.
         $elementIds = ElementSuggest::getIdsForSuggestElements();
         echo get_view()->partial('/avantelements-script.php', array('fields' => $elementIds));
     }
