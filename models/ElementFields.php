@@ -46,7 +46,7 @@ class ElementFields
         $convertToTextBox = array_key_exists($elementId, $this->textFields);
         $convertToCheckBox = array_key_exists($elementId, $this->checkboxFields);
         $fieldIsReadonly = array_key_exists($elementId, $this->readonlyFields);
-        $vocabulary = AvantElements::getSimpleVocabTerms($elementId);
+        $vocabulary = AvantElements::getVocabularyTerms($elementId);
         $isSelect = !empty($vocabulary);
         $inputs = '';
 
@@ -62,7 +62,7 @@ class ElementFields
         }
         elseif ($isSelect)
         {
-            // Replace the <select> emitted by SimpleVocab.
+            // Create the <select> needed to display SimpleVocab or AvantVocabulary lists.
             $inputs = self::createSelect($value, $inputName, $vocabulary, $elementId);
         }
 
@@ -97,13 +97,12 @@ class ElementFields
     {
         if (array_key_exists($elementId, $this->selectFields))
         {
-            // This SimpleVocab element is configured in the AvantElements SimpleVocab Field option list.
+            // This element is configured in the AvantElements Vocabulary Field option list.
             // Use the configured size or if no size, the default of 0 which means max width.
             $width = $this->getFieldWidth($this->selectFields, $elementId);
         }
         else
         {
-            // Use the default fixed width of 300px that the SimpleVocab plugin uses.
             $width = 300;
         }
         $style = $width == 0 ? '' : "width:{$width}px";

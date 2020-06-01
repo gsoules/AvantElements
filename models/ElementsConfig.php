@@ -10,7 +10,7 @@ define('CONFIG_LABEL_HIDE_DESCRIPTIONS', __('Hide Descriptions'));
 define('CONFIG_LABEL_HTML', __('Allow HTML'));
 define('CONFIG_LABEL_IMPLICIT_LINK', __('Implicit Link'));
 define('CONFIG_LABEL_READONLY_FIELD', __('Read-only Field'));
-define('CONFIG_LABEL_SELECT_FIELD', __('SimpleVocab Field'));
+define('CONFIG_LABEL_SELECT_FIELD', __('Vocabulary Field'));
 define('CONFIG_LABEL_SUGGEST', __('Suggest'));
 define('CONFIG_LABEL_TEXT_FIELD', __('Text Field'));
 define('CONFIG_LABEL_TITLE_SYNC', __('Title Sync'));
@@ -263,7 +263,7 @@ class ElementsConfig extends ConfigOptions
     {
         if (self::configurationErrorsDetected())
         {
-            $text = plugin_is_active('SimpleVocab') ? $_POST[self::OPTION_SELECT_FIELD] : '';
+            $text = plugin_is_active('SimpleVocab') || plugin_is_active('AvantVocabulary') ? $_POST[self::OPTION_SELECT_FIELD] : '';
         }
         else
         {
@@ -571,7 +571,8 @@ class ElementsConfig extends ConfigOptions
     public static function saveOptionDataForSelectField()
     {
         $data = array();
-        $definitions = array_map('trim', explode(PHP_EOL, plugin_is_active('SimpleVocab') ? $_POST[self::OPTION_SELECT_FIELD] : ''));
+        $selectFieldValues = plugin_is_active('SimpleVocab') || plugin_is_active('AvantVocabulary') ? $_POST[self::OPTION_SELECT_FIELD] : '';
+        $definitions = array_map('trim', explode(PHP_EOL, $selectFieldValues));
         foreach ($definitions as $definition)
         {
             if (empty($definition))
@@ -594,7 +595,7 @@ class ElementsConfig extends ConfigOptions
 
             $elementId = ItemMetadata::getElementIdForElementName($elementName);
             self::errorIfNotElement($elementId, CONFIG_LABEL_SELECT_FIELD, $elementName);
-            self::errorIf(empty(AvantElements::getSimpleVocabTerms($elementId)), CONFIG_LABEL_SELECT_FIELD, __("'%s' is not a SimpleVocab element.", $elementName));
+            self::errorIf(empty(AvantElements::getVocabularyTerms($elementId)), CONFIG_LABEL_SELECT_FIELD, __("'%s' is not a vocabulary element.", $elementName));
 
             $data[$elementId] = array('width' => $width);
         }

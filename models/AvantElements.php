@@ -12,17 +12,30 @@ class AvantElements
         return $linkBuilder->emitImplicitLink($elmentId, $text);
     }
 
-    public static function getSimpleVocabTerms($elementId)
+    public static function getVocabularyTerms($elementId)
     {
         $vocabulary = array();
-        if (plugin_is_active('SimpleVocab'))
+
+        if (plugin_is_active('AvantVocabulary'))
         {
-            $simpleVocabTerm = get_db()->getTable('SimpleVocabTerm')->findByElementId($elementId);
-            if (!empty($simpleVocabTerm))
+            $vocabularyKinds = AvantVocabulary::getVocabularyKinds();
+            if (array_key_exists($elementId, $vocabularyKinds))
             {
-                $vocabulary = explode("\n", $simpleVocabTerm->terms);
+                $kind = $vocabularyKinds[$elementId];
+                $vocabulary = get_db()->getTable('VocabularyLocalTerms')->getLocalTerms($kind);
             }
         }
+
+        if (empty($vocabulary) && plugin_is_active('SimpleVocab'))
+        {
+            // See if this element uses SimpleVocab for its vocabulary.
+            $vocabularyTerms = get_db()->getTable('SimpleVocabTerm')->findByElementId($elementId);
+            if (!empty($vocabularyTerms))
+            {
+                $vocabulary = explode("\n", $vocabularyTerms->terms);
+            }
+        }
+
         return $vocabulary;
     }
 

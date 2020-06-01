@@ -97,7 +97,7 @@ class ElementSuggest
 
     public function suggestElementValues($elementId, $term)
     {
-        $vocabulary = AvantElements::getSimpleVocabTerms($elementId);
+        $vocabulary = AvantElements::getVocabularyTerms($elementId);
         if (!empty($vocabulary))
         {
             $suggestions = $this->searchVocabulary($term, $vocabulary);

@@ -142,11 +142,11 @@ $callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
         <label><?php echo CONFIG_LABEL_SELECT_FIELD; ?></label>
     </div>
     <div class="inputs five columns omega">
-        <?php if (plugin_is_active('SimpleVocab')): ?>
-            <p class="explanation"><?php echo __("SimpleVocab elements that display as a dropdown list."); ?></p>
+        <?php if (plugin_is_active('SimpleVocab') || plugin_is_active('AvantVocabulary')): ?>
+            <p class="explanation"><?php echo __("Vocabulary elements that display as a dropdown list."); ?></p>
             <?php echo $view->formTextarea(ElementsConfig::OPTION_SELECT_FIELD, $selectField, array('rows' => $selectFieldRows)); ?>
         <?php else: ?>
-            <?php ElementsConfig::emitOptionNotSupported('AvantElements', 'simplevocab-field-option'); ?>
+            <?php ElementsConfig::emitOptionNotSupported('AvantElements', 'vocabulary-field-option'); ?>
         <?php endif; ?>
     </div>
 </div>
