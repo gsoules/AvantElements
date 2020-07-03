@@ -17,9 +17,16 @@
         }
     }
 
+    function enableSearchableSelect()
+    {
+        // Initialize the search able select dropdown from https://select2.org.
+        jQuery('.avantelements-select').select2();
+    }
+
     // Handle both an initial form load, and when the form is updated after the Add Input button is clicked.
     jQuery(document).bind('omeka:elementformload', function (event) {
         enableAutoComplete();
+        enableSearchableSelect();
     });
 
     // Move the Duplicate Item button to the end of the set of other buttons.

@@ -105,6 +105,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     public function hookAdminHead($args)
     {
         queue_css_file('avantelements-admin');
+        queue_css_file('select2.min');
+        queue_js_file('select2.min');
         AvantElements::emitAdminCss();
     }
 

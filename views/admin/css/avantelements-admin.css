@@ -15,7 +15,6 @@
 }
 
 /* Input fields */
-
 #avantelements_allow_add_input,
 #avantelements_display_order,
 #avantelements_allow_html,
@@ -56,6 +55,10 @@
 
 .field select {
     margin-bottom: 2px;
+}
+
+.select2-container {
+    margin-bottom: 4px !important;
 }
 
 .inputs {
