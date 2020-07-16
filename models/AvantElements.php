@@ -22,7 +22,7 @@ class AvantElements
             if (array_key_exists($elementId, $vocabularyKinds))
             {
                 $kind = $vocabularyKinds[$elementId];
-                $vocabulary = get_db()->getTable('VocabularyLocalTerms')->getLocalTerms($kind);
+                $vocabulary = get_db()->getTable('VocabularySiteTerms')->getSiteTerms($kind);
             }
         }
 
