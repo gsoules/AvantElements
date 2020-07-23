@@ -70,7 +70,7 @@
 }
 
 .input-block .input .input-field-full-width {
-    width: 420px;
+    width: 100%;
 }
 
 @media screen and (max-width: 1200px) {

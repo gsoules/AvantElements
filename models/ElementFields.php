@@ -95,27 +95,24 @@ class ElementFields
 
     protected function createSelect($value, $inputName, $vocabulary, $elementId)
     {
-        $defaultWidth = 300;
+        $width = 0;
         if (array_key_exists($elementId, $this->selectFields))
         {
             // This element is configured in the AvantElements Vocabulary Field option list.
             // Use the configured size or if no size, the default of 0 which means max width.
             $width = $this->getFieldWidth($this->selectFields, $elementId);
-            if ($width == 0)
-                $width = $defaultWidth;
+            if ($width)
+            {
+                // Add a little extra to account for the dropdown arrow graphic.
+                $width += 16;
+            }
         }
-        else
-        {
-            $width = $defaultWidth;
-        }
-        // Add a little extra to account for the dropdown arrow graphic.
-        $width += 16;
 
         $style = $width == 0 ? '' : "width:{$width}px";
 
         // When the list is long, use the enhanced selected that provides a text area to type into to search the
         // list. On short lists, the text area isn't useful and could be confusing, so use the standard select.
-        $class = count($vocabulary) > 16 ? 'avantelements-select' : '';
+        $class = count($vocabulary) > 8 ? 'avantelements-select' : '';
 
         $class .= $width == 0 ? ' input-field-full-width' : '';
         $selectTerms = array('' => __('Select Below')) + array_combine($vocabulary, $vocabulary);
