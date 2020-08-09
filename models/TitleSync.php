@@ -15,7 +15,7 @@ class TitleSync
         $titleSyncData = ElementsConfig::getOptionDataForTitleSync();
         foreach ($titleSyncData as $elementId => $elementName)
         {
-            // Update elements that that need to stay in sync with this item's Title.
+            // Update elements which have an implicit title relationship that need to stay in sync with this item's Title.
             $this->updateElementText($elementId,  $this->originalTitle, $currentTitle);
         }
     }
