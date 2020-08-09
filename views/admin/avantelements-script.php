@@ -1,5 +1,6 @@
 <script type="text/javascript">
     var fields = [<?php echo $fields; ?>];
+    var identifier = [<?php echo $identifier; ?>];
 
     // Enable auto-complete for each instance of each element having an Id in the fields list.
     // If the user has clicked the Add Input button, the form will reload and replace the existing
@@ -19,7 +20,7 @@
 
     function enableSearchableSelect()
     {
-        // Initialize the search able select dropdown from https://select2.org.
+        // Initialize the searchable select dropdown from https://select2.org.
         jQuery('.avantelements-select').select2();
     }
 
@@ -31,4 +32,7 @@
 
     // Move the Duplicate Item button to the end of the set of other buttons.
     jQuery('#clone-button').appendTo('#edit');
+
+    // On the Edit Item page, replace the Omeka message that shows the item Id, with one that shows the Identifier.
+    jQuery('.items.edit h1#content-heading.section-title').text('Edit Item ' + identifier);
 </script>

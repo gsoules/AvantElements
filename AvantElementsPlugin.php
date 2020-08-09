@@ -99,7 +99,7 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         // even when just viewing an item. It needs to get moved to a method that only gets called
         // when editing an item. For now, it's harmless as-is.
         $elementIds = ElementSuggest::getIdsForSuggestElements();
-        echo get_view()->partial('/avantelements-script.php', array('fields' => $elementIds));
+        echo get_view()->partial('/avantelements-script.php', array('identifier' => ItemMetadata::getItemIdentifier($item) , 'fields' => $elementIds));
     }
 
     public function hookAdminHead($args)
