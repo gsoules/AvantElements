@@ -49,7 +49,7 @@ $callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
 </style>
 
 <div class="plugin-help learn-more">
-   <a href="https://github.com/gsoules/AvantElements#usage" target="_blank">Learn about the configuration options on this page</a>
+   <a href="https://digitalarchive.us/plugins/avantelements/" target="_blank">Learn about the configuration options on this page</a>
 </div>
 
 <h3>Public Elements</h3>
