@@ -1,10 +1,12 @@
 <?php
 class ElementValidator
 {
+    const VALIDATION_TYPE_ACCEPT_NONE = 'accept-none';
     const VALIDATION_TYPE_DATE = 'date';
     const VALIDATION_TYPE_REQUIRED = 'required';
     const VALIDATION_TYPE_SIMPLE_TEXT = 'simple-text';
     const VALIDATION_TYPE_YEAR = 'year';
+    const VALIDATION_NONE = 'none';
 
     protected $customCallback;
     protected $validationOptionData;

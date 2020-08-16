@@ -144,15 +144,25 @@ class ElementFilters
             return $this->customCallback->performCallbackForElement(CustomCallback::CALLBACK_ACTION_DEFAULT, $item, $elementId);
         }
 
-        if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_YEAR))
+        if ($text == ElementValidator::VALIDATION_NONE && $this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_ACCEPT_NONE))
         {
-            $text = trim($text);
+            // This element accepts 'none' to mean blank. This validator is used for a required field like Subject
+            // where a blank value is acceptable if the admin explicitly chooses 'none' as the value.
+            $text = '';
+        }
+        else
+        {
+            if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_YEAR))
+            {
+                $text = trim($text);
+            }
+
+            if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_SIMPLE_TEXT))
+            {
+                $text = $this->filterSimpleText($text);
+            }
         }
 
-        if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_SIMPLE_TEXT))
-        {
-            $text = $this->filterSimpleText($text);
-        }
         return $text;
     }
 
