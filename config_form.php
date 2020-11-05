@@ -69,7 +69,7 @@ $callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
         <label><?php echo CONFIG_LABEL_IMPLICIT_LINK; ?></label>
     </div>
     <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Elements that should link to items with the the same value."); ?></p>
+        <p class="explanation"><?php echo __("Elements that should link to items with the same value."); ?></p>
         <?php echo $view->formTextarea(ElementsConfig::OPTION_IMPLICIT_LINK, $implicitLinkOption, array('rows' => $implicitLinkOptionRows)); ?>
     </div>
 </div>

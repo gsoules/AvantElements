@@ -76,7 +76,7 @@ This option lets you specify the order, top to bottom, in which elements appear 
 displays Dublin Core elements first followed by Item Type Metadata elements. This option lets you intermingle both kinds
 of elements in any sequence you like.
 
-This option does not control the order of elements on admin pages. On the the admin Edit page, the order of elements on the
+This option does not control the order of elements on admin pages. On the admin Edit page, the order of elements on the
 Dublin Core tab is dictated by the order on the Edit Element Set page. The order of elements on the Item Type Metadata
 tab is dictated by the order on the Edit Item Type page.
 
