@@ -6,13 +6,16 @@ define('CONFIG_LABEL_CHECKBOX_FIELD', __('Checkbox Field'));
 define('CONFIG_LABEL_DEFAULT_VALUE', __('Default Value'));
 define('CONFIG_LABEL_DISPLAY_ORDER', __('Display Order'));
 define('CONFIG_LABEL_EXTERNAL_LINK', __('External Link'));
-define('CONFIG_LABEL_HIDE_DESCRIPTIONS', __('Hide Descriptions'));
+define('CONFIG_LABEL_HIDE_COMMENT', __('Hide Comment'));
+define('CONFIG_LABEL_HIDE_DESCRIPTION', __('Hide Description'));
 define('CONFIG_LABEL_HTML', __('Allow HTML'));
 define('CONFIG_LABEL_IMPLICIT_LINK', __('Implicit Link'));
+define('CONFIG_LABEL_PLACEHOLDER', __('Placeholder'));
 define('CONFIG_LABEL_READONLY_FIELD', __('Read-only Field'));
 define('CONFIG_LABEL_SELECT_FIELD', __('Vocabulary Field'));
 define('CONFIG_LABEL_SUGGEST', __('Suggest'));
 define('CONFIG_LABEL_TEXT_FIELD', __('Text Field'));
+define('CONFIG_LABEL_TEXTAREA_ROWS', __('Textarea Rows'));
 define('CONFIG_LABEL_TITLE_SYNC', __('Title Sync'));
 define('CONFIG_LABEL_VALIDATION', __('Validation'));
 
@@ -24,13 +27,16 @@ class ElementsConfig extends ConfigOptions
     const OPTION_DEFAULT_VALUE = 'avantelements_default_value';
     const OPTION_DISPLAY_ORDER = 'avantelements_display_order';
     const OPTION_EXTERNAL_LINK = 'avantelements_external_link';
-    const OPTION_HIDE_DESCRIPTIONS = 'avantelements_hide_descriptions';
+    const OPTION_HIDE_COMMENT = 'avantelements_hide_comment';
+    const OPTION_HIDE_DESCRIPTION = 'avantelements_hide_description';
     const OPTION_HTML = 'avantelements_allow_html';
     const OPTION_IMPLICIT_LINK = 'avantelements_implicit_link';
+    const OPTION_PLACEHOLDER = 'avantelements_placeholder';
     const OPTION_READONLY_FIELD = 'avantelements_readonly_field';
     const OPTION_SELECT_FIELD = 'avantelements_select_field';
     const OPTION_SUGGEST = 'avantelements_suggest';
     const OPTION_TEXT_FIELD = 'avantelements_text_field';
+    const OPTION_TEXTAREA_ROWS = 'avantelements_textarea_rows';
     const OPTION_TITLE_SYNC = 'avantelements_title_sync';
     const OPTION_VALIDATION = 'avantelements_validation';
 
@@ -87,6 +93,16 @@ class ElementsConfig extends ConfigOptions
         return self::getOptionDefinitionData(self::OPTION_EXTERNAL_LINK);
     }
 
+    public static function getOptionDataForHideComment()
+    {
+        return self::getOptionListData(self::OPTION_HIDE_COMMENT);
+    }
+
+    public static function getOptionDataForHideDescription()
+    {
+        return self::getOptionListData(self::OPTION_HIDE_DESCRIPTION);
+    }
+
     public static function getOptionDataForHtml()
     {
         return self::getOptionListData(self::OPTION_HTML);
@@ -97,6 +113,11 @@ class ElementsConfig extends ConfigOptions
         return self::getOptionListData(self::OPTION_IMPLICIT_LINK);
     }
 
+    public static function getOptionDataForPlaceholder()
+    {
+        return self::getOptionDefinitionData(self::OPTION_PLACEHOLDER);
+    }
+
     public static function getOptionDataForReadonlyField()
     {
         return self::getOptionListData(self::OPTION_READONLY_FIELD);
@@ -104,7 +125,7 @@ class ElementsConfig extends ConfigOptions
 
     public static function getOptionDataForTextField()
     {
-        return self::getOptionDefinitionData(self::OPTION_TEXT_FIELD);
+        return self::getOptionListData(self::OPTION_TEXT_FIELD);
     }
 
     public static function getOptionDataForSelectField()
@@ -244,6 +265,16 @@ class ElementsConfig extends ConfigOptions
         return $text;
     }
 
+    public static function getOptionTextForHideDescription()
+    {
+        return self::getOptionListText(self::OPTION_HIDE_DESCRIPTION);
+    }
+
+    public static function getOptionTextForHideComment()
+    {
+        return self::getOptionListText(self::OPTION_HIDE_COMMENT);
+    }
+
     public static function getOptionTextForHtml()
     {
         return self::getOptionListText(self::OPTION_HTML);
@@ -252,6 +283,35 @@ class ElementsConfig extends ConfigOptions
     public static function getOptionTextForImplicitLink()
     {
         return self::getOptionListText(self::OPTION_IMPLICIT_LINK);
+    }
+
+    public static function getOptionTextForPlaceholder()
+    {
+        if (self::configurationErrorsDetected())
+        {
+            $text = $_POST[self::OPTION_PLACEHOLDER];
+        }
+        else
+        {
+            $data = self::getOptionDataForPlaceholder();
+            $text = '';
+
+            foreach ($data as $elementId => $definition)
+            {
+                if (!empty($text))
+                {
+                    $text .= PHP_EOL;
+                }
+                $name = $definition['name'];
+                $text .= $name;
+                $placeholder = $definition['placeholder'];
+                if ($placeholder != '')
+                {
+                    $text .= ': ' . $placeholder;
+                }
+            }
+        }
+        return $text;
     }
 
     public static function getOptionTextForReadonlyField()
@@ -322,6 +382,11 @@ class ElementsConfig extends ConfigOptions
         return $text;
     }
 
+    public static function getOptionTextForTextareaRows()
+    {
+		return get_option(self::OPTION_TEXTAREA_ROWS);
+    }
+
     public static function getOptionTextForTitleSync()
     {
         return self::getOptionListText(self::OPTION_TITLE_SYNC);
@@ -366,10 +431,14 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForDisplayOrder();
         self::saveOptionDataForExternalLink();
         self::saveOptionDataForImplicitLink();
+        self::saveOptionDataForHideComment();
+        self::saveOptionDataForHideDescription();
         self::saveOptionDataForValidation();
         self::saveOptionDataForAddInput();
         self::saveOptionDataForHtml();
+        self::saveOptionDataForPlaceholder();
         self::saveOptionDataForTextField();
+        self::saveOptionDataForTextareaRows();
         self::saveOptionDataForSelectField();
         self::saveOptionDataForCheckboxField();
         self::saveOptionDataForReadonlyField();
@@ -377,8 +446,6 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForSuggest();
         self::saveOptionDataForTitleSync();
         self::saveOptionDataForCallback();
-
-        set_option(self::OPTION_HIDE_DESCRIPTIONS, intval($_POST[self::OPTION_HIDE_DESCRIPTIONS]));
     }
 
     public static function saveOptionDataForAddInput()
@@ -553,6 +620,16 @@ class ElementsConfig extends ConfigOptions
         set_option(self::OPTION_EXTERNAL_LINK, json_encode($data));
     }
 
+    public static function saveOptionDataForHideDescription()
+    {
+        self::saveOptionListData(self::OPTION_HIDE_DESCRIPTION, CONFIG_LABEL_HIDE_DESCRIPTION);
+    }
+
+    public static function saveOptionDataForHideComment()
+    {
+        self::saveOptionListData(self::OPTION_HIDE_COMMENT, CONFIG_LABEL_HIDE_COMMENT);
+    }
+
     public static function saveOptionDataForHtml()
     {
         self::saveOptionListData(self::OPTION_HTML, CONFIG_LABEL_HTML);
@@ -563,6 +640,38 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionListData(self::OPTION_IMPLICIT_LINK, CONFIG_LABEL_IMPLICIT_LINK);
     }
 
+    public static function saveOptionDataForPlaceholder()
+    {
+        $data = array();
+        $definitions = array_map('trim', explode(PHP_EOL, $_POST[self::OPTION_PLACEHOLDER]));
+        foreach ($definitions as $definition)
+        {
+            if (empty($definition))
+                continue;
+
+            // Syntax: <element-name> [ ":" <placeholder> ]
+            $parts = array_map('trim', explode(':', $definition));
+
+            $elementName = $parts[0];
+
+            if (isset($parts[1]))
+            {
+                $placeholder = $parts[1];
+            }
+            else
+            {
+                $placeholder = '';
+            }
+
+            $elementId = ItemMetadata::getElementIdForElementName($elementName);
+            self::errorIfNotElement($elementId, CONFIG_LABEL_PLACEHOLDER, $elementName);
+
+            $data[$elementId] = array('placeholder' => $placeholder);
+        }
+
+        set_option(self::OPTION_PLACEHOLDER, json_encode($data));
+    }
+	
     public static function saveOptionDataForReadonlyField()
     {
         self::saveOptionListData(self::OPTION_READONLY_FIELD, CONFIG_LABEL_READONLY_FIELD);
@@ -639,6 +748,11 @@ class ElementsConfig extends ConfigOptions
         }
 
         set_option(self::OPTION_TEXT_FIELD, json_encode($data));
+    }
+
+    public static function saveOptionDataForTextareaRows()
+    {
+        self::saveOptionText(self::OPTION_TEXTAREA_ROWS, CONFIG_LABEL_TEXTAREA_ROWS);
     }
 
     public static function saveOptionDataForTitleSync()
