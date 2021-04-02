@@ -7,6 +7,8 @@ class ElementFields
     protected $readonlyFields;
     protected $selectFields;
     protected $textFields;
+	protected $placeholders;
+	protected $textareaRows;
 
     public function __construct()
     {
@@ -15,6 +17,8 @@ class ElementFields
         $this->readonlyFields = ElementsConfig::getOptionDataForReadOnlyField();
         $this->selectFields = ElementsConfig::getOptionDataForSelectField();
         $this->textFields = ElementsConfig::getOptionDataForTextField();
+        $this->placeholders = ElementsConfig::getOptionDataForPlaceholder();
+        $this->textareaRows = max(2, ElementsConfig::getOptionTextForTextareaRows());
     }
 
     public function createField(CustomCallback $customCallback, $item, $elementId, $cloning, $value, $inputName, $formControls, $htmlCheckbox)
@@ -53,7 +57,7 @@ class ElementFields
         if ($convertToTextBox)
         {
             // Replace the Text Area with a Text Box.
-            $inputs = self::createTextBox($value, $inputName, $this->getFieldWidth($this->textFields, $elementId));
+            $inputs = self::createTextBox($value, $inputName, $this->getFieldWidth($this->textFields, $elementId), $this->getFieldPlaceholder($this->placeholders, $elementId));
         }
         else if ($convertToCheckBox)
         {
@@ -69,7 +73,8 @@ class ElementFields
         if (empty($inputs))
         {
             // The element is not a Text Box, Checkbox, or Select list. Emit a Text Area.
-            $inputs = self::createTextArea($value, $inputName);
+            
+			$inputs = self::createTextArea($value, $inputName, $this->textareaRows, $this->getFieldPlaceholder($this->placeholders, $elementId));
         }
 
         // Don't let the user change an existing item's identifier because doing so would leave vestiges of
@@ -119,20 +124,25 @@ class ElementFields
         return get_view()->formSelect($inputName, $value, array('class' => $class, 'style' => $style), $selectTerms);
     }
 
-    protected function createTextArea($value, $inputName)
+    protected function createTextArea($value, $inputName, $textareaRows, $placeholder)
     {
-        return get_view()->formTextarea($inputName, $value, array('rows' => 2, 'cols' => 50));
+        return get_view()->formTextarea($inputName, $value, array('rows' => $textareaRows, 'cols' => 50, 'placeholder' => $placeholder));
     }
 
-    protected function createTextBox($value, $inputName, $width)
+    protected function createTextBox($value, $inputName, $width, $placeholder)
     {
         $style = $width == 0 ? '' : "width:{$width}px";
         $class = $width == 0 ? 'input-field-full-width' : '';
-        return get_view()->formText($inputName, $value, array('class' => $class, 'style' => $style));
+        return get_view()->formText($inputName, $value, array('class' => $class, 'style' => $style, 'placeholder' => $placeholder));
     }
 
     protected function getFieldWidth($fields, $elementId)
     {
         return isset($fields[$elementId]) ? $fields[$elementId]['width'] : 0;
     }
+	
+	protected function getFieldPlaceholder($fields, $elementId)
+	{
+        return isset($fields[$elementId]) ? $fields[$elementId]['placeholder'] : '';
+	}
 }
