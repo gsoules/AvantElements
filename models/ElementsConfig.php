@@ -125,7 +125,7 @@ class ElementsConfig extends ConfigOptions
 
     public static function getOptionDataForTextField()
     {
-        return self::getOptionListData(self::OPTION_TEXT_FIELD);
+        return self::getOptionDefinitionData(self::OPTION_TEXT_FIELD);
     }
 
     public static function getOptionDataForSelectField()
