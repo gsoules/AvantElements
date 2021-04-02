@@ -28,7 +28,7 @@ $htmlOptionRows = max(2, count(explode(PHP_EOL, $htmlOption)));
 $placeholderOption = ElementsConfig::getOptionTextForPlaceholder();
 $placeholderOptionRows = max(2, count(explode(PHP_EOL, $placeholderOption)));
 
-$textareaRowsMin = get_option(ElementsConfig::OPTION_TEXTAREA_ROWSMIN);
+$textareaRows = get_option(ElementsConfig::OPTION_TEXTAREA_ROWS);
 
 $textField = ElementsConfig::getOptionTextForTextField();
 $textFieldRows = max(2, count(explode(PHP_EOL, $textField)));
@@ -160,11 +160,11 @@ $callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo CONFIG_LABEL_TEXTAREA_ROWSMIN; ?></label>
+        <label><?php echo CONFIG_LABEL_TEXTAREA_ROWS; ?></label>
     </div>
     <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Minimum number of rows for textarea fields."); ?></p>
-        <?php echo $view->formText(ElementsConfig::OPTION_TEXTAREA_ROWSMIN, $textareaRowsMin); ?>
+        <p class="explanation"><?php echo __("Number of rows for textarea fields."); ?></p>
+        <?php echo $view->formText(ElementsConfig::OPTION_TEXTAREA_ROWS, $textareaRows); ?>
     </div>
 </div>
 
