@@ -15,7 +15,7 @@ define('CONFIG_LABEL_READONLY_FIELD', __('Read-only Field'));
 define('CONFIG_LABEL_SELECT_FIELD', __('Vocabulary Field'));
 define('CONFIG_LABEL_SUGGEST', __('Suggest'));
 define('CONFIG_LABEL_TEXT_FIELD', __('Text Field'));
-define('CONFIG_LABEL_TEXTAREA_ROWS', __('Textarea Rows'));
+define('CONFIG_LABEL_TEXTAREA_ROWS', __('Textarea Rows Min'));
 define('CONFIG_LABEL_TITLE_SYNC', __('Title Sync'));
 define('CONFIG_LABEL_VALIDATION', __('Validation'));
 
