@@ -13,11 +13,22 @@ $externalLinkOptionRows = max(2, count(explode(PHP_EOL, $externalLinkOption)));
 $validationOption = ElementsConfig::getOptionTextForValidation();
 $validationOptionRows = max(2, count(explode(PHP_EOL, $validationOption)));
 
+$hideCommentOption = ElementsConfig::getOptionTextForHideComment();
+$hideCommentOptionRows = max(2, count(explode(PHP_EOL, $hideCommentOption)));
+
+$hideDescriptionOption = ElementsConfig::getOptionTextForHideDescription();
+$hideDescriptionOptionRows = max(2, count(explode(PHP_EOL, $hideDescriptionOption)));
+
 $addInputOption = ElementsConfig::getOptionTextForAddInput();
 $addInputOptionRows = max(2, count(explode(PHP_EOL, $addInputOption)));
 
 $htmlOption = ElementsConfig::getOptionTextForHtml();
 $htmlOptionRows = max(2, count(explode(PHP_EOL, $htmlOption)));
+
+$placeholderOption = ElementsConfig::getOptionTextForPlaceholder();
+$placeholderOptionRows = max(2, count(explode(PHP_EOL, $placeholderOption)));
+
+$textareaRowsMin = get_option(ElementsConfig::OPTION_TEXTAREA_ROWSMIN);
 
 $textField = ElementsConfig::getOptionTextForTextField();
 $textFieldRows = max(2, count(explode(PHP_EOL, $textField)));
@@ -89,11 +100,21 @@ $callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
 
 <div class="field">
     <div class="two columns alpha">
-        <label><?php echo CONFIG_LABEL_HIDE_DESCRIPTIONS ?></label>
+        <label><?php echo CONFIG_LABEL_HIDE_DESCRIPTION; ?></label>
     </div>
     <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __('Hide element descriptions.'); ?></p>
-        <?php echo $view->formCheckbox(ElementsConfig::OPTION_HIDE_DESCRIPTIONS, true, array('checked' => (boolean)get_option(ElementsConfig::OPTION_HIDE_DESCRIPTIONS))); ?>
+        <p class="explanation"><?php echo __("Elements whose description must be hidden."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_HIDE_DESCRIPTION, $hideDescriptionOption, array('rows' => $hideDescriptionOptionRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_HIDE_COMMENT; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Elements whose comment must be hidden."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_HIDE_COMMENT, $hideCommentOption, array('rows' => $hideCommentOptionRows)); ?>
     </div>
 </div>
 
@@ -124,6 +145,26 @@ $callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Elements that show the Use HTML checkbox."); ?></p>
         <?php echo $view->formTextarea(ElementsConfig::OPTION_HTML, $htmlOption, array('rows' => $htmlOptionRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_PLACEHOLDER; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Elements that show a placeholder."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_PLACEHOLDER, $placeholderOption, array('rows' => $placeholderOptionRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_TEXTAREA_ROWSMIN; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Minimum number of rows for textarea fields."); ?></p>
+        <?php echo $view->formText(ElementsConfig::OPTION_TEXTAREA_ROWSMIN, $textareaRowsMin); ?>
     </div>
 </div>
 
