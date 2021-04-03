@@ -28,7 +28,7 @@ $htmlOptionRows = max(2, count(explode(PHP_EOL, $htmlOption)));
 $placeholderOption = ElementsConfig::getOptionTextForPlaceholder();
 $placeholderOptionRows = max(2, count(explode(PHP_EOL, $placeholderOption)));
 
-$textareaRows = get_option(ElementsConfig::OPTION_TEXTAREA_ROWS);
+$textareaRows = ElementsConfig::getOptionTextForTextareaRows();
 
 $textField = ElementsConfig::getOptionTextForTextField();
 $textFieldRows = max(2, count(explode(PHP_EOL, $textField)));
