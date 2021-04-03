@@ -6,6 +6,7 @@ define('CONFIG_LABEL_CHECKBOX_FIELD', __('Checkbox Field'));
 define('CONFIG_LABEL_DEFAULT_VALUE', __('Default Value'));
 define('CONFIG_LABEL_DISPLAY_ORDER', __('Display Order'));
 define('CONFIG_LABEL_EXTERNAL_LINK', __('External Link'));
+define('CONFIG_LABEL_EXTERNAL_LINK_ICON', __('External Link Icon'));
 define('CONFIG_LABEL_HIDE_COMMENT', __('Hide Comment'));
 define('CONFIG_LABEL_HIDE_DESCRIPTION', __('Hide Description'));
 define('CONFIG_LABEL_HTML', __('Allow HTML'));
@@ -27,6 +28,7 @@ class ElementsConfig extends ConfigOptions
     const OPTION_DEFAULT_VALUE = 'avantelements_default_value';
     const OPTION_DISPLAY_ORDER = 'avantelements_display_order';
     const OPTION_EXTERNAL_LINK = 'avantelements_external_link';
+    const OPTION_EXTERNAL_LINK_ICON = 'avantelements_external_link_icon';
     const OPTION_HIDE_COMMENT = 'avantelements_hide_comment';
     const OPTION_HIDE_DESCRIPTION = 'avantelements_hide_description';
     const OPTION_HTML = 'avantelements_allow_html';
@@ -125,7 +127,7 @@ class ElementsConfig extends ConfigOptions
 
     public static function getOptionDataForTextField()
     {
-        return self::getOptionDefinitionData(self::OPTION_TEXT_FIELD);
+		return self::getOptionDefinitionData(self::OPTION_TEXT_FIELD);
     }
 
     public static function getOptionDataForSelectField()
@@ -381,7 +383,7 @@ class ElementsConfig extends ConfigOptions
         }
         return $text;
     }
-
+	
     public static function getOptionTextForTextareaRows()
     {
 		return get_option(self::OPTION_TEXTAREA_ROWS);
@@ -446,6 +448,8 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForSuggest();
         self::saveOptionDataForTitleSync();
         self::saveOptionDataForCallback();
+
+        set_option(self::OPTION_EXTERNAL_LINK_ICON, intval($_POST[self::OPTION_EXTERNAL_LINK_ICON]));
     }
 
     public static function saveOptionDataForAddInput()
