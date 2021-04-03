@@ -95,6 +95,15 @@ $callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
     </div>
 </div>
 
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_EXTERNAL_LINK_ICON; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __('Add icon to external links.'); ?></p>
+        <?php echo $view->formCheckbox(ElementsConfig::OPTION_EXTERNAL_LINK_ICON, true, array('checked' => (boolean)get_option(ElementsConfig::OPTION_EXTERNAL_LINK_ICON))); ?>
+    </div>
+</div>
 
 <h3>Admin Elements</h3>
 
