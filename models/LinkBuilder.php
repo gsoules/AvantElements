@@ -62,7 +62,7 @@ class LinkBuilder
 
         $url = ItemSearch::getAdvancedSearchUrl($elementId, $text);
         $title = __('See other items that have this value');
-        return "<div class='element-text'><a href='$url' class='metadata-search-link' title='$title'>$text</a></div>";
+        return "<a href='$url' class='metadata-search-link' title='$title'>$text</a>";
     }
 
     protected function filterExternalLink($text, $elementName)
