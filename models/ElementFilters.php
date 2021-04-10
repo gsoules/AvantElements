@@ -133,7 +133,7 @@ class ElementFilters
         $item = $args['record'];
         $elementId = $args['element']['id'];
         $filteredText = $this->filterElementTextBeforeSave($item, $elementId, $text);
-        return $filteredText;
+		return $filteredText;
     }
 
     public function filterElementTextBeforeSave($item, $elementId, $text)
@@ -161,6 +161,16 @@ class ElementFilters
             if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_SIMPLE_TEXT))
             {
                 $text = $this->filterSimpleText($text);
+            }
+			
+			if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_UPPER_CASE))
+            {
+                $text = strtoupper($text);
+            }
+			
+			if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_LOWER_CASE))
+            {
+                $text = strtolower($text);
             }
         }
 
