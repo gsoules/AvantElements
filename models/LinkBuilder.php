@@ -21,6 +21,7 @@ class LinkBuilder
     public function emitExternalLink($text, $defaultLinkText, $openInNewTab)
     {
         $class = 'metadata-external-link';
+		if (get_option(ElementsConfig::OPTION_EXTERNAL_LINK_ICON)) $class .= ' external-link-icon';
 
         $parts = array_map('trim', explode(PHP_EOL, $text));
         if (count($parts) == 1)
@@ -62,7 +63,7 @@ class LinkBuilder
 
         $url = ItemSearch::getAdvancedSearchUrl($elementId, $text);
         $title = __('See other items that have this value');
-        return "<div class='element-text'><a href='$url' class='metadata-search-link' title='$title'>$text</a></div>";
+        return "<div><a href='$url' class='metadata-search-link' title='$title'>$text</a></div>";
     }
 
     protected function filterExternalLink($text, $elementName)

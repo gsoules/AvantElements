@@ -41,9 +41,9 @@ class AvantElements
 
     public static function emitAdminCss()
     {
-        $hideDescriptions = (boolean)get_option(ElementsConfig::OPTION_HIDE_DESCRIPTIONS);
+        $hideAnyDescription = (get_option(ElementsConfig::OPTION_HIDE_DESCRIPTION) != '');
 
-        if ($hideDescriptions)
+        if ($hideAnyDescription)
         {
             echo PHP_EOL . '<style>' . PHP_EOL;
 

@@ -165,6 +165,8 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookInitialize()
     {
+        add_translation_source(dirname(__FILE__) . '/languages');
+
         if (AvantCommon::isSearchRequest())
         {
             // Don't spend the execution time to construct this class since it's not used for search requests.

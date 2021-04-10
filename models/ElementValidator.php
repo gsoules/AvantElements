@@ -6,6 +6,9 @@ class ElementValidator
     const VALIDATION_TYPE_REQUIRED = 'required';
     const VALIDATION_TYPE_SIMPLE_TEXT = 'simple-text';
     const VALIDATION_TYPE_YEAR = 'year';
+	const VALIDATION_TYPE_NUMERIC = 'numeric';
+	const VALIDATION_TYPE_LOWER_CASE = 'lower-case';
+	const VALIDATION_TYPE_UPPER_CASE = 'upper-case';
     const VALIDATION_NONE = 'none';
 
     protected $customCallback;
@@ -70,6 +73,11 @@ class ElementValidator
         {
             $dateValidator->validateElementYear($item, $elementName, $text);
         }
+
+        if ($this->hasValidationDefinitionFor($elementId, self::VALIDATION_TYPE_NUMERIC))
+        {
+            $this->validateNumericElement($item, $elementName, $text);
+        }
     }
 
     protected function validateRequiredElement($item, $elementId, $elementName)
@@ -86,6 +94,14 @@ class ElementValidator
         foreach ($definitions as $elementId => $definition)
         {
             $this->validateRequiredElement($item, $elementId, $definition['name']);
+        }
+    }
+
+    protected function validateNumericElement($item, $elementName, $text)
+    {
+        if (!is_numeric($text))
+        {
+            AvantElements::addError($item, $elementName, __('Value must be numeric.'));
         }
     }
 }

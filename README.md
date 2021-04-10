@@ -9,27 +9,28 @@ and provide an enhanced experience for end users.
 - [Dependencies](https://github.com/gsoules/AvantElements#dependencies)
 - [Installation](https://github.com/gsoules/AvantElements#installation)
 - [Duplicate Item Feature](https://github.com/gsoules/AvantElements#duplicate-item-feature)
-- [Usage](https://github.com/gsoules/AvantElements#usage)
-    - [Configuration Options](https://github.com/gsoules/AvantElements#configuration-options)
-        - [Display Order Option](https://github.com/gsoules/AvantElements#display-order-option)
-        - [Implicit Link Option](https://github.com/gsoules/AvantElements#implicit-link-option)
-        - [External Link Option](https://github.com/gsoules/AvantElements#external-link-option)
-        - [Hide Descriptions Option](https://github.com/gsoules/AvantElements#hide-descriptions-option)
-        - [Validation Option](https://github.com/gsoules/AvantElements#validation-option)
-        - [Allow Add Input Option](https://github.com/gsoules/AvantElements#allow-add-input-option)
-        - [Allow HTML Option](https://github.com/gsoules/AvantElements#allow-html-option)
-        - [Text Field Option](https://github.com/gsoules/AvantElements#text-field-option)
-        - [SimpleVocab Field Option](https://github.com/gsoules/AvantElements#simplevocab-field-option)
-        - [Checkbox Field Option](https://github.com/gsoules/AvantElements#checkbox-field-option)
-        - [Read-only Field Option](https://github.com/gsoules/AvantElements#read-only-field-option)
-        - [Default Value Option](https://github.com/gsoules/AvantElements#default-value-option)
-        - [Suggest Option](https://github.com/gsoules/AvantElements#suggest-option)
-        - [Title Sync Option](https://github.com/gsoules/AvantElements#title-sync-option)
-        - [Custom Callback Option](https://github.com/gsoules/AvantElements#custom-callback-option)
-- [Warning](https://github.com/gsoules/AvantElements#warning)
-- [License](https://github.com/gsoules/AvantElements#license)
-- [Copyright](https://github.com/gsoules/AvantElements#copyright)
-- [Credits](https://github.com/gsoules/AvantElements#credits)
+- [Usage](#usage)
+    - [Configuration Options](#configuration-options)
+        - [Display Order Option](#display-order-option)
+        - [Implicit Link Option](#implicit-link-option)
+        - [External Link Option](#external-link-option)
+        - [Hide Description Option](#hide-description-option)
+        - [Hide Comment Option](#hide-comment-option)
+        - [Validation Option](#validation-option)
+        - [Allow Add Input Option](#allow-add-input-option)
+        - [Allow HTML Option](#allow-html-option)
+        - [Text Field Option](#text-field-option)
+        - [SimpleVocab Field Option](#simplevocab-field-option)
+        - [Checkbox Field Option](#checkbox-field-option)
+        - [Read-only Field Option](#read-only-field-option)
+        - [Default Value Option](#default-value-option)
+        - [Suggest Option](#suggest-option)
+        - [Title Sync Option](#title-sync-option)
+        - [Custom Callback Option](#custom-callback-option)
+- [Warning](#warning)
+- [License](#license)
+- [Copyright](#copyright)
+- [Credits](#credits)
         
 
 ## Dependencies
@@ -185,10 +186,24 @@ The examples above will generate a hyperlink like the one shown below:
     <a href="http://www.somewebsite.com" class="metadata-external-link" target="_blank">Read this book online</a>
 
 ---
-#### Hide Descriptions Option
-When checked, this option hides the descriptive information that Omeka normally displays on the admin Edit page to
+#### Hide Description Option
+This option overrides Omeka's default behavior of displaying a descriptive information on the admin Edit page to
 explain what Dublin Core means and what each element is used for. Use this option to make the Edit page more compact
 and to hide information that is often not useful to anyone, but a first time user.
+
+###### Syntax:
+
+Specify each element name on a separate row.
+
+---
+#### Hide Comment Option
+This option overrides Omeka's default behavior of displaying a comment on the admin Edit page to add further explanation
+and examples for each element. Use this option to make the Edit page more compact and to hide information that is often 
+not useful to anyone, but a first time user.
+
+###### Syntax:
+
+Specify each element name on a separate row.
 
 ---
 #### Validation Option
@@ -213,8 +228,12 @@ Rule|Explanation
 --------|------------
 required | The element value must not be blank or contain only spaces.
 date | The element value must be a date in the form YYYY-MM-DD e.g. 2018-05-29. This format ensures that dates will sort properly.
-year | The element value must be a four digit year
+year | The element value must be a four digit year.
+numeric | The element value must be a numeric one.
 simple-text | The element value must not contain carriage returns, tabs, leading or trailing spaces, en or em dashes. If the text contains any of these, AvantElements will not report an error, but before saving the item, it will remove carriage returns and tabs, strip leading or trailing spaces, and replace an en or em dash with a hyphen.  This option is especially useful for the Title element to ensure that every title has simple, consistent formatting that can be reliably searched.
+upper-case | The element value must be uppercase. If the text is not, AvantElements will not report an error, but before saving the item, will convert it to uppercase.
+lower-case | The element value must be lowercase. If the text is not, AvantElements will not report an error, but before saving the item, will convert it to lowercase.
+
 
 You can specify more than one rule as shown in the example below for the Title element.
 
