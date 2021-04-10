@@ -14,7 +14,8 @@ and provide an enhanced experience for end users.
         - [Display Order Option](https://github.com/gsoules/AvantElements#display-order-option)
         - [Implicit Link Option](https://github.com/gsoules/AvantElements#implicit-link-option)
         - [External Link Option](https://github.com/gsoules/AvantElements#external-link-option)
-        - [Hide Descriptions Option](https://github.com/gsoules/AvantElements#hide-descriptions-option)
+        - [Hide Description Option](https://github.com/gsoules/AvantElements#hide-description-option)
+        - [Hide Comment Option](https://github.com/gsoules/AvantElements#hide-comment-option)
         - [Validation Option](https://github.com/gsoules/AvantElements#validation-option)
         - [Allow Add Input Option](https://github.com/gsoules/AvantElements#allow-add-input-option)
         - [Allow HTML Option](https://github.com/gsoules/AvantElements#allow-html-option)
@@ -185,10 +186,24 @@ The examples above will generate a hyperlink like the one shown below:
     <a href="http://www.somewebsite.com" class="metadata-external-link" target="_blank">Read this book online</a>
 
 ---
-#### Hide Descriptions Option
-When checked, this option hides the descriptive information that Omeka normally displays on the admin Edit page to
+#### Hide Description Option
+This option overrides Omeka's default behavior of displaying a descriptive information on the admin Edit page to
 explain what Dublin Core means and what each element is used for. Use this option to make the Edit page more compact
 and to hide information that is often not useful to anyone, but a first time user.
+
+###### Syntax:
+
+Specify each element name on a separate row.
+
+---
+#### Hide Comment Option
+This option overrides Omeka's default behavior of displaying a comment on the admin Edit page to add further explanation
+and examples for each element. Use this option to make the Edit page more compact and to hide information that is often 
+not useful to anyone, but a first time user.
+
+###### Syntax:
+
+Specify each element name on a separate row.
 
 ---
 #### Validation Option
