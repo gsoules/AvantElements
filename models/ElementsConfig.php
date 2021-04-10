@@ -791,6 +791,9 @@ class ElementsConfig extends ConfigOptions
                 ElementValidator::VALIDATION_TYPE_DATE,
                 ElementValidator::VALIDATION_TYPE_YEAR,
                 ElementValidator::VALIDATION_TYPE_SIMPLE_TEXT,
+                ElementValidator::VALIDATION_TYPE_UPPER_CASE,
+                ElementValidator::VALIDATION_TYPE_LOWER_CASE,
+                ElementValidator::VALIDATION_TYPE_NUMERIC,
                 ElementValidator::VALIDATION_TYPE_ACCEPT_NONE);
 
             // Determine which args are specified, and issue an error for any that are unrecognized.
