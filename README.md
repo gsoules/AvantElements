@@ -14,7 +14,7 @@ and provide an enhanced experience for end users.
         - [Display Order Option](https://github.com/gsoules/AvantElements#display-order-option)
         - [Implicit Link Option](https://github.com/gsoules/AvantElements#implicit-link-option)
         - [External Link Option](https://github.com/gsoules/AvantElements#external-link-option)
-        - [Hide Description Option](https://github.com/gsoules/AvantElements#hide-description-option)
+        - [Hide Description Option](#hide-description-option)
         - [Hide Comment Option](https://github.com/gsoules/AvantElements#hide-comment-option)
         - [Validation Option](https://github.com/gsoules/AvantElements#validation-option)
         - [Allow Add Input Option](https://github.com/gsoules/AvantElements#allow-add-input-option)
