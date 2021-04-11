@@ -49,7 +49,7 @@ class ElementFields
         // See if this element is configured to be a text field.
         $convertToTextBox = array_key_exists($elementId, $this->textFields);
         $convertToCheckBox = array_key_exists($elementId, $this->checkboxFields);
-        $fieldIsReadonly = array_key_exists($elementId, $this->readonlyFields);
+        $fieldIsReadonly = array_key_exists($elementId, $this->readonlyFields) || array_key_exists('all', $this->readonlyFields);
         $vocabulary = AvantElements::getVocabularyTerms($elementId);
         $isSelect = !empty($vocabulary);
         $inputs = '';
@@ -73,8 +73,7 @@ class ElementFields
         if (empty($inputs))
         {
             // The element is not a Text Box, Checkbox, or Select list. Emit a Text Area.
-            
-			$inputs = self::createTextArea($value, $inputName, $this->textareaRows, $this->getFieldPlaceholder($this->placeholders, $elementId));
+            $inputs = self::createTextArea($value, $inputName, $this->textareaRows, $this->getFieldPlaceholder($this->placeholders, $elementId));
         }
 
         // Don't let the user change an existing item's identifier because doing so would leave vestiges of
@@ -141,8 +140,8 @@ class ElementFields
         return isset($fields[$elementId]) ? $fields[$elementId]['width'] : 0;
     }
 	
-	protected function getFieldPlaceholder($fields, $elementId)
-	{
-        return isset($fields[$elementId]) ? $fields[$elementId]['placeholder'] : '';
-	}
+    protected function getFieldPlaceholder($fields, $elementId)
+    {
+    return isset($fields[$elementId]) ? $fields[$elementId]['placeholder'] : '';
+    }
 }
