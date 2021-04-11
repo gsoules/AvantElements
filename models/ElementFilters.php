@@ -251,7 +251,7 @@ class ElementFilters
 
     private function hideAddInputButton($elementId, $components)
     {
-        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements);
+        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements) || array_key_exists('all', $this->addInputElements);
 
         if (!$allowAddInputButton)
         {
@@ -264,7 +264,7 @@ class ElementFilters
 
     private function hideCommentText($elementId, $components)
     {
-        $hideCommentText = array_key_exists($elementId, $this->hideCommentElements);
+        $hideCommentText = array_key_exists($elementId, $this->hideCommentElements) || array_key_exists('all', $this->hideCommentElements);
 
         if ($hideCommentText)
         {
@@ -276,7 +276,7 @@ class ElementFilters
 
     private function hideDescriptionText($elementId, $components)
     {
-        $hideDescriptionText = array_key_exists($elementId, $this->hideDescriptionElements);
+        $hideDescriptionText = array_key_exists($elementId, $this->hideDescriptionElements) || array_key_exists('all', $this->hideDescriptionElements);
 
         if ($hideDescriptionText)
         {
@@ -288,14 +288,14 @@ class ElementFilters
 
     protected function hideUnusedFormControls($components, $elementId)
     {
-        $allowHtml = array_key_exists($elementId, $this->htmlElements);
+        $allowHtml = array_key_exists($elementId, $this->htmlElements) || array_key_exists('all', $this->htmlElements);
         if (!$allowHtml)
         {
             // Remove the HTML for the HTML checkbox for this element.
             $components['html_checkbox'] = '';
         }
 
-        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements);
+        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements) || array_key_exists('all', $this->addInputElements);
         if (!$allowAddInputButton)
         {
             // Remove the HTML for the red 'Remove' button that is emitted for every element. Note that that
