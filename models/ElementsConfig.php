@@ -41,10 +41,11 @@ class ElementsConfig extends ConfigOptions
     const OPTION_TEXTAREA_ROWS = 'avantelements_textarea_rows';
     const OPTION_TITLE_SYNC = 'avantelements_title_sync';
     const OPTION_VALIDATION = 'avantelements_validation';
+	const OPTION_ACCEPT_ALLELEMENTS_VALUE = true;
 
     public static function getOptionDataForAddInput()
     {
-        return self::getOptionListData(self::OPTION_ADD_INPUT);
+        return self::getOptionListData(self::OPTION_ADD_INPUT, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function getOptionDataForCheckboxField()
@@ -97,17 +98,17 @@ class ElementsConfig extends ConfigOptions
 
     public static function getOptionDataForHideComment()
     {
-        return self::getOptionListData(self::OPTION_HIDE_COMMENT);
+        return self::getOptionListData(self::OPTION_HIDE_COMMENT, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function getOptionDataForHideDescription()
     {
-        return self::getOptionListData(self::OPTION_HIDE_DESCRIPTION);
+        return self::getOptionListData(self::OPTION_HIDE_DESCRIPTION, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function getOptionDataForHtml()
     {
-        return self::getOptionListData(self::OPTION_HTML);
+        return self::getOptionListData(self::OPTION_HTML, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function getOptionDataForImplicitLink()
@@ -122,7 +123,7 @@ class ElementsConfig extends ConfigOptions
 
     public static function getOptionDataForReadonlyField()
     {
-        return self::getOptionListData(self::OPTION_READONLY_FIELD);
+        return self::getOptionListData(self::OPTION_READONLY_FIELD, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function getOptionDataForTextField()
@@ -454,7 +455,7 @@ class ElementsConfig extends ConfigOptions
 
     public static function saveOptionDataForAddInput()
     {
-        self::saveOptionListData(self::OPTION_ADD_INPUT, CONFIG_LABEL_ADD_INPUT);
+        self::saveOptionListData(self::OPTION_ADD_INPUT, CONFIG_LABEL_ADD_INPUT, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function saveOptionDataForCallback()
@@ -626,17 +627,17 @@ class ElementsConfig extends ConfigOptions
 
     public static function saveOptionDataForHideDescription()
     {
-        self::saveOptionListData(self::OPTION_HIDE_DESCRIPTION, CONFIG_LABEL_HIDE_DESCRIPTION);
+        self::saveOptionListData(self::OPTION_HIDE_DESCRIPTION, CONFIG_LABEL_HIDE_DESCRIPTION, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function saveOptionDataForHideComment()
     {
-        self::saveOptionListData(self::OPTION_HIDE_COMMENT, CONFIG_LABEL_HIDE_COMMENT);
+        self::saveOptionListData(self::OPTION_HIDE_COMMENT, CONFIG_LABEL_HIDE_COMMENT, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function saveOptionDataForHtml()
     {
-        self::saveOptionListData(self::OPTION_HTML, CONFIG_LABEL_HTML);
+        self::saveOptionListData(self::OPTION_HTML, CONFIG_LABEL_HTML, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function saveOptionDataForImplicitLink()
@@ -678,7 +679,7 @@ class ElementsConfig extends ConfigOptions
 	
     public static function saveOptionDataForReadonlyField()
     {
-        self::saveOptionListData(self::OPTION_READONLY_FIELD, CONFIG_LABEL_READONLY_FIELD);
+        self::saveOptionListData(self::OPTION_READONLY_FIELD, CONFIG_LABEL_READONLY_FIELD, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function saveOptionDataForSelectField()
