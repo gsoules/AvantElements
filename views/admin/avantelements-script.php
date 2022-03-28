@@ -1,6 +1,6 @@
 <script type="text/javascript">
     var fields = [<?php echo $fields; ?>];
-    var identifier = [<?php echo $identifier; ?>];
+    var identifier = "<?php echo $identifier; ?>";
 
     // Enable auto-complete for each instance of each element having an Id in the fields list.
     // If the user has clicked the Add Input button, the form will reload and replace the existing
