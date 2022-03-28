@@ -8,6 +8,8 @@ class ElementFilters
     protected $inputElements;
     protected $fields;
     protected $htmlElements;
+    protected $hideCommentElements;
+    protected $hideDescriptionElements;
 
     public function __construct(CustomCallback $customCallback, ElementValidator $elementValidator)
     {
@@ -18,6 +20,8 @@ class ElementFilters
         $this->inputElements = array();
         $this->fields = new ElementFields();
         $this->htmlElements = ElementsConfig::getOptionDataForHtml();
+        $this->hideCommentElements = ElementsConfig::getOptionDataForHideComment();
+        $this->hideDescriptionElements = ElementsConfig::getOptionDataForHideDescription();
     }
 
     public function filterDisplayElements($elementsBySet)
@@ -58,11 +62,8 @@ class ElementFilters
         }
 
         $components = $this->hideAddInputButton($elementId, $components);
-
-        if (get_option(ElementsConfig::OPTION_HIDE_DESCRIPTIONS))
-        {
-            $components['description'] = '';
-        }
+        $components = $this->hideDescriptionText($elementId, $components);
+        $components = $this->hideCommentText($elementId, $components);
 
         return $components;
     }
@@ -132,7 +133,7 @@ class ElementFilters
         $item = $args['record'];
         $elementId = $args['element']['id'];
         $filteredText = $this->filterElementTextBeforeSave($item, $elementId, $text);
-        return $filteredText;
+		return $filteredText;
     }
 
     public function filterElementTextBeforeSave($item, $elementId, $text)
@@ -160,6 +161,16 @@ class ElementFilters
             if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_SIMPLE_TEXT))
             {
                 $text = $this->filterSimpleText($text);
+            }
+			
+			if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_UPPER_CASE))
+            {
+                $text = strtoupper($text);
+            }
+			
+			if ($this->elementValidator->hasValidationDefinitionFor($elementId, ElementValidator::VALIDATION_TYPE_LOWER_CASE))
+            {
+                $text = strtolower($text);
             }
         }
 
@@ -240,26 +251,51 @@ class ElementFilters
 
     private function hideAddInputButton($elementId, $components)
     {
-        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements);
+        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements) || array_key_exists('all', $this->addInputElements);
 
         if (!$allowAddInputButton)
         {
+            // Remove the Add Input button for this element.
             $components['add_input'] = '';
 
         }
         return $components;
     }
 
+    private function hideCommentText($elementId, $components)
+    {
+        $hideCommentText = array_key_exists($elementId, $this->hideCommentElements) || array_key_exists('all', $this->hideCommentElements);
+
+        if ($hideCommentText)
+        {
+            // Remove the comment for this element.
+            $components['comment'] = '';
+        }
+        return $components;
+    }
+
+    private function hideDescriptionText($elementId, $components)
+    {
+        $hideDescriptionText = array_key_exists($elementId, $this->hideDescriptionElements) || array_key_exists('all', $this->hideDescriptionElements);
+
+        if ($hideDescriptionText)
+        {
+            // Remove the description for this element.
+            $components['description'] = '';
+        }
+        return $components;
+    }
+
     protected function hideUnusedFormControls($components, $elementId)
     {
-        $allowHtml = array_key_exists($elementId, $this->htmlElements);
+        $allowHtml = array_key_exists($elementId, $this->htmlElements) || array_key_exists('all', $this->htmlElements);
         if (!$allowHtml)
         {
             // Remove the HTML for the HTML checkbox for this element.
             $components['html_checkbox'] = '';
         }
 
-        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements);
+        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements) || array_key_exists('all', $this->addInputElements);
         if (!$allowAddInputButton)
         {
             // Remove the HTML for the red 'Remove' button that is emitted for every element. Note that that
