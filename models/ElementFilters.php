@@ -251,7 +251,7 @@ class ElementFilters
 
     private function hideAddInputButton($elementId, $components)
     {
-        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements) || array_key_exists('all', $this->addInputElements);
+        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements) || array_key_exists(0, $this->addInputElements);
 
         if (!$allowAddInputButton)
         {
@@ -264,7 +264,7 @@ class ElementFilters
 
     private function showCommentText($elementId, $components)
     {
-        $showCommentText = array_key_exists($elementId, $this->showCommentElements) || array_key_exists('all', $this->showCommentElements);
+        $showCommentText = array_key_exists($elementId, $this->showCommentElements) || array_key_exists(0, $this->showCommentElements);
 
         if (!$showCommentText)
         {
@@ -276,7 +276,7 @@ class ElementFilters
 
     private function showDescriptionText($elementId, $components)
     {
-        $showDescriptionText = array_key_exists($elementId, $this->showDescriptionElements) || array_key_exists('all', $this->showDescriptionElements);
+        $showDescriptionText = array_key_exists($elementId, $this->showDescriptionElements) || array_key_exists(0, $this->showDescriptionElements);
 
         if (!$showDescriptionText)
         {
@@ -288,14 +288,14 @@ class ElementFilters
 
     protected function hideUnusedFormControls($components, $elementId)
     {
-        $allowHtml = array_key_exists($elementId, $this->htmlElements) || array_key_exists('all', $this->htmlElements);
+        $allowHtml = array_key_exists($elementId, $this->htmlElements) || array_key_exists(0, $this->htmlElements);
         if (!$allowHtml)
         {
             // Remove the HTML for the HTML checkbox for this element.
             $components['html_checkbox'] = '';
         }
 
-        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements) || array_key_exists('all', $this->addInputElements);
+        $allowAddInputButton = array_key_exists($elementId, $this->addInputElements) || array_key_exists(0, $this->addInputElements);
         if (!$allowAddInputButton)
         {
             // Remove the HTML for the red 'Remove' button that is emitted for every element. Note that that

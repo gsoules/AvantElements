@@ -49,7 +49,7 @@ class ElementFields
         // See if this element is configured to be a text field.
         $convertToTextBox = array_key_exists($elementId, $this->textFields);
         $convertToCheckBox = array_key_exists($elementId, $this->checkboxFields);
-        $fieldIsReadonly = array_key_exists($elementId, $this->readonlyFields) || array_key_exists('all', $this->readonlyFields);
+        $fieldIsReadonly = array_key_exists($elementId, $this->readonlyFields) || array_key_exists(0, $this->readonlyFields);
         $vocabulary = AvantElements::getVocabularyTerms($elementId);
         $isSelect = !empty($vocabulary);
         $inputs = '';
