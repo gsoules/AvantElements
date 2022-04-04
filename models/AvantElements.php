@@ -41,20 +41,17 @@ class AvantElements
 
     public static function emitAdminCss()
     {
-        $hideAnyDescription = (get_option(ElementsConfig::OPTION_SHOW_DESCRIPTION) != '');
+        // Hide the explanation of the Dublin Core element set.
 
-        if ($hideAnyDescription)
-        {
-            echo PHP_EOL . '<style>' . PHP_EOL;
+        echo PHP_EOL . '<style>' . PHP_EOL;
 
-            // Hide large text that repeats what's already highlighted in the tab at the top of the form.
-            echo '#item-metadata h2 {display: none;}';
+        // Hide large text that repeats what's already highlighted in the tab at the top of the form.
+        echo '#item-metadata h2 {display: none;}';
 
-            // Hide the description of the element set (e.g. Dublin Core) that appears right under the tabs.
-            echo '#edit-form .element-set-description {display: none;}';
+        // Hide the description of the element set (e.g. Dublin Core) that appears right under the tabs.
+        echo '#edit-form .element-set-description {display: none;}';
 
-            echo '</style>' . PHP_EOL;
-        }
+        echo '</style>' . PHP_EOL;
     }
 
     public static function itemHasErrors($item)

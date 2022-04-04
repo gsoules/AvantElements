@@ -8,8 +8,8 @@ class ElementFilters
     protected $inputElements;
     protected $fields;
     protected $htmlElements;
-    protected $hideCommentElements;
-    protected $hideDescriptionElements;
+    protected $showCommentElements;
+    protected $showDescriptionElements;
 
     public function __construct(CustomCallback $customCallback, ElementValidator $elementValidator)
     {
@@ -20,8 +20,8 @@ class ElementFilters
         $this->inputElements = array();
         $this->fields = new ElementFields();
         $this->htmlElements = ElementsConfig::getOptionDataForHtml();
-        $this->hideCommentElements = ElementsConfig::getOptionDataForHideComment();
-        $this->hideDescriptionElements = ElementsConfig::getOptionDataForHideDescription();
+        $this->showCommentElements = ElementsConfig::getOptionDataForShowComment();
+        $this->showDescriptionElements = ElementsConfig::getOptionDataForShowDescription();
     }
 
     public function filterDisplayElements($elementsBySet)
@@ -62,8 +62,8 @@ class ElementFilters
         }
 
         $components = $this->hideAddInputButton($elementId, $components);
-        $components = $this->hideDescriptionText($elementId, $components);
-        $components = $this->hideCommentText($elementId, $components);
+        $components = $this->showDescriptionText($elementId, $components);
+        $components = $this->showCommentText($elementId, $components);
 
         return $components;
     }
@@ -262,11 +262,11 @@ class ElementFilters
         return $components;
     }
 
-    private function hideCommentText($elementId, $components)
+    private function showCommentText($elementId, $components)
     {
-        $hideCommentText = array_key_exists($elementId, $this->hideCommentElements) || array_key_exists('all', $this->hideCommentElements);
+        $showCommentText = array_key_exists($elementId, $this->showCommentElements) || array_key_exists('all', $this->showCommentElements);
 
-        if ($hideCommentText)
+        if (!$showCommentText)
         {
             // Remove the comment for this element.
             $components['comment'] = '';
@@ -274,11 +274,11 @@ class ElementFilters
         return $components;
     }
 
-    private function hideDescriptionText($elementId, $components)
+    private function showDescriptionText($elementId, $components)
     {
-        $hideDescriptionText = array_key_exists($elementId, $this->hideDescriptionElements) || array_key_exists('all', $this->hideDescriptionElements);
+        $showDescriptionText = array_key_exists($elementId, $this->showDescriptionElements) || array_key_exists('all', $this->showDescriptionElements);
 
-        if ($hideDescriptionText)
+        if (!$showDescriptionText)
         {
             // Remove the description for this element.
             $components['description'] = '';

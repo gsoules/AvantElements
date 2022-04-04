@@ -13,10 +13,10 @@ $externalLinkOptionRows = max(2, count(explode(PHP_EOL, $externalLinkOption)));
 $validationOption = ElementsConfig::getOptionTextForValidation();
 $validationOptionRows = max(2, count(explode(PHP_EOL, $validationOption)));
 
-$showCommentOption = ElementsConfig::getOptionTextForHideComment();
+$showCommentOption = ElementsConfig::getOptionTextForShowComment();
 $showCommentOptionRows = max(2, count(explode(PHP_EOL, $showCommentOption)));
 
-$showDescriptionOption = ElementsConfig::getOptionTextForHideDescription();
+$showDescriptionOption = ElementsConfig::getOptionTextForShowDescription();
 $showDescriptionOptionRows = max(2, count(explode(PHP_EOL, $showDescriptionOption)));
 
 $addInputOption = ElementsConfig::getOptionTextForAddInput();

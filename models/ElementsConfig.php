@@ -96,16 +96,6 @@ class ElementsConfig extends ConfigOptions
         return self::getOptionDefinitionData(self::OPTION_EXTERNAL_LINK);
     }
 
-    public static function getOptionDataForHideComment()
-    {
-        return self::getOptionListData(self::OPTION_SHOW_COMMENT, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
-    }
-
-    public static function getOptionDataForHideDescription()
-    {
-        return self::getOptionListData(self::OPTION_SHOW_DESCRIPTION, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
-    }
-
     public static function getOptionDataForHtml()
     {
         return self::getOptionListData(self::OPTION_HTML, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
@@ -124,6 +114,16 @@ class ElementsConfig extends ConfigOptions
     public static function getOptionDataForReadonlyField()
     {
         return self::getOptionListData(self::OPTION_READONLY_FIELD, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
+    }
+
+    public static function getOptionDataForShowComment()
+    {
+        return self::getOptionListData(self::OPTION_SHOW_COMMENT, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
+    }
+
+    public static function getOptionDataForShowDescription()
+    {
+        return self::getOptionListData(self::OPTION_SHOW_DESCRIPTION, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function getOptionDataForTextField()
@@ -268,16 +268,6 @@ class ElementsConfig extends ConfigOptions
         return $text;
     }
 
-    public static function getOptionTextForHideDescription()
-    {
-        return self::getOptionListText(self::OPTION_SHOW_DESCRIPTION);
-    }
-
-    public static function getOptionTextForHideComment()
-    {
-        return self::getOptionListText(self::OPTION_SHOW_COMMENT);
-    }
-
     public static function getOptionTextForHtml()
     {
         return self::getOptionListText(self::OPTION_HTML);
@@ -349,6 +339,16 @@ class ElementsConfig extends ConfigOptions
             }
         }
         return $text;
+    }
+
+    public static function getOptionTextForShowComment()
+    {
+        return self::getOptionListText(self::OPTION_SHOW_COMMENT);
+    }
+
+    public static function getOptionTextForShowDescription()
+    {
+        return self::getOptionListText(self::OPTION_SHOW_DESCRIPTION);
     }
 
     public static function getOptionTextForSuggest()
@@ -437,8 +437,8 @@ class ElementsConfig extends ConfigOptions
         self::saveOptionDataForDisplayOrder();
         self::saveOptionDataForExternalLink();
         self::saveOptionDataForImplicitLink();
-        self::saveOptionDataForHideComment();
-        self::saveOptionDataForHideDescription();
+        self::saveOptionDataForShowComment();
+        self::saveOptionDataForShowDescription();
         self::saveOptionDataForValidation();
         self::saveOptionDataForAddInput();
         self::saveOptionDataForHtml();
@@ -628,16 +628,6 @@ class ElementsConfig extends ConfigOptions
         set_option(self::OPTION_EXTERNAL_LINK, json_encode($data));
     }
 
-    public static function saveOptionDataForHideDescription()
-    {
-        self::saveOptionListData(self::OPTION_SHOW_DESCRIPTION, CONFIG_LABEL_SHOW_DESCRIPTION, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
-    }
-
-    public static function saveOptionDataForHideComment()
-    {
-        self::saveOptionListData(self::OPTION_SHOW_COMMENT, CONFIG_LABEL_SHOW_COMMENT, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
-    }
-
     public static function saveOptionDataForHtml()
     {
         self::saveOptionListData(self::OPTION_HTML, CONFIG_LABEL_HTML, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
@@ -718,6 +708,16 @@ class ElementsConfig extends ConfigOptions
         }
 
         set_option(self::OPTION_SELECT_FIELD, json_encode($data));
+    }
+
+    public static function saveOptionDataForShowComment()
+    {
+        self::saveOptionListData(self::OPTION_SHOW_COMMENT, CONFIG_LABEL_SHOW_COMMENT, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
+    }
+
+    public static function saveOptionDataForShowDescription()
+    {
+        self::saveOptionListData(self::OPTION_SHOW_DESCRIPTION, CONFIG_LABEL_SHOW_DESCRIPTION, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function saveOptionDataForSuggest()
