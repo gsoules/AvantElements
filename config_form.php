@@ -13,11 +13,11 @@ $externalLinkOptionRows = max(2, count(explode(PHP_EOL, $externalLinkOption)));
 $validationOption = ElementsConfig::getOptionTextForValidation();
 $validationOptionRows = max(2, count(explode(PHP_EOL, $validationOption)));
 
-$hideCommentOption = ElementsConfig::getOptionTextForHideComment();
-$hideCommentOptionRows = max(2, count(explode(PHP_EOL, $hideCommentOption)));
+$showCommentOption = ElementsConfig::getOptionTextForHideComment();
+$showCommentOptionRows = max(2, count(explode(PHP_EOL, $showCommentOption)));
 
-$hideDescriptionOption = ElementsConfig::getOptionTextForHideDescription();
-$hideDescriptionOptionRows = max(2, count(explode(PHP_EOL, $hideDescriptionOption)));
+$showDescriptionOption = ElementsConfig::getOptionTextForHideDescription();
+$showDescriptionOptionRows = max(2, count(explode(PHP_EOL, $showDescriptionOption)));
 
 $addInputOption = ElementsConfig::getOptionTextForAddInput();
 $addInputOptionRows = max(2, count(explode(PHP_EOL, $addInputOption)));
@@ -106,26 +106,6 @@ $callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
 </div>
 
 <h3>Admin Elements</h3>
-
-<div class="field">
-    <div class="two columns alpha">
-        <label><?php echo CONFIG_LABEL_HIDE_DESCRIPTION; ?></label>
-    </div>
-    <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Elements whose description must be hidden."); ?></p>
-        <?php echo $view->formTextarea(ElementsConfig::OPTION_HIDE_DESCRIPTION, $hideDescriptionOption, array('rows' => $hideDescriptionOptionRows)); ?>
-    </div>
-</div>
-
-<div class="field">
-    <div class="two columns alpha">
-        <label><?php echo CONFIG_LABEL_HIDE_COMMENT; ?></label>
-    </div>
-    <div class="inputs five columns omega">
-        <p class="explanation"><?php echo __("Elements whose comment must be hidden."); ?></p>
-        <?php echo $view->formTextarea(ElementsConfig::OPTION_HIDE_COMMENT, $hideCommentOption, array('rows' => $hideCommentOptionRows)); ?>
-    </div>
-</div>
 
 <div class="field">
     <div class="two columns alpha">
@@ -258,5 +238,25 @@ $callbackOptionRows = max(2, count(explode(PHP_EOL, $callbackOption)));
     <div class="inputs five columns omega">
         <p class="explanation"><?php echo __("Callback functions to be called for individual elements."); ?></p>
         <?php echo $view->formTextarea(ElementsConfig::OPTION_CALLBACK, $callbackOption, array('rows' => $callbackOptionRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_SHOW_DESCRIPTION; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Elements whose description should be shown."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_SHOW_DESCRIPTION, $showDescriptionOption, array('rows' => $showDescriptionOptionRows)); ?>
+    </div>
+</div>
+
+<div class="field">
+    <div class="two columns alpha">
+        <label><?php echo CONFIG_LABEL_SHOW_COMMENT; ?></label>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation"><?php echo __("Elements whose comment should be shown."); ?></p>
+        <?php echo $view->formTextarea(ElementsConfig::OPTION_SHOW_COMMENT, $showCommentOption, array('rows' => $showCommentOptionRows)); ?>
     </div>
 </div>

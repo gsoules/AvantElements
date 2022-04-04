@@ -7,13 +7,13 @@ define('CONFIG_LABEL_DEFAULT_VALUE', __('Default Value'));
 define('CONFIG_LABEL_DISPLAY_ORDER', __('Display Order'));
 define('CONFIG_LABEL_EXTERNAL_LINK', __('External Link'));
 define('CONFIG_LABEL_EXTERNAL_LINK_ICON', __('External Link Icon'));
-define('CONFIG_LABEL_HIDE_COMMENT', __('Hide Comment'));
-define('CONFIG_LABEL_HIDE_DESCRIPTION', __('Hide Description'));
 define('CONFIG_LABEL_HTML', __('Allow HTML'));
 define('CONFIG_LABEL_IMPLICIT_LINK', __('Implicit Link'));
 define('CONFIG_LABEL_PLACEHOLDER', __('Placeholder'));
 define('CONFIG_LABEL_READONLY_FIELD', __('Read-only Field'));
 define('CONFIG_LABEL_SELECT_FIELD', __('Vocabulary Field'));
+define('CONFIG_LABEL_SHOW_COMMENT', __('Show Comment'));
+define('CONFIG_LABEL_SHOW_DESCRIPTION', __('Show Description'));
 define('CONFIG_LABEL_SUGGEST', __('Suggest'));
 define('CONFIG_LABEL_TEXT_FIELD', __('Text Field'));
 define('CONFIG_LABEL_TEXTAREA_ROWS', __('Textarea Rows'));
@@ -29,13 +29,13 @@ class ElementsConfig extends ConfigOptions
     const OPTION_DISPLAY_ORDER = 'avantelements_display_order';
     const OPTION_EXTERNAL_LINK = 'avantelements_external_link';
     const OPTION_EXTERNAL_LINK_ICON = 'avantelements_external_link_icon';
-    const OPTION_HIDE_COMMENT = 'avantelements_hide_comment';
-    const OPTION_HIDE_DESCRIPTION = 'avantelements_hide_description';
     const OPTION_HTML = 'avantelements_allow_html';
     const OPTION_IMPLICIT_LINK = 'avantelements_implicit_link';
     const OPTION_PLACEHOLDER = 'avantelements_placeholder';
     const OPTION_READONLY_FIELD = 'avantelements_readonly_field';
     const OPTION_SELECT_FIELD = 'avantelements_select_field';
+    const OPTION_SHOW_COMMENT = 'avantelements_show_comment';
+    const OPTION_SHOW_DESCRIPTION = 'avantelements_show_description';
     const OPTION_SUGGEST = 'avantelements_suggest';
     const OPTION_TEXT_FIELD = 'avantelements_text_field';
     const OPTION_TEXTAREA_ROWS = 'avantelements_textarea_rows';
@@ -98,12 +98,12 @@ class ElementsConfig extends ConfigOptions
 
     public static function getOptionDataForHideComment()
     {
-        return self::getOptionListData(self::OPTION_HIDE_COMMENT, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
+        return self::getOptionListData(self::OPTION_SHOW_COMMENT, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function getOptionDataForHideDescription()
     {
-        return self::getOptionListData(self::OPTION_HIDE_DESCRIPTION, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
+        return self::getOptionListData(self::OPTION_SHOW_DESCRIPTION, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function getOptionDataForHtml()
@@ -270,12 +270,12 @@ class ElementsConfig extends ConfigOptions
 
     public static function getOptionTextForHideDescription()
     {
-        return self::getOptionListText(self::OPTION_HIDE_DESCRIPTION);
+        return self::getOptionListText(self::OPTION_SHOW_DESCRIPTION);
     }
 
     public static function getOptionTextForHideComment()
     {
-        return self::getOptionListText(self::OPTION_HIDE_COMMENT);
+        return self::getOptionListText(self::OPTION_SHOW_COMMENT);
     }
 
     public static function getOptionTextForHtml()
@@ -630,12 +630,12 @@ class ElementsConfig extends ConfigOptions
 
     public static function saveOptionDataForHideDescription()
     {
-        self::saveOptionListData(self::OPTION_HIDE_DESCRIPTION, CONFIG_LABEL_HIDE_DESCRIPTION, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
+        self::saveOptionListData(self::OPTION_SHOW_DESCRIPTION, CONFIG_LABEL_SHOW_DESCRIPTION, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function saveOptionDataForHideComment()
     {
-        self::saveOptionListData(self::OPTION_HIDE_COMMENT, CONFIG_LABEL_HIDE_COMMENT, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
+        self::saveOptionListData(self::OPTION_SHOW_COMMENT, CONFIG_LABEL_SHOW_COMMENT, self::OPTION_ACCEPT_ALLELEMENTS_VALUE);
     }
 
     public static function saveOptionDataForHtml()

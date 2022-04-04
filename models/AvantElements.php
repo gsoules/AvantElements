@@ -41,7 +41,7 @@ class AvantElements
 
     public static function emitAdminCss()
     {
-        $hideAnyDescription = (get_option(ElementsConfig::OPTION_HIDE_DESCRIPTION) != '');
+        $hideAnyDescription = (get_option(ElementsConfig::OPTION_SHOW_DESCRIPTION) != '');
 
         if ($hideAnyDescription)
         {
