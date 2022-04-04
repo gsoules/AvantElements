@@ -387,7 +387,10 @@ class ElementsConfig extends ConfigOptions
 	
     public static function getOptionTextForTextareaRows()
     {
-		return get_option(self::OPTION_TEXTAREA_ROWS);
+		$value = get_option(self::OPTION_TEXTAREA_ROWS);
+        if (!intval($value))
+            $value = 2;
+        return $value;
     }
 
     public static function getOptionTextForTitleSync()
@@ -757,6 +760,10 @@ class ElementsConfig extends ConfigOptions
 
     public static function saveOptionDataForTextareaRows()
     {
+        $value = self::getOptionText(self::OPTION_TEXTAREA_ROWS);
+        $value = trim($value);
+        self::errorIf(!intval($value), CONFIG_LABEL_TEXTAREA_ROWS, __("'%s' is not valid. A number >= 1 is required.", $value));
+
         self::saveOptionText(self::OPTION_TEXTAREA_ROWS, CONFIG_LABEL_TEXTAREA_ROWS);
     }
 

@@ -18,7 +18,7 @@ class ElementFields
         $this->selectFields = ElementsConfig::getOptionDataForSelectField();
         $this->textFields = ElementsConfig::getOptionDataForTextField();
         $this->placeholders = ElementsConfig::getOptionDataForPlaceholder();
-        $this->textareaRows = max(2, ElementsConfig::getOptionTextForTextareaRows());
+        $this->textareaRows = ElementsConfig::getOptionTextForTextareaRows();
     }
 
     public function createField(CustomCallback $customCallback, $item, $elementId, $cloning, $value, $inputName, $formControls, $htmlCheckbox)

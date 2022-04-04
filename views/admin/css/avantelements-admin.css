@@ -15,6 +15,10 @@
 }
 
 /* Input fields */
+#avantelements_textarea_rows {
+    width: 40px;
+}
+
 #avantelements_allow_add_input,
 #avantelements_display_order,
 #avantelements_allow_html,
