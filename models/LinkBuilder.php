@@ -21,7 +21,8 @@ class LinkBuilder
     public function emitExternalLink($text, $defaultLinkText, $openInNewTab)
     {
         $class = 'metadata-external-link';
-		if (get_option(ElementsConfig::OPTION_EXTERNAL_LINK_ICON)) $class .= ' external-link-icon';
+		if (get_option(ElementsConfig::OPTION_EXTERNAL_LINK_ICON))
+            $class .= ' external-link-icon';
 
         $parts = array_map('trim', explode(PHP_EOL, $text));
         if (count($parts) == 1)
@@ -34,6 +35,8 @@ class LinkBuilder
             $href = $parts[1];
             $linkText = $parts[0];
         }
+
+        $linkText = str_replace("<br />", "", $linkText);
 
         $prefix = strtolower($href);
         if (!(substr($prefix, 0, 7) == 'http://' || substr($prefix, 0, 8) == 'https://'))
