@@ -21,7 +21,8 @@ class LinkBuilder
     public function emitExternalLink($text, $defaultLinkText, $openInNewTab)
     {
         $class = 'metadata-external-link';
-		if (get_option(ElementsConfig::OPTION_EXTERNAL_LINK_ICON))
+		$showIcon = (boolean)get_option(ElementsConfig::OPTION_EXTERNAL_LINK_ICON);
+        if ($showIcon)
             $class .= ' external-link-icon';
 
         $parts = array_map('trim', explode(PHP_EOL, $text));
