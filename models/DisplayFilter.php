@@ -9,11 +9,16 @@ class DisplayFilter
         $this->customCallback = $customCallback;
         $this->initializeCheckboxFields($filters);
         $this->initializeFilterFields($filters);
+        $this->initializeItemFlag($filters);
     }
 
     public function displayField($filterName, $item, $elementId, $text)
     {
-        if (strpos($filterName, 'filterDisplayCheckbox') === 0)
+        if (strpos($filterName, 'filterDisplayFieldIdentifier') === 0)
+        {
+            $text = $this->displayFlagForItem($item, $text);
+        }
+        elseif (strpos($filterName, 'filterDisplayCheckbox') === 0)
         {
             $text = $this->displayFieldForCheckbox($elementId);
         }
@@ -35,6 +40,13 @@ class DisplayFilter
     {
         $filteredText = $this->customCallback->performCallbackForElement(CustomCallback::CALLBACK_ACTION_FILTER, $item, $elementId, $text);
         return $filteredText;
+    }
+
+    public function displayFlagForItem($item, $text)
+    {
+        $itemId = $item->id;
+        $flag = AvantCommon::emitFlagItemAsRecent($itemId, AvantCommon::getRecentlyViewedItemIds());
+        return $text . $flag;
     }
 
     public function initializeCheckboxFields(&$filters)
@@ -68,5 +80,12 @@ class DisplayFilter
                 }
             }
         }
+    }
+
+    public function initializeItemFlag(&$filters)
+    {
+        $elementName = ItemMetadata::getIdentifierElementName();
+        $elementSetName = ItemMetadata::getElementSetNameForElementName($elementName);
+        $filters['filterDisplayField' . $elementName] = array('Display', 'Item', $elementSetName, $elementName);
     }
 }
