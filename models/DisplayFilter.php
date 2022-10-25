@@ -47,7 +47,7 @@ class DisplayFilter
         $itemId = $item->id;
         $flag = AvantCommon::emitFlagItemAsRecent($itemId, AvantCommon::getRecentlyViewedItemIds());
 
-        if (plugin_is_active('AvantCustom'))
+        if (plugin_is_active('AvantS3'))
             $text = DigitalArchive::filterIdentifierS3($item, 0, $text);
 
         return $text . $flag;
