@@ -38,7 +38,7 @@ class ElementFields
             {
                 $value = $this->defaultValues[$elementId]['value'];
             }
-            if (strlen($value) == 0)
+            if ($value == null || strlen($value) == 0)
             {
                 // There is no configured default value. Check for a custom callback value.
                 // Note that a configured value takes precedence over a custom value.
