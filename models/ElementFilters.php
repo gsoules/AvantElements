@@ -138,12 +138,6 @@ class ElementFilters
 
     public function filterElementTextBeforeSave($item, $elementId, $text)
     {
-        if ($elementId == ItemMetadata::getElementIdForElementName('PDF'))
-        {
-            $searchPdf = new SearchPdf();
-            return $searchPdf->updatePdfElementAfterItemSaved($item);
-        }
-
         if (strlen($text) == 0)
         {
             // The string has no content. Note use of strlen() instead of empty()
