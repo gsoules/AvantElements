@@ -7,6 +7,9 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
     protected $elementFilters;
     protected $elementValidator;
     protected $linkBuilder;
+    protected $previousFilterItemId;
+    protected $previousFilterName = "";
+    protected $previousFilteredResult = "";
     protected $titleSync;
 
     protected $_hooks = array(
@@ -61,6 +64,15 @@ class AvantElementsPlugin extends Omeka_Plugin_AbstractPlugin
         {
             $result = $this->displayFilter->displayField($filterName, $item, $elementId, $text);
         }
+
+        // Special handling for the case where filters cause the two different original values for the same
+        // element of the same item to be displayed as the same filtered value. Return blank for the duplicate.
+        if ($item->id == $this->previousFilterItemId && $filterName == $this->previousFilterName && $result == $this->previousFilteredResult)
+            return "";
+        $this->previousFilterItemId = $item->id;
+        $this->previousFilterName = $filterName;
+        $this->previousFilteredResult = $result;
+
         return $result;
     }
 
