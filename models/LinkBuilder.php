@@ -59,7 +59,11 @@ class LinkBuilder
     {
         $results = ItemMetadata::getItemsWithElementValue($elementId, $text);
 
-        if (count($results) < 2)
+        $uniqueItemIds = array();
+        foreach ($results as $result)
+            $uniqueItemIds[$result['id']] = 1;
+
+        if (count($uniqueItemIds) < 2)
         {
             // Don't emit a link if no other items have this element's value.
             return $text;
