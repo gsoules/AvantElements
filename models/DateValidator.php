@@ -27,6 +27,10 @@ class DateValidator
         {
             $year = $matches[1];
         }
+        elseif (preg_match("/^(\d{4})-(\d{4})$/", $date, $matches))
+        {
+            $year = $matches[1];
+        }
         else
         {
             $formatOk = false;
